@@ -1,9 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 
-import { SiteHeader } from "@/components/layout/site-header";
-import { SiteFooter } from "@/components/layout/site-footer";
-import { Aankondigingsbalk } from "@/components/layout/aankondigingsbalk";
 import { BewegingProvider } from "@/components/motion/beweging-provider";
 import { Meldingen } from "@/components/layout/meldingen";
 import { bedrijf } from "@/lib/site";
@@ -89,11 +86,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Naar de hoofdinhoud
         </a>
 
+        {/*
+          De winkel en het beheerpaneel hebben elk hun eigen omlijsting, dus die
+          staan in aparte routegroepen. Hier blijft alleen wat overal geldt.
+        */}
         <BewegingProvider>
-          <Aankondigingsbalk />
-          <SiteHeader />
-          <main id="hoofdinhoud">{children}</main>
-          <SiteFooter />
+          {children}
           <Meldingen />
         </BewegingProvider>
       </body>

@@ -30,6 +30,28 @@
   --goud: #c79a3a;
   --koraal: #c4342b;
 
+  /*
+   * Grafiekkleuren voor het beheerpaneel.
+   *
+   * De salietint van het merk heeft te weinig chroma om reeksen uit elkaar te
+   * houden - in een grafiek leest hij als grijs. Deze twee zijn daarom apart
+   * gekozen en gecontroleerd op kleurenblindheid: onderlinge afstand 18,3 (CVD)
+   * en 24,8 (normaal zicht), beide ruim boven de norm, en allebei boven 3:1
+   * contrast met wit. Groen blijft dicht bij de huisstijl, paars is de veilige
+   * tegenhanger.
+   */
+  --viz-serie-1: #2e7d4f;
+  --viz-serie-2: #7a5cc4;
+  --viz-raster: #ece7e0;
+  --viz-as: #cfc7bc;
+  --viz-gedempt: #8a857e;
+
+  /* Statuskleuren staan los van de reeksen en gaan altijd samen met een tekstlabel. */
+  --status-goed: #0ca30c;
+  --status-waarschuwing: #fab219;
+  --status-ernstig: #ec835a;
+  --status-kritiek: #d03b3b;
+
   --radius: 0.875rem;
 
   --background: var(--creme);
@@ -112,6 +134,16 @@
   --color-inkt-zacht: var(--inkt-zacht);
   --color-goud: var(--goud);
   --color-koraal: var(--koraal);
+
+  --color-viz-serie-1: var(--viz-serie-1);
+  --color-viz-serie-2: var(--viz-serie-2);
+  --color-viz-raster: var(--viz-raster);
+  --color-viz-as: var(--viz-as);
+  --color-viz-gedempt: var(--viz-gedempt);
+  --color-status-goed: var(--status-goed);
+  --color-status-waarschuwing: var(--status-waarschuwing);
+  --color-status-ernstig: var(--status-ernstig);
+  --color-status-kritiek: var(--status-kritiek);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;

@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ArrowLeft, Home, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { SiteHeader } from "@/components/layout/site-header";
+import { SiteFooter } from "@/components/layout/site-footer";
 import { hoofdcategorieen } from "@/data/categorieen";
 
 export const metadata: Metadata = {
@@ -11,9 +13,15 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true },
 };
 
+/**
+ * De 404 hangt boven de routegroepen en krijgt de omlijsting van de winkel dus
+ * niet automatisch mee; die staat hier expliciet omheen.
+ */
 export default function NietGevonden() {
   return (
-    <section className="container-ukm flex min-h-[70vh] flex-col items-center justify-center py-20 text-center">
+    <>
+      <SiteHeader />
+      <section className="container-ukm flex min-h-[70vh] flex-col items-center justify-center py-20 text-center">
       <p className="font-display text-[6rem] leading-none font-extrabold text-salie-200 sm:text-[9rem]">404</p>
 
       <h1 className="mt-2 font-display text-3xl font-bold sm:text-4xl">Deze pagina konden we niet vinden</h1>
@@ -51,7 +59,9 @@ export default function NietGevonden() {
             <p className="mt-2 text-sm leading-relaxed text-inkt-zacht">{categorie.omschrijving}</p>
           </Link>
         ))}
-      </div>
-    </section>
+        </div>
+      </section>
+      <SiteFooter />
+    </>
   );
 }
