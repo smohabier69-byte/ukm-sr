@@ -63,3 +63,46 @@ export const hoofdcategorieen = [
 export function categorieOpSlug(slug: string): Categorie | undefined {
   return categorieen.find((c) => c.slug === slug);
 }
+
+/** Elke geldige categorie-URL, inclusief de twee overkoepelende ingangen. */
+export const alleCategorieSlugs = [
+  ...hoofdcategorieen.map((c) => c.slug),
+  ...categorieen.map((c) => c.slug),
+];
+
+export interface Categoriecontext {
+  slug: string;
+  naam: string;
+  omschrijving: string;
+  afbeelding: string;
+  soort: "bril" | "lens";
+  /** Overkoepelend, zoals "Brillen", of een losse collectie. */
+  isHoofdcategorie: boolean;
+}
+
+/** Zoekt de gegevens bij een categorie-URL op, ongeacht welk van de twee soorten het is. */
+export function categoriecontext(slug: string): Categoriecontext | undefined {
+  const hoofd = hoofdcategorieen.find((c) => c.slug === slug);
+  if (hoofd) {
+    return {
+      slug: hoofd.slug,
+      naam: hoofd.naam,
+      omschrijving: hoofd.omschrijving,
+      afbeelding: hoofd.afbeelding,
+      soort: hoofd.soort,
+      isHoofdcategorie: true,
+    };
+  }
+
+  const categorie = categorieOpSlug(slug);
+  if (!categorie) return undefined;
+
+  return {
+    slug: categorie.slug,
+    naam: categorie.naam,
+    omschrijving: categorie.omschrijving,
+    afbeelding: categorie.afbeelding,
+    soort: categorie.soort,
+    isHoofdcategorie: false,
+  };
+}

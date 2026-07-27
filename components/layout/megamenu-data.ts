@@ -75,10 +75,11 @@ export const megamenus: Megamenu[] = [
         titel: "Kleur",
         items: [
           { label: "Bruin", href: "/categorie/lenzen?kleur=bruin" },
+          { label: "Honing", href: "/categorie/lenzen?kleur=honing" },
           { label: "Grijs", href: "/categorie/lenzen?kleur=grijs" },
           { label: "Blauw", href: "/categorie/lenzen?kleur=blauw" },
           { label: "Groen", href: "/categorie/lenzen?kleur=groen" },
-          { label: "Roze", href: "/categorie/lenzen?kleur=roze" },
+          { label: "Roze en paars", href: "/categorie/lenzen?kleur=roze" },
           { label: "Zwart", href: "/categorie/lenzen?kleur=zwart" },
         ],
       },

@@ -130,7 +130,8 @@ function maakLens(invoer: LensInvoer): Product {
     varianten: [],
     sterktesoort: invoer.sterktesoort,
     sterktebereik: invoer.sterktebereik,
-    kleurfamilie: kleur.familie,
+    // De slug, niet het label: filters en URL's werken overal met kleine letters.
+    kleurfamilie: invoer.kleur,
     bron: `Lenzen prijslijst, pagina ${invoer.pagina}`,
     ...gedeeldeVelden(invoer.slug, invoer.labels),
   };

@@ -11,7 +11,10 @@ import { UkmLogo } from "@/components/merk/ukm-logo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { bedrijf } from "@/lib/site";
+import { formatPrijs } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { zoekInIndex } from "@/lib/zoeken";
+import type { Zoekindexitem } from "@/data/zoekindex";
 import { megamenus } from "./megamenu-data";
 
 const overigeLinks = [
@@ -53,10 +56,30 @@ export function SiteHeader() {
     }
   };
 
+  const [zoekterm, setZoekterm] = React.useState("");
+  const [zoekindex, setZoekindex] = React.useState<Zoekindexitem[]>([]);
+
+  /*
+   * De zoekindex wordt pas opgehaald als het zoekveld opengaat. Zo staat de
+   * catalogus niet in de bundel van elke pagina, maar zoekt hij daarna wel
+   * volledig in de browser - zonder verzoek per toetsaanslag.
+   */
+  React.useEffect(() => {
+    if (!zoekenOpen || zoekindex.length > 0) return;
+    let geannuleerd = false;
+    import("@/data/zoekindex").then((module) => {
+      if (!geannuleerd) setZoekindex(module.zoekindex);
+    });
+    return () => {
+      geannuleerd = true;
+    };
+  }, [zoekenOpen, zoekindex.length]);
+
+  const suggesties = React.useMemo(() => zoekInIndex(zoekindex, zoekterm), [zoekindex, zoekterm]);
+
   const zoek = (formulier: React.FormEvent<HTMLFormElement>) => {
     formulier.preventDefault();
-    const veld = new FormData(formulier.currentTarget).get("q");
-    const term = typeof veld === "string" ? veld.trim() : "";
+    const term = zoekterm.trim();
     if (term) router.push(`/zoeken?q=${encodeURIComponent(term)}`);
   };
 
@@ -158,20 +181,50 @@ export function SiteHeader() {
             transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
             className="overflow-hidden border-t border-border/60 glas"
           >
-            <form onSubmit={zoek} className="container-ukm flex items-center gap-3 py-4" role="search">
-              <Search className="size-5 shrink-0 text-inkt-zacht" />
-              <input
-                autoFocus
-                name="q"
-                type="search"
-                placeholder="Zoek op model, kleur of vorm - bijvoorbeeld cat eye of ash grey"
-                aria-label="Zoek in het assortiment"
-                className="h-10 w-full bg-transparent text-base outline-none placeholder:text-inkt-zacht/70"
-              />
-              <Button type="submit" size="sm">
-                Zoeken
-              </Button>
-            </form>
+            <div className="container-ukm py-4">
+              <form onSubmit={zoek} className="flex items-center gap-3" role="search">
+                <Search className="size-5 shrink-0 text-inkt-zacht" />
+                <input
+                  autoFocus
+                  name="q"
+                  type="search"
+                  value={zoekterm}
+                  onChange={(e) => setZoekterm(e.target.value)}
+                  placeholder="Zoek op model, kleur of vorm - bijvoorbeeld cat eye of ash grey"
+                  aria-label="Zoek in het assortiment"
+                  className="h-10 w-full bg-transparent text-base outline-none placeholder:text-inkt-zacht/70"
+                />
+                <Button type="submit" size="sm">
+                  Zoeken
+                </Button>
+              </form>
+
+              {suggesties.length > 0 ? (
+                <ul className="mt-3 grid gap-1 border-t border-border/60 pt-3 sm:grid-cols-2">
+                  {suggesties.map((suggestie) => (
+                    <li key={suggestie.slug}>
+                      <Link
+                        href={`/producten/${suggestie.slug}`}
+                        className="flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-salie-50"
+                      >
+                        <Image
+                          src={suggestie.afbeelding}
+                          alt=""
+                          width={44}
+                          height={44}
+                          className="size-11 shrink-0 rounded-lg bg-creme-diep object-cover object-top"
+                        />
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-medium">{suggestie.naam}</span>
+                          <span className="block text-xs text-inkt-zacht">{suggestie.categorie}</span>
+                        </span>
+                        <span className="shrink-0 text-sm font-medium">{formatPrijs(suggestie.prijs)}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
           </motion.div>
         ) : null}
       </AnimatePresence>
