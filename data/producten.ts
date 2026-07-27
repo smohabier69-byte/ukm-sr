@@ -162,11 +162,6 @@ export const bestsellers = [...producten]
   .sort((a, b) => b.populariteit - a.populariteit)
   .slice(0, 8);
 
-export const nieuweAanvoer = [...producten]
-  .filter(opVoorraad)
-  .sort((a, b) => b.toegevoegdOp.localeCompare(a.toegevoegdOp))
-  .slice(0, 8);
-
 export const aanbiedingen = producten.filter((p) => p.vanPrijs && p.vanPrijs > p.prijs);
 
 /**
@@ -185,15 +180,6 @@ export const uitgelicht = (() => {
   }
   return gekozen;
 })();
-
-/**
- * Aanbevolen voor jou. Zonder aanmelding is er geen geschiedenis, dus tonen we
- * goed beoordeelde artikelen uit de categorieen die het meest bekeken worden.
- */
-export const aanbevolen = [...producten]
-  .filter(opVoorraad)
-  .sort((a, b) => b.score - a.score || b.aantalBeoordelingen - a.aantalBeoordelingen)
-  .slice(0, 8);
 
 export const trending = [...producten]
   .filter(opVoorraad)

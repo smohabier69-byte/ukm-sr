@@ -5,12 +5,10 @@ import { Voordelen } from "@/components/home/voordelen";
 import { Promotie } from "@/components/home/promotie";
 import { CategorieenSectie } from "@/components/home/categorieen-sectie";
 import { PtcDemo } from "@/components/home/ptc-demo";
-import { MerkenSectie } from "@/components/home/merken-sectie";
 import { Productsectie } from "@/components/home/productsectie";
 import { Nieuwsbrief } from "@/components/home/nieuwsbrief";
-import { VideoShowcaseSectie } from "@/components/home/video-showcase-sectie";
 import { RecentBekeken } from "@/components/product/recent-bekeken";
-import { aanbevolen, bestsellers, nieuweAanvoer, uitgelicht } from "@/data/producten";
+import { uitgelicht } from "@/data/producten";
 import { bedrijf } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -44,6 +42,13 @@ const winkelSchema = {
   sameAs: [bedrijf.instagramUrl, bedrijf.facebookUrl],
 };
 
+/**
+ * De homepage is bewust een landingspagina, geen catalogus. Elke sectie doet
+ * hier iets dat een andere pagina niet ook al doet: brillen en lenzen
+ * bladeren, sorteren op nieuw of populair, en het volledige merkenoverzicht
+ * horen bij /producten, /categorie en /merken - bereikbaar via het
+ * "Categorieen"-menu, niet nogmaals hier.
+ */
 export default function Homepagina() {
   return (
     <>
@@ -51,49 +56,20 @@ export default function Homepagina() {
 
       <Hero />
       <Voordelen />
+      <CategorieenSectie />
+      <PtcDemo />
 
       <Productsectie
         bovenschrift="Uitgelicht"
         titel="Een doorsnede van de collectie"
         tekst="Uit elke vorm en techniek het model dat op dit moment het best loopt."
-        link={{ label: "Bekijk alles", href: "/producten" }}
+        link={{ label: "Bekijk het volledige assortiment", href: "/producten" }}
         producten={uitgelicht}
         prioriteit
       />
 
-      <CategorieenSectie />
-      <PtcDemo />
       <Promotie />
-
-      <Productsectie
-        bovenschrift="Meest verkocht"
-        titel="Bestsellers"
-        tekst="De modellen die het vaakst over de toonbank gaan aan de Rembrandtstraat."
-        link={{ label: "Alle bestsellers", href: "/producten?sorteer=populariteit" }}
-        producten={bestsellers}
-      />
-
-      <MerkenSectie />
-
-      <Productsectie
-        bovenschrift="Nieuw binnen"
-        titel="Net toegevoegd aan het assortiment"
-        tekst="De laatste aanvullingen op de collectie, uit beide prijslijsten."
-        link={{ label: "Alle nieuwe modellen", href: "/producten?sorteer=nieuwste" }}
-        producten={nieuweAanvoer}
-      />
-
       <RecentBekeken />
-
-      <Productsectie
-        bovenschrift="Aanbevolen"
-        titel="Het hoogst beoordeeld"
-        tekst="Op basis van de waarderingen die klanten aan deze modellen gaven."
-        producten={aanbevolen.slice(0, 4)}
-      />
-
-      <VideoShowcaseSectie />
-
       <Nieuwsbrief />
     </>
   );

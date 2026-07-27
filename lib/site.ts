@@ -38,15 +38,6 @@ export const bedrijf = {
   btwTarief: 0.1,
 } as const;
 
-export const hoofdnavigatie = [
-  { label: "Brillen", href: "/categorie/brillen" },
-  { label: "Lenzen", href: "/categorie/lenzen" },
-  { label: "Merken", href: "/merken" },
-  { label: "Aanbiedingen", href: "/aanbiedingen" },
-  { label: "Over ons", href: "/over-ons" },
-  { label: "Contact", href: "/contact" },
-] as const;
-
 export const footernavigatie = {
   winkelen: [
     { label: "Alle producten", href: "/producten" },
@@ -66,6 +57,7 @@ export const footernavigatie = {
   ],
   bedrijf: [
     { label: "Over ons", href: "/over-ons" },
+    { label: "Media", href: "/media" },
     { label: "Onze winkel", href: "/contact#winkel" },
     { label: "Privacybeleid", href: "/privacybeleid" },
     { label: "Algemene voorwaarden", href: "/algemene-voorwaarden" },

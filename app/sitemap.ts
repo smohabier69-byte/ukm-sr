@@ -3,6 +3,7 @@ import type { MetadataRoute } from "next";
 import { producten } from "@/data/producten";
 import { alleCategorieSlugs } from "@/data/categorieen";
 import { merken } from "@/data/merken";
+import { mediaItems } from "@/data/media";
 import { siteUrl } from "@/lib/site";
 
 /**
@@ -20,6 +21,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${siteUrl}/producten`, lastModified: nu, changeFrequency: "weekly", priority: 0.9 },
     { url: `${siteUrl}/aanbiedingen`, lastModified: nu, changeFrequency: "weekly", priority: 0.8 },
     { url: `${siteUrl}/merken`, lastModified: nu, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${siteUrl}/media`, lastModified: nu, changeFrequency: "weekly", priority: 0.6 },
     { url: `${siteUrl}/over-ons`, lastModified: nu, changeFrequency: "yearly", priority: 0.6 },
     { url: `${siteUrl}/contact`, lastModified: nu, changeFrequency: "yearly", priority: 0.7 },
     { url: `${siteUrl}/veelgestelde-vragen`, lastModified: nu, changeFrequency: "monthly", priority: 0.6 },
@@ -48,5 +50,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  return [...vast, ...categorieen, ...merkpaginas, ...productpaginas];
+  const mediapaginas: MetadataRoute.Sitemap = mediaItems.map((item) => ({
+    url: `${siteUrl}/media/${item.slug}`,
+    lastModified: new Date(item.gepubliceerdOp),
+    changeFrequency: "monthly",
+    priority: 0.5,
+  }));
+
+  return [...vast, ...categorieen, ...merkpaginas, ...productpaginas, ...mediapaginas];
 }
