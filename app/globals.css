@@ -1,0 +1,228 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * UKM.sr designsysteem
+ *
+ * De salie- en cremetinten zijn rechtstreeks bemonsterd uit het logo en de
+ * officiele prijslijsten: salie #A8B8A0, creme #FAF6F1, inkt #100F0D.
+ * Salie 300 is de merkkleur; donkerdere stappen bestaan zodat tekst en
+ * bedieningselementen op licht papier voldoende contrast houden.
+ */
+:root {
+  --salie-50: #f4f7f2;
+  --salie-100: #e8ede4;
+  --salie-200: #d3dccc;
+  --salie-300: #a8b8a0;
+  --salie-400: #8fa285;
+  --salie-500: #74896a;
+  --salie-600: #5c6e54;
+  --salie-700: #4a5844;
+  --salie-800: #3c4738;
+  --salie-900: #333c30;
+
+  --creme: #faf6f1;
+  --creme-diep: #f2ece4;
+  --inkt: #100f0d;
+  --inkt-zacht: #4a4845;
+  --goud: #c79a3a;
+  --koraal: #c4342b;
+
+  --radius: 0.875rem;
+
+  --background: var(--creme);
+  --foreground: var(--inkt);
+  --card: #ffffff;
+  --card-foreground: var(--inkt);
+  --popover: #ffffff;
+  --popover-foreground: var(--inkt);
+  --primary: var(--salie-700);
+  --primary-foreground: #ffffff;
+  --secondary: var(--salie-100);
+  --secondary-foreground: var(--salie-800);
+  --muted: var(--creme-diep);
+  --muted-foreground: var(--inkt-zacht);
+  --accent: var(--salie-100);
+  --accent-foreground: var(--salie-800);
+  --destructive: var(--koraal);
+  --destructive-foreground: #ffffff;
+  --border: #e5ded4;
+  --input: #e5ded4;
+  --ring: var(--salie-400);
+}
+
+.dark {
+  --background: #161815;
+  --foreground: #f2ece4;
+  --card: #1e211d;
+  --card-foreground: #f2ece4;
+  --popover: #1e211d;
+  --popover-foreground: #f2ece4;
+  --primary: var(--salie-300);
+  --primary-foreground: #161815;
+  --secondary: #2a2e28;
+  --secondary-foreground: #f2ece4;
+  --muted: #2a2e28;
+  --muted-foreground: #a8a49d;
+  --accent: #2a2e28;
+  --accent-foreground: #f2ece4;
+  --destructive: #e2574c;
+  --destructive-foreground: #161815;
+  --border: #33372f;
+  --input: #33372f;
+  --ring: var(--salie-400);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-salie-50: var(--salie-50);
+  --color-salie-100: var(--salie-100);
+  --color-salie-200: var(--salie-200);
+  --color-salie-300: var(--salie-300);
+  --color-salie-400: var(--salie-400);
+  --color-salie-500: var(--salie-500);
+  --color-salie-600: var(--salie-600);
+  --color-salie-700: var(--salie-700);
+  --color-salie-800: var(--salie-800);
+  --color-salie-900: var(--salie-900);
+  --color-creme: var(--creme);
+  --color-creme-diep: var(--creme-diep);
+  --color-inkt: var(--inkt);
+  --color-inkt-zacht: var(--inkt-zacht);
+  --color-goud: var(--goud);
+  --color-koraal: var(--koraal);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 12px);
+  --radius-3xl: calc(var(--radius) + 20px);
+
+  --shadow-zacht: 0 1px 2px rgb(16 15 13 / 0.04), 0 4px 16px -4px rgb(16 15 13 / 0.06);
+  --shadow-kaart: 0 2px 4px rgb(16 15 13 / 0.03), 0 12px 32px -8px rgb(16 15 13 / 0.1);
+  --shadow-zwevend: 0 4px 8px rgb(16 15 13 / 0.04), 0 24px 48px -12px rgb(16 15 13 / 0.16);
+
+  --ease-uit: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.022em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--salie-500);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--salie-200);
+    color: var(--salie-900);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility container-ukm {
+  width: 100%;
+  margin-inline: auto;
+  max-width: 90rem;
+  padding-inline: 1.25rem;
+
+  @media (width >= 48rem) {
+    padding-inline: 2rem;
+  }
+
+  @media (width >= 80rem) {
+    padding-inline: 3rem;
+  }
+}
+
+/* Melkglas-effect voor de vastgezette navigatiebalk. */
+@utility glas {
+  background-color: color-mix(in srgb, var(--creme) 72%, transparent);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+/* Legt een verloop over een productfoto zodat witte tekst leesbaar blijft. */
+@utility overlay-onder {
+  background-image: linear-gradient(to top, rgb(16 15 13 / 0.62), rgb(16 15 13 / 0.14) 45%, transparent 70%);
+}
+
+@utility marquee-spoor {
+  animation: marquee 42s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
