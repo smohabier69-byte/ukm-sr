@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Sterren } from "@/components/product/sterren";
+import { VerlanglijstKnop } from "@/components/product/verlanglijst-knop";
 import { formatKorting, formatPrijs } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/product";
@@ -28,6 +29,13 @@ export function Productkaart({
 
   return (
     <article className={cn("group relative flex flex-col", className)}>
+      {/* Buiten de link, zodat aanklikken niet naar de productpagina navigeert. */}
+      <VerlanglijstKnop
+        slug={product.slug}
+        naam={product.naam}
+        className="absolute top-3 right-3 z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100 focus-visible:opacity-100 max-lg:opacity-100"
+      />
+
       <Link href={`/producten/${product.slug}`} className="flex flex-1 flex-col">
         <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-creme-diep">
           <Image

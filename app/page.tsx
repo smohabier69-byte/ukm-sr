@@ -8,6 +8,7 @@ import { PtcDemo } from "@/components/home/ptc-demo";
 import { MerkenSectie } from "@/components/home/merken-sectie";
 import { Productsectie } from "@/components/home/productsectie";
 import { Nieuwsbrief } from "@/components/home/nieuwsbrief";
+import { RecentBekeken } from "@/components/product/recent-bekeken";
 import { aanbevolen, bestsellers, nieuweAanvoer, uitgelicht } from "@/data/producten";
 import { bedrijf } from "@/lib/site";
 
@@ -80,6 +81,8 @@ export default function Homepagina() {
         link={{ label: "Alle nieuwe modellen", href: "/producten?sorteer=nieuwste" }}
         producten={nieuweAanvoer}
       />
+
+      <RecentBekeken />
 
       <Productsectie
         bovenschrift="Aanbevolen"

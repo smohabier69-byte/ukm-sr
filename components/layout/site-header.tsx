@@ -14,6 +14,7 @@ import { bedrijf } from "@/lib/site";
 import { formatPrijs } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { zoekInIndex } from "@/lib/zoeken";
+import { useVerlanglijst, useWinkelHydratie, useWinkelwagenAantal } from "@/lib/winkel/stores";
 import type { Zoekindexitem } from "@/data/zoekindex";
 import { megamenus } from "./megamenu-data";
 
@@ -76,6 +77,14 @@ export function SiteHeader() {
   }, [zoekenOpen, zoekindex.length]);
 
   const suggesties = React.useMemo(() => zoekInIndex(zoekindex, zoekterm), [zoekindex, zoekterm]);
+
+  // De tellers blijven op nul tot de opgeslagen staat is ingelezen, zodat de
+  // eerste render op de client gelijk is aan de HTML van de server.
+  const gehydrateerd = useWinkelHydratie();
+  const wagenAantal = useWinkelwagenAantal();
+  const bewaardAantal = useVerlanglijst((staat) => staat.slugs.length);
+  const aantalInWagen = gehydrateerd ? wagenAantal : 0;
+  const aantalBewaard = gehydrateerd ? bewaardAantal : 0;
 
   const zoek = (formulier: React.FormEvent<HTMLFormElement>) => {
     formulier.preventDefault();
@@ -152,9 +161,10 @@ export function SiteHeader() {
             >
               <Search />
             </Button>
-            <Button variant="ghost" size="icon-sm" asChild aria-label="Verlanglijst">
-              <Link href="/verlanglijst">
+            <Button variant="ghost" size="icon-sm" asChild aria-label={`Verlanglijst, ${aantalBewaard} artikelen`}>
+              <Link href="/verlanglijst" className="relative">
                 <Heart />
+                <Teller aantal={aantalBewaard} />
               </Link>
             </Button>
             <Button variant="ghost" size="icon-sm" asChild aria-label="Mijn account" className="hidden sm:inline-flex">
@@ -162,9 +172,10 @@ export function SiteHeader() {
                 <User />
               </Link>
             </Button>
-            <Button variant="ghost" size="icon-sm" asChild aria-label="Winkelwagen">
-              <Link href="/winkelwagen">
+            <Button variant="ghost" size="icon-sm" asChild aria-label={`Winkelwagen, ${aantalInWagen} artikelen`}>
+              <Link href="/winkelwagen" className="relative">
                 <ShoppingBag />
+                <Teller aantal={aantalInWagen} />
               </Link>
             </Button>
           </div>
@@ -247,6 +258,23 @@ export function SiteHeader() {
         ) : null}
       </AnimatePresence>
     </header>
+  );
+}
+
+/** Klein telbolletje op de winkelwagen- en verlanglijstknop. */
+function Teller({ aantal }: { aantal: number }) {
+  if (aantal === 0) return null;
+
+  return (
+    <motion.span
+      key={aantal}
+      initial={{ scale: 0.6, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 480, damping: 22 }}
+      className="absolute -top-0.5 -right-0.5 flex min-w-4 items-center justify-center rounded-full bg-salie-700 px-1 text-[0.625rem] leading-4 font-semibold text-white tabular-nums"
+    >
+      {aantal > 9 ? "9+" : aantal}
+    </motion.span>
   );
 }
 

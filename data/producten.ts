@@ -223,6 +223,29 @@ export const prijsbereik = {
   max: Math.max(...producten.map((p) => p.prijs)),
 };
 
+/**
+ * Vaak samen gekocht. Bij een bril hoort in de praktijk vaak een set lenzen en
+ * andersom, dus de suggestie pakt bewust iets uit de andere productsoort plus
+ * een tweede model uit dezelfde categorie. De keuze is deterministisch, zodat
+ * het blok bij elk bezoek hetzelfde toont.
+ */
+export function vaakSamenGekocht(product: Product): Product[] {
+  const beschikbaar = producten.filter((p) => p.slug !== product.slug && p.voorraad > 0);
+  const andereSoort = beschikbaar
+    .filter((p) => p.soort !== product.soort)
+    .sort((a, b) => b.populariteit - a.populariteit);
+  const zelfdeCategorie = beschikbaar
+    .filter((p) => p.categorie === product.categorie)
+    .sort((a, b) => b.populariteit - a.populariteit);
+
+  const keuzes: Product[] = [];
+  const index = tussen(product.slug, "combinatie", 0, 3);
+  if (andereSoort.length) keuzes.push(andereSoort[index % andereSoort.length]);
+  if (zelfdeCategorie.length) keuzes.push(zelfdeCategorie[index % zelfdeCategorie.length]);
+
+  return keuzes.filter((p, i, lijst) => lijst.findIndex((q) => q.slug === p.slug) === i);
+}
+
 /** Gerelateerde artikelen: zelfde categorie, anders zelfde merk. */
 export function gerelateerdeProducten(product: Product, aantal = 4): Product[] {
   const zelfdeCategorie = producten.filter((p) => p.categorie === product.categorie && p.slug !== product.slug);

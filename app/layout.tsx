@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Aankondigingsbalk } from "@/components/layout/aankondigingsbalk";
 import { BewegingProvider } from "@/components/motion/beweging-provider";
+import { Meldingen } from "@/components/layout/meldingen";
 import { bedrijf } from "@/lib/site";
 import "./globals.css";
 
@@ -93,6 +94,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SiteHeader />
           <main id="hoofdinhoud">{children}</main>
           <SiteFooter />
+          <Meldingen />
         </BewegingProvider>
       </body>
     </html>
