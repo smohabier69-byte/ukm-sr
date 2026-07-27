@@ -1,10 +1,18 @@
 /**
+ * Het adres waarop de site draait. Zet NEXT_PUBLIC_SITE_URL na de eerste
+ * deploy op het echte domein, zodat canonieke links, de sitemap en de
+ * deelafbeeldingen naar de juiste plek wijzen.
+ */
+export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://ukm-sr.vercel.app").replace(/\/$/, "");
+
+/**
  * Centrale bedrijfsgegevens. Alles hier komt uit de officiele prijslijsten
  * (april 2026) en de Facebookpagina van UKM.sr.
  */
 export const bedrijf = {
   naam: "UKM.sr",
-  tagline: "Utsukushiku Kenkona Me",
+  /** Zoals in de prijslijst en op het logo gespeld, met macron op de o. */
+  tagline: "Utsukushiku Kenkōna Me",
   taglineVertaling: "Mooie, gezonde ogen",
   beschrijving:
     "Anti-blauwlicht brillen, photochrome PTC-brillen en kleurlenzen. Persoonlijk advies aan de Rembrandtstraat, bezorging door heel Paramaribo.",

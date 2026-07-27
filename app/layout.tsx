@@ -3,7 +3,7 @@ import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 
 import { BewegingProvider } from "@/components/motion/beweging-provider";
 import { Meldingen } from "@/components/layout/meldingen";
-import { bedrijf } from "@/lib/site";
+import { bedrijf, siteUrl } from "@/lib/site";
 import "./globals.css";
 
 const inter = Inter({
@@ -17,8 +17,6 @@ const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   display: "swap",
 });
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ukm-sr.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -48,16 +46,14 @@ export const metadata: Metadata = {
     siteName: bedrijf.naam,
     title: `${bedrijf.naam} | ${bedrijf.taglineVertaling}`,
     description: bedrijf.beschrijving,
-    images: [{ url: "/merk/ukm-logo.jpg", width: 720, height: 720, alt: `${bedrijf.naam} logo` }],
   },
   twitter: {
     card: "summary_large_image",
     title: `${bedrijf.naam} | ${bedrijf.taglineVertaling}`,
     description: bedrijf.beschrijving,
-    images: ["/merk/ukm-logo.jpg"],
   },
   robots: { index: true, follow: true },
-  icons: { icon: "/merk/ukm-logo.jpg", apple: "/merk/ukm-logo.jpg" },
+  // De deelafbeelding en het tabbladicoon komen uit opengraph-image.tsx en icon.tsx.
 };
 
 export const viewport: Viewport = {

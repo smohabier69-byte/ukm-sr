@@ -32,21 +32,43 @@ in op het uiteindelijke domein, zodat canonical-URL's en Open Graph-afbeeldingen
 
 Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · shadcn/ui · Framer Motion · Lucide
 
+## Paginas
+
+**Winkel** — Home · Alle producten · Categorie (7) · Merken en merkdetail · Aanbiedingen ·
+Productdetail (105) · Zoeken · Winkelwagen · Verlanglijst · Afrekenen · Mijn account ·
+Over ons · Contact · Veelgestelde vragen · Privacybeleid · Algemene voorwaarden · 404
+
+**Beheer** (`/beheer`) — Dashboard · Statistieken · Bestellingen en detail · Producten ·
+Voorraad · Klanten · Medewerkers · Categorieen · Merken · Kortingscodes · Rapporten · Instellingen
+
 ## Mappen
 
 ```
-app/            Routes, layout, globale stijlen
+app/
+  (winkel)/     De webwinkel, met eigen navigatie en voettekst
+  beheer/       Beheerpaneel, met eigen zijbalk
+  layout.tsx    Alleen wat overal geldt: lettertypen, providers, meldingen
+  sitemap.ts    Sitemap, robots.txt en de gegenereerde deelafbeelding
 components/
+  account/      Overzicht van wat lokaal is opgeslagen
+  beheer/       Beheerschermen en de eigen SVG-grafieken
+  catalogus/    Productraster, filters en paginakoppen
+  contact/      Contactformulier
   home/         Secties van de homepagina
   layout/       Header, megamenu, footer, aankondigingsbalk
   merk/         Logo en merkiconen
   motion/       Herbruikbare onthul-animaties
-  product/      Productkaart en waarderingssterren
+  product/      Galerij, koopblok, beoordelingen, productkaart
   ui/           shadcn/ui primitieven
+  winkel/       Winkelwagen, verlanglijst en afrekenen
 data/
+  beheer/       Gegenereerde demogegevens voor het beheerpaneel
   catalogus/    Ruwe invoertabellen per prijslijst
   producten.ts  Bouwt de producten op en levert de selecties
-lib/            Bedrijfsgegevens, opmaakhulpjes
+lib/
+  winkel/       Winkelwagen- en verlanglijststaat, prijsberekening
+  catalogus.ts  Filteren, sorteren en facetten
+  zoeken.ts     Zoeken met Nederlands-Engelse synoniemen
 scripts/        Extractie van de prijslijst-PDF's
 types/          Domeinmodellen
 ```
@@ -85,3 +107,23 @@ De tokens in `app/globals.css` zijn bemonsterd uit het logo en de prijslijsten:
 
 Salie 300 is te licht voor tekst op creme; daarom bestaat er een volledige schaal
 en gebruiken interactieve elementen een donkerdere stap.
+
+### Grafiekkleuren
+
+De salietint heeft te weinig chroma om reeksen uit elkaar te houden: in een grafiek
+leest hij als grijs. De twee reekskleuren zijn daarom apart gekozen en gecontroleerd
+op kleurenblindheid.
+
+| Rol | Waarde | Onderlinge afstand |
+| --- | --- | --- |
+| Reeks 1 | `#2e7d4f` | CVD 18,3 · normaal zicht 24,8 |
+| Reeks 2 | `#7a5cc4` | beide boven 3:1 contrast met wit |
+
+Grafieken met meer dan een reeks hebben altijd een legenda en een tabelweergave,
+zodat kleur nooit de enige drager van betekenis is.
+
+## Wat er niet in zit
+
+Er is geen achterkant. Bestellingen, betalingen, aanmelden en formulieren doen niets;
+elke plek waar dat opvalt zegt dat er ook bij. De winkelwagen, verlanglijst en
+recent bekeken artikelen staan in `localStorage`, niet op een server.
