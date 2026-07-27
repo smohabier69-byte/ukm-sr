@@ -7,16 +7,6 @@ import type { MediaItem } from "@/types/media";
  */
 export const mediaItems: MediaItem[] = [
   {
-    slug: "brillen-uitgeprobeerd",
-    soort: "video",
-    titel: "Brillen uitgeprobeerd bij UKM.sr",
-    samenvatting:
-      "Montuur-reveals met prijzen, de lenskleur-close-up en de kindercollectie - opgenomen in de winkel aan de Rembrandtstraat.",
-    omslag: "/media/showcase/producten-showcase-poster.jpg",
-    gepubliceerdOp: "2026-07-27",
-    videoBron: "/media/showcase/producten-showcase.mp4",
-  },
-  {
     slug: "montuur-try-on",
     soort: "video",
     titel: "Montuur try-on: van rimless tot cat eye",
