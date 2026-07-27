@@ -8,6 +8,7 @@ import { PtcDemo } from "@/components/home/ptc-demo";
 import { MerkenSectie } from "@/components/home/merken-sectie";
 import { Productsectie } from "@/components/home/productsectie";
 import { Nieuwsbrief } from "@/components/home/nieuwsbrief";
+import { VideoShowcaseSectie } from "@/components/home/video-showcase-sectie";
 import { RecentBekeken } from "@/components/product/recent-bekeken";
 import { aanbevolen, bestsellers, nieuweAanvoer, uitgelicht } from "@/data/producten";
 import { bedrijf } from "@/lib/site";
@@ -90,6 +91,8 @@ export default function Homepagina() {
         tekst="Op basis van de waarderingen die klanten aan deze modellen gaven."
         producten={aanbevolen.slice(0, 4)}
       />
+
+      <VideoShowcaseSectie />
 
       <Nieuwsbrief />
     </>
