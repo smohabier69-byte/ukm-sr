@@ -1,17 +1,11 @@
 /**
  * Navigatiestructuur van de winkel.
  *
- * Bewust smal gehouden: een dropdown voor de catalogus en daarnaast alleen
- * bestemmingen die geen productoverzicht zijn. Nieuwe categorieen horen hier
- * thuis, niet als extra item naast de dropdown.
+ * De catalogus (categorieen en huislijnen) komt rechtstreeks uit
+ * data/categorieen.ts en data/merken.ts voor het megamenu en de mobiele
+ * navigatie in site-header.tsx. Hier staat alleen wat geen productoverzicht
+ * is.
  */
-export const categorieenDropdown = [
-  { label: "Brillen", href: "/categorie/brillen" },
-  { label: "Lenzen", href: "/categorie/lenzen" },
-  { label: "Alle producten", href: "/producten" },
-  { label: "Merken", href: "/merken" },
-] as const;
-
 export const hoofdnavigatie = [
   { label: "Media", href: "/media" },
   { label: "Aanbiedingen", href: "/aanbiedingen" },

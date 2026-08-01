@@ -13,12 +13,35 @@ import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/s
 import { bedrijf } from "@/lib/site";
 import { formatPrijs } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { zoekInIndex } from "@/lib/zoeken";
+import { normaliseerTekst, zoekInIndex } from "@/lib/zoeken";
 import { useVerlanglijst, useWinkelHydratie, useWinkelwagenAantal } from "@/lib/winkel/stores";
 import type { Zoekindexitem } from "@/data/zoekindex";
-import { hoofdcategorieen, categorieOpSlug } from "@/data/categorieen";
+import { categorieen, hoofdcategorieen, categorieOpSlug } from "@/data/categorieen";
 import { merken } from "@/data/merken";
-import { categorieenDropdown, hoofdnavigatie } from "./navigatie-data";
+import { hoofdnavigatie } from "./navigatie-data";
+
+interface SuggestieDoel {
+  naam: string;
+  href: string;
+  zoektekst: string;
+}
+
+/**
+ * Categorieen en merken zijn al onderdeel van de headerbundel (voor het
+ * megamenu), dus deze suggestie-index kost geen extra ophaalverzoek zoals de
+ * productindex hieronder wel doet.
+ */
+const categorieSuggesties: SuggestieDoel[] = [...hoofdcategorieen, ...categorieen].map((c) => ({
+  naam: c.naam,
+  href: `/categorie/${c.slug}`,
+  zoektekst: normaliseerTekst(c.naam),
+}));
+
+const merkSuggesties: SuggestieDoel[] = merken.map((m) => ({
+  naam: m.naam,
+  href: `/merken/${m.slug}`,
+  zoektekst: normaliseerTekst(`${m.naam} ${m.positionering}`),
+}));
 
 export function SiteHeader() {
   const [gescrold, setGescrold] = React.useState(false);
@@ -72,7 +95,9 @@ export function SiteHeader() {
     };
   }, [zoekenOpen, zoekindex.length]);
 
-  const suggesties = React.useMemo(() => zoekInIndex(zoekindex, zoekterm), [zoekindex, zoekterm]);
+  const suggesties = React.useMemo(() => zoekInIndex(zoekindex, zoekterm, 5), [zoekindex, zoekterm]);
+  const categorieTreffers = React.useMemo(() => zoekInIndex(categorieSuggesties, zoekterm, 3), [zoekterm]);
+  const merkTreffers = React.useMemo(() => zoekInIndex(merkSuggesties, zoekterm, 3), [zoekterm]);
 
   // De tellers blijven op nul tot de opgeslagen staat is ingelezen, zodat de
   // eerste render op de client gelijk is aan de HTML van de server.
@@ -289,8 +314,29 @@ export function SiteHeader() {
                 </Button>
               </form>
 
+              {categorieTreffers.length > 0 || merkTreffers.length > 0 ? (
+                <div className="mt-3 flex flex-wrap gap-2 border-t border-border/60 pt-3">
+                  {[...categorieTreffers, ...merkTreffers].map((doel) => (
+                    <Link
+                      key={doel.href}
+                      href={doel.href}
+                      className="rounded-full border border-border bg-white px-3 py-1.5 text-xs font-medium text-inkt-zacht transition-colors hover:border-salie-300 hover:text-salie-700"
+                    >
+                      {doel.naam}
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
+
               {suggesties.length > 0 ? (
-                <ul className="mt-3 grid gap-1 border-t border-border/60 pt-3 sm:grid-cols-2">
+                <ul
+                  className={cn(
+                    "grid gap-1 sm:grid-cols-2",
+                    categorieTreffers.length > 0 || merkTreffers.length > 0
+                      ? "mt-3"
+                      : "mt-3 border-t border-border/60 pt-3",
+                  )}
+                >
                   {suggesties.map((suggestie) => (
                     <li key={suggestie.slug}>
                       <Link
@@ -347,14 +393,45 @@ function MobieleNavigatie() {
       </div>
 
       <nav className="flex-1 px-6 py-6" aria-label="Mobiele navigatie">
+        {hoofdcategorieen.map((hoofd) => (
+          <div key={hoofd.slug} className="mb-7">
+            <SheetClose asChild>
+              <Link href={`/categorie/${hoofd.slug}`} className="font-display text-xl font-semibold">
+                {hoofd.naam}
+              </Link>
+            </SheetClose>
+            <ul className="mt-3 space-y-2.5 border-l border-border pl-4">
+              {hoofd.subcategorieen.map((slug) => {
+                const sub = categorieOpSlug(slug);
+                if (!sub) return null;
+                return (
+                  <li key={slug}>
+                    <SheetClose asChild>
+                      <Link
+                        href={`/categorie/${slug}`}
+                        className="text-sm text-inkt-zacht transition-colors hover:text-salie-700"
+                      >
+                        {sub.naam}
+                      </Link>
+                    </SheetClose>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+
         <div className="mb-7">
-          <p className="font-display text-xl font-semibold">Categorieën</p>
+          <p className="font-display text-xl font-semibold">Huislijnen</p>
           <ul className="mt-3 space-y-2.5 border-l border-border pl-4">
-            {categorieenDropdown.map((item) => (
-              <li key={item.href}>
+            {merken.map((merk) => (
+              <li key={merk.slug}>
                 <SheetClose asChild>
-                  <Link href={item.href} className="text-sm text-inkt-zacht transition-colors hover:text-salie-700">
-                    {item.label}
+                  <Link
+                    href={`/merken/${merk.slug}`}
+                    className="text-sm text-inkt-zacht transition-colors hover:text-salie-700"
+                  >
+                    {merk.naam}
                   </Link>
                 </SheetClose>
               </li>
