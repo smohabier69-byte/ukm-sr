@@ -10,18 +10,20 @@ import { ChevronDown, Heart, Menu, Search, ShoppingBag, User } from "lucide-reac
 import { UkmLogo } from "@/components/merk/ukm-logo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { bedrijf } from "@/lib/site";
 import { formatPrijs } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { zoekInIndex } from "@/lib/zoeken";
 import { useVerlanglijst, useWinkelHydratie, useWinkelwagenAantal } from "@/lib/winkel/stores";
 import type { Zoekindexitem } from "@/data/zoekindex";
+import { hoofdcategorieen, categorieOpSlug } from "@/data/categorieen";
+import { merken } from "@/data/merken";
 import { categorieenDropdown, hoofdnavigatie } from "./navigatie-data";
 
 export function SiteHeader() {
   const [gescrold, setGescrold] = React.useState(false);
   const [zoekenOpen, setZoekenOpen] = React.useState(false);
+  const [megaOpen, setMegaOpen] = React.useState(false);
   const [mobielOpen, setMobielOpen] = React.useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -36,7 +38,20 @@ export function SiteHeader() {
   React.useEffect(() => {
     setMobielOpen(false);
     setZoekenOpen(false);
+    setMegaOpen(false);
   }, [pathname]);
+
+  React.useEffect(() => {
+    if (!megaOpen && !zoekenOpen) return;
+    const bijToets = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMegaOpen(false);
+        setZoekenOpen(false);
+      }
+    };
+    window.addEventListener("keydown", bijToets);
+    return () => window.removeEventListener("keydown", bijToets);
+  }, [megaOpen, zoekenOpen]);
 
   const [zoekterm, setZoekterm] = React.useState("");
   const [zoekindex, setZoekindex] = React.useState<Zoekindexitem[]>([]);
@@ -99,24 +114,22 @@ export function SiteHeader() {
           </Link>
 
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Hoofdnavigatie">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className="group flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium text-inkt transition-colors hover:text-salie-700 data-[state=open]:text-salie-700"
-                >
-                  Categorieën
-                  <ChevronDown className="size-3.5 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                {categorieenDropdown.map((item) => (
-                  <DropdownMenuItem key={item.href} asChild>
-                    <Link href={item.href}>{item.label}</Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <button
+              type="button"
+              aria-expanded={megaOpen}
+              aria-controls="megamenu-categorieen"
+              onClick={() => {
+                setMegaOpen((v) => !v);
+                setZoekenOpen(false);
+              }}
+              className={cn(
+                "group flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium text-inkt transition-colors hover:text-salie-700",
+                megaOpen && "text-salie-700",
+              )}
+            >
+              Categorieën
+              <ChevronDown className={cn("size-3.5 transition-transform duration-200", megaOpen && "rotate-180")} />
+            </button>
 
             {hoofdnavigatie.map((link) => (
               <Link
@@ -135,7 +148,10 @@ export function SiteHeader() {
               size="icon-sm"
               aria-label="Zoeken"
               aria-expanded={zoekenOpen}
-              onClick={() => setZoekenOpen((v) => !v)}
+              onClick={() => {
+                setZoekenOpen((v) => !v);
+                setMegaOpen(false);
+              }}
             >
               <Search />
             </Button>
@@ -159,6 +175,91 @@ export function SiteHeader() {
           </div>
         </div>
       </div>
+
+      {/* Megamenu */}
+      <AnimatePresence>
+        {megaOpen ? (
+          <motion.div
+            id="megamenu-categorieen"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+            className="overflow-hidden border-t border-border/60 glas"
+          >
+            <div className="container-ukm grid gap-8 py-8 lg:grid-cols-[1fr_1fr_1fr_1.1fr]">
+              {hoofdcategorieen.map((hoofd) => (
+                <div key={hoofd.slug}>
+                  <Link
+                    href={`/categorie/${hoofd.slug}`}
+                    className="font-display text-sm font-semibold text-inkt transition-colors hover:text-salie-700"
+                  >
+                    {hoofd.naam}
+                  </Link>
+                  <ul className="mt-3 space-y-2.5">
+                    {hoofd.subcategorieen.map((slug) => {
+                      const sub = categorieOpSlug(slug);
+                      if (!sub) return null;
+                      return (
+                        <li key={slug}>
+                          <Link
+                            href={`/categorie/${slug}`}
+                            className="text-sm text-inkt-zacht transition-colors hover:text-salie-700"
+                          >
+                            {sub.naam}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                    <li>
+                      <Link
+                        href={`/categorie/${hoofd.slug}`}
+                        className="text-sm font-medium text-salie-700 transition-colors hover:text-salie-800"
+                      >
+                        Alles bekijken →
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+              ))}
+
+              <div>
+                <p className="font-display text-sm font-semibold text-inkt">Huislijnen</p>
+                <ul className="mt-3 space-y-2.5">
+                  {merken.map((merk) => (
+                    <li key={merk.slug}>
+                      <Link
+                        href={`/merken/${merk.slug}`}
+                        className="text-sm text-inkt-zacht transition-colors hover:text-salie-700"
+                      >
+                        {merk.naam}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <Link
+                href="/categorie/ptc"
+                className="group relative hidden overflow-hidden rounded-2xl bg-creme-diep lg:block"
+              >
+                <Image
+                  src="/producten/brillen/brillen-p036-1.jpg"
+                  alt=""
+                  fill
+                  sizes="20vw"
+                  className="object-cover object-top transition-transform duration-700 ease-[var(--ease-uit)] group-hover:scale-105"
+                />
+                <div className="overlay-onder absolute inset-0 flex flex-col justify-end p-5">
+                  <p className="text-xs font-medium text-white/80">Uitgelicht</p>
+                  <p className="font-display text-base font-semibold text-white">PTC photochroom</p>
+                  <p className="mt-1 text-sm text-white/85">Helder binnen, donker in de zon.</p>
+                </div>
+              </Link>
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
 
       {/* Zoekbalk */}
       <AnimatePresence>
