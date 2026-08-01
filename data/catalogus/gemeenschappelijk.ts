@@ -3,7 +3,7 @@ import type { Montuurvorm, Specificatie, Techniek } from "@/types/product";
 /**
  * Deterministische pseudo-toevalsgetallen.
  *
- * Voorraad, waarderingen en populariteit zijn demowaarden. Ze worden uit de
+ * Voorraad en populariteit zijn demowaarden. Ze worden uit de
  * slug afgeleid in plaats van willekeurig getrokken, zodat server en client
  * exact dezelfde cijfers renderen en er geen hydratieverschil ontstaat.
  */
@@ -22,11 +22,6 @@ export function tussen(slug: string, veld: string, min: number, max: number): nu
 
 export function keuze<T>(slug: string, veld: string, opties: readonly T[]): T {
   return opties[zaad(`${slug}:${veld}`) % opties.length];
-}
-
-/** Waardering tussen 4.0 en 5.0, met een decimaal. */
-export function waardering(slug: string): number {
-  return Math.round((40 + (zaad(`${slug}:score`) % 11)) / 10 * 10) / 10;
 }
 
 /** Datum binnen de afgelopen achttien maanden, geteld vanaf de catalogusdatum. */

@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
-import { Sterren } from "@/components/product/sterren";
 import { VerlanglijstKnop } from "@/components/product/verlanglijst-knop";
 import { formatKorting, formatPrijs } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -85,9 +84,7 @@ export function Productkaart({
         </div>
 
         <div className="flex flex-1 flex-col pt-4">
-          <Sterren score={product.score} aantal={product.aantalBeoordelingen} compact />
-
-          <h3 className="mt-2 font-display text-[0.9375rem] leading-snug font-semibold text-inkt">
+          <h3 className="font-display text-[0.9375rem] leading-snug font-semibold text-inkt">
             {product.naam}
           </h3>
           <p className="mt-1 line-clamp-2 text-[0.8125rem] leading-relaxed text-inkt-zacht">

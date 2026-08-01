@@ -6,18 +6,15 @@ import { Check, MapPin, PackageCheck, Truck } from "lucide-react";
 import { Galerij } from "@/components/product/galerij";
 import { Koopblok } from "@/components/product/koopblok";
 import { Specificatietabel } from "@/components/product/specificatietabel";
-import { BeoordelingenSectie } from "@/components/product/beoordelingen-sectie";
 import { VaakSamenGekocht } from "@/components/product/vaak-samen-gekocht";
 import { RecentBekeken, RegistreerBezoek } from "@/components/product/recent-bekeken";
 import { Productkaart } from "@/components/product/productkaart";
-import { Sterren } from "@/components/product/sterren";
 import { Badge } from "@/components/ui/badge";
 import { Kruimelpad } from "@/components/ui/kruimelpad";
 import { Onthul } from "@/components/motion/onthul";
 import { gerelateerdeProducten, producten, productOpSlug, vaakSamenGekocht } from "@/data/producten";
 import { merkOpSlug } from "@/data/merken";
 import { categorieOpSlug } from "@/data/categorieen";
-import { beoordelingenVoor } from "@/data/beoordelingen";
 import { formatPrijs } from "@/lib/format";
 import { bedrijf } from "@/lib/site";
 
@@ -55,7 +52,6 @@ export default async function Productpagina({ params }: { params: Promise<{ slug
   const categorie = categorieOpSlug(product.categorie);
   const combinaties = vaakSamenGekocht(product);
   const gerelateerd = gerelateerdeProducten(product, 4);
-  const beoordelingen = beoordelingenVoor(product);
 
   const productSchema = {
     "@context": "https://schema.org",
@@ -65,20 +61,6 @@ export default async function Productpagina({ params }: { params: Promise<{ slug
     image: product.afbeeldingen,
     sku: product.id,
     brand: { "@type": "Brand", name: merk?.naam ?? bedrijf.naam },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: product.score,
-      reviewCount: product.aantalBeoordelingen,
-      bestRating: 5,
-    },
-    review: beoordelingen.slice(0, 3).map((b) => ({
-      "@type": "Review",
-      author: { "@type": "Person", name: b.naam },
-      datePublished: b.datum,
-      name: b.titel,
-      reviewBody: b.tekst,
-      reviewRating: { "@type": "Rating", ratingValue: b.score, bestRating: 5 },
-    })),
     offers: {
       "@type": "Offer",
       priceCurrency: "SRD",
@@ -133,11 +115,7 @@ export default async function Productpagina({ params }: { params: Promise<{ slug
             Uit de prijslijst als &ldquo;{product.catalogusnaam}&rdquo;
           </p>
 
-          <a href="#beoordelingen" className="mt-4 inline-flex">
-            <Sterren score={product.score} aantal={product.aantalBeoordelingen} />
-          </a>
-
-          <p className="mt-5 leading-relaxed text-inkt-zacht">{product.korteBeschrijving}</p>
+          <p className="mt-4 leading-relaxed text-inkt-zacht">{product.korteBeschrijving}</p>
 
           <div className="mt-8">
             <Koopblok product={product} />
@@ -194,11 +172,6 @@ export default async function Productpagina({ params }: { params: Promise<{ slug
           </div>
           <p className="mt-4 text-xs text-inkt-zacht">Bron: {product.bron}.</p>
         </Onthul>
-      </section>
-
-      <section id="beoordelingen" className="container-ukm scroll-mt-28 py-10 lg:py-14">
-        <h2 className="mb-10 font-display text-2xl font-bold sm:text-3xl">Beoordelingen</h2>
-        <BeoordelingenSectie product={product} />
       </section>
 
       {gerelateerd.length > 0 ? (

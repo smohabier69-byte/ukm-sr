@@ -7,7 +7,6 @@ export const sorteeropties = [
   { waarde: "prijs-op", label: "Prijs: laag naar hoog" },
   { waarde: "prijs-af", label: "Prijs: hoog naar laag" },
   { waarde: "populariteit", label: "Populariteit" },
-  { waarde: "waardering", label: "Best beoordeeld" },
   { waarde: "alfabetisch", label: "Naam: A tot Z" },
 ] as const;
 
@@ -161,17 +160,13 @@ function sorteer(producten: Product[], sleutel: Sorteersleutel): Product[] {
       return lijst.sort((a, b) => b.prijs - a.prijs);
     case "populariteit":
       return lijst.sort((a, b) => b.populariteit - a.populariteit);
-    case "waardering":
-      return lijst.sort((a, b) => b.score - a.score || b.aantalBeoordelingen - a.aantalBeoordelingen);
     case "alfabetisch":
       return lijst.sort((a, b) => a.naam.localeCompare(b.naam, "nl"));
     case "aanbevolen":
     default:
-      // Op voorraad eerst, daarna de mix van populariteit en waardering.
+      // Op voorraad eerst, daarna op populariteit.
       return lijst.sort(
-        (a, b) =>
-          Number(b.voorraad > 0) - Number(a.voorraad > 0) ||
-          b.populariteit * 0.7 + b.score * 6 - (a.populariteit * 0.7 + a.score * 6),
+        (a, b) => Number(b.voorraad > 0) - Number(a.voorraad > 0) || b.populariteit - a.populariteit,
       );
   }
 }

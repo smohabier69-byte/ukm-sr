@@ -39,16 +39,6 @@ export interface Specificatie {
   waarde: string;
 }
 
-export interface Beoordeling {
-  id: string;
-  naam: string;
-  score: number;
-  datum: string;
-  titel: string;
-  tekst: string;
-  geverifieerd: boolean;
-}
-
 export interface Product {
   id: string;
   slug: string;
@@ -68,8 +58,6 @@ export interface Product {
   specificaties: Specificatie[];
   varianten: Variant[];
   voorraad: number;
-  score: number;
-  aantalBeoordelingen: number;
   populariteit: number;
   toegevoegdOp: string;
   labels: string[];

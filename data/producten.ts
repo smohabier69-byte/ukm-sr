@@ -11,7 +11,6 @@ import {
   toegevoegdOp,
   tussen,
   vormprofielen,
-  waardering,
 } from "./catalogus/gemeenschappelijk";
 
 const PEILDATUM = new Date("2026-04-01T00:00:00Z");
@@ -40,8 +39,6 @@ function gedeeldeVelden(slug: string, labels: string[] = []) {
 
   return {
     voorraad,
-    score: waardering(slug),
-    aantalBeoordelingen: tussen(slug, "beoordelingen", 4, 186),
     populariteit: labels.includes("bestseller") ? Math.min(100, basisPopulariteit + 20) : basisPopulariteit,
     toegevoegdOp: datum,
     labels: afgeleid,
@@ -181,12 +178,20 @@ export const uitgelicht = (() => {
   return gekozen;
 })();
 
+/** Trending: nieuw binnen en toch al goed bezocht, in plaats van simpelweg de bestsellers. */
 export const trending = [...producten]
   .filter(opVoorraad)
-  .sort(
-    (a, b) =>
-      b.populariteit * 0.6 + b.aantalBeoordelingen * 0.4 - (a.populariteit * 0.6 + a.aantalBeoordelingen * 0.4),
-  )
+  .sort((a, b) => {
+    const gewichtB = b.populariteit + (b.labels.includes("nieuw") ? 20 : 0);
+    const gewichtA = a.populariteit + (a.labels.includes("nieuw") ? 20 : 0);
+    return gewichtB - gewichtA;
+  })
+  .slice(0, 8);
+
+export const nieuwBinnen = [...producten]
+  .filter(opVoorraad)
+  .filter((p) => p.labels.includes("nieuw"))
+  .sort((a, b) => b.toegevoegdOp.localeCompare(a.toegevoegdOp))
   .slice(0, 8);
 
 /** Aantal artikelen per categorie, voor de categoriekaarten. */
