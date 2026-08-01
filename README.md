@@ -38,20 +38,15 @@ Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · shadcn/u
 Productdetail (105) · Zoeken · Winkelwagen · Verlanglijst · Afrekenen · Mijn account ·
 Over ons · Contact · Veelgestelde vragen · Privacybeleid · Algemene voorwaarden · 404
 
-**Beheer** (`/beheer`) — Dashboard · Statistieken · Bestellingen en detail · Producten ·
-Voorraad · Klanten · Medewerkers · Categorieen · Merken · Kortingscodes · Rapporten · Instellingen
-
 ## Mappen
 
 ```
 app/
   (winkel)/     De webwinkel, met eigen navigatie en voettekst
-  beheer/       Beheerpaneel, met eigen zijbalk
   layout.tsx    Alleen wat overal geldt: lettertypen, providers, meldingen
   sitemap.ts    Sitemap, robots.txt en de gegenereerde deelafbeelding
 components/
   account/      Overzicht van wat lokaal is opgeslagen
-  beheer/       Beheerschermen en de eigen SVG-grafieken
   catalogus/    Productraster, filters en paginakoppen
   contact/      Contactformulier
   home/         Secties van de homepagina
@@ -62,7 +57,6 @@ components/
   ui/           shadcn/ui primitieven
   winkel/       Winkelwagen, verlanglijst en afrekenen
 data/
-  beheer/       Gegenereerde demogegevens voor het beheerpaneel
   catalogus/    Ruwe invoertabellen per prijslijst
   producten.ts  Bouwt de producten op en levert de selecties
 lib/
@@ -89,9 +83,11 @@ zodat prijzen bij een nieuwe uitgave eenvoudig na te lopen zijn.
 **Wat echt is:** productnamen, prijzen, sterktes, lensspecificaties, foto's, adres,
 telefoonnummer en openingstijden.
 
-**Wat demodata is:** voorraadaantallen, waarderingen, aantal beoordelingen en populariteit.
-Die worden deterministisch uit de productslug afgeleid, zodat server en client dezelfde
-cijfers tonen en er geen hydratieverschil ontstaat.
+**Wat demodata is:** voorraadaantallen en populariteit. Die worden deterministisch uit de
+productslug afgeleid, zodat server en client dezelfde cijfers tonen en er geen
+hydratieverschil ontstaat. Er zijn bewust geen productbeoordelingen: verzonnen sterren en
+recensies op een echte productiesite zijn misleidend voor klanten en een reëel SEO/juridisch
+risico via de structured data.
 
 ## Designsysteem
 

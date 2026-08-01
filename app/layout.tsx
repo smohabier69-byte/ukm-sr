@@ -83,8 +83,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
 
         {/*
-          De winkel en het beheerpaneel hebben elk hun eigen omlijsting, dus die
-          staan in aparte routegroepen. Hier blijft alleen wat overal geldt.
+          De winkel heeft haar eigen omlijsting in app/(winkel)/layout.tsx.
+          Hier blijft alleen wat overal geldt.
         */}
         <BewegingProvider>
           {children}

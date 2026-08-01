@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
       // Persoonlijke en afgeschermde delen horen niet in de zoekresultaten.
-      disallow: ["/beheer", "/beheer/", "/winkelwagen", "/afrekenen", "/verlanglijst", "/account", "/zoeken"],
+      disallow: ["/winkelwagen", "/afrekenen", "/verlanglijst", "/account", "/zoeken"],
     },
     sitemap: `${siteUrl}/sitemap.xml`,
     host: siteUrl,

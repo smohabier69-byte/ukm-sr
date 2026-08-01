@@ -9,9 +9,9 @@ import { siteUrl } from "@/lib/site";
 /**
  * Sitemap met alles wat een zoekmachine mag indexeren.
  *
- * De winkelwagen, het afrekenen, de verlanglijst, het account en het
- * beheerpaneel staan er bewust niet in: die pagina's zijn persoonlijk of
- * afgeschermd en hebben in de zoekresultaten niets te zoeken.
+ * De winkelwagen, het afrekenen, de verlanglijst en het account staan er
+ * bewust niet in: die pagina's zijn persoonlijk en hebben in de
+ * zoekresultaten niets te zoeken.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const nu = new Date();
