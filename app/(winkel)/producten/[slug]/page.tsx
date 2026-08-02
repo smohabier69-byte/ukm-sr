@@ -5,6 +5,7 @@ import { Check, MapPin, PackageCheck, Truck } from "lucide-react";
 
 import { Galerij } from "@/components/product/galerij";
 import { Koopblok } from "@/components/product/koopblok";
+import { StickyKoopbalk } from "@/components/product/sticky-koopbalk";
 import { Specificatietabel } from "@/components/product/specificatietabel";
 import { VaakSamenGekocht } from "@/components/product/vaak-samen-gekocht";
 import { RecentBekeken, RegistreerBezoek } from "@/components/product/recent-bekeken";
@@ -117,7 +118,7 @@ export default async function Productpagina({ params }: { params: Promise<{ slug
 
           <p className="mt-4 leading-relaxed text-inkt-zacht">{product.korteBeschrijving}</p>
 
-          <div className="mt-8">
+          <div id="koopblok" className="mt-8 scroll-mt-28">
             <Koopblok product={product} />
           </div>
 
@@ -186,6 +187,7 @@ export default async function Productpagina({ params }: { params: Promise<{ slug
       ) : null}
 
       <RecentBekeken huidigeSlug={product.slug} />
+      <StickyKoopbalk product={product} />
     </>
   );
 }
