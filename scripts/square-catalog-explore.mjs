@@ -71,7 +71,11 @@ async function main() {
 
   fs.writeFileSync(
     OUT_FILE,
-    JSON.stringify({ opgehaaldOp: new Date().toISOString(), objecten, voorraad }, null, 2),
+    JSON.stringify(
+      { opgehaaldOp: new Date().toISOString(), objecten, voorraad },
+      (_key, value) => (typeof value === "bigint" ? value.toString() : value),
+      2,
+    ),
   );
   console.log(`Weggeschreven naar ${path.relative(ROOT, OUT_FILE)}`);
   console.log(

@@ -1,0 +1,893 @@
+{
+  "opgehaaldOp": "2026-08-02T00:53:49.382Z",
+  "objecten": [
+    {
+      "type": "ITEM",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "itemData": {
+        "name": "PTC Small Square",
+        "description": "Klein en hoekig, in drie metaalkleuren.",
+        "isTaxable": true,
+        "variations": [
+          {
+            "type": "ITEM_VARIATION",
+            "created_at": "2026-08-02T00:52:06.476Z",
+            "itemVariationData": {
+              "itemId": "7SDWDBJ6HLARTJWC5YIY3PKX",
+              "name": "Zwart",
+              "sku": "bril-ptc-small-square-zwart",
+              "ordinal": 0,
+              "pricingType": "FIXED_PRICING",
+              "priceMoney": {
+                "amount": "79500",
+                "currency": "USD"
+              },
+              "itemOptionValues": [
+                {
+                  "itemOptionId": "HVVR6B5IGZQZJRMR6YVS364L",
+                  "itemOptionValueId": "LWMIVKI7EIOWABGTVKU4IQMH"
+                }
+              ],
+              "sellable": true,
+              "stockable": true
+            },
+            "id": "BVFPI3DC4YG4VAAXLBB72FCU",
+            "updatedAt": "2026-08-02T00:52:06.476Z",
+            "version": "1785631926476",
+            "isDeleted": false,
+            "presentAtAllLocations": true
+          },
+          {
+            "type": "ITEM_VARIATION",
+            "created_at": "2026-08-02T00:52:06.476Z",
+            "itemVariationData": {
+              "itemId": "7SDWDBJ6HLARTJWC5YIY3PKX",
+              "name": "Rose gold",
+              "sku": "bril-ptc-small-square-rosegoud",
+              "ordinal": 1,
+              "pricingType": "FIXED_PRICING",
+              "priceMoney": {
+                "amount": "79500",
+                "currency": "USD"
+              },
+              "itemOptionValues": [
+                {
+                  "itemOptionId": "HVVR6B5IGZQZJRMR6YVS364L",
+                  "itemOptionValueId": "6EGVPMOLGL5CM4AIBSALAHYO"
+                }
+              ],
+              "sellable": true,
+              "stockable": true
+            },
+            "id": "TYNF7QJCZM6SX7BIGHBBYYN6",
+            "updatedAt": "2026-08-02T00:52:06.476Z",
+            "version": "1785631926476",
+            "isDeleted": false,
+            "presentAtAllLocations": true
+          },
+          {
+            "type": "ITEM_VARIATION",
+            "created_at": "2026-08-02T00:52:06.476Z",
+            "itemVariationData": {
+              "itemId": "7SDWDBJ6HLARTJWC5YIY3PKX",
+              "name": "Zilver",
+              "sku": "bril-ptc-small-square-zilver",
+              "ordinal": 2,
+              "pricingType": "FIXED_PRICING",
+              "priceMoney": {
+                "amount": "79500",
+                "currency": "USD"
+              },
+              "itemOptionValues": [
+                {
+                  "itemOptionId": "HVVR6B5IGZQZJRMR6YVS364L",
+                  "itemOptionValueId": "EQUP53ZI26BVPVJ5JEEFVNOK"
+                }
+              ],
+              "sellable": true,
+              "stockable": true
+            },
+            "id": "RQTL6G6B643O6ZRLZ57ARQGG",
+            "updatedAt": "2026-08-02T00:52:06.476Z",
+            "version": "1785631926476",
+            "isDeleted": false,
+            "presentAtAllLocations": true
+          }
+        ],
+        "productType": "REGULAR",
+        "itemOptions": [
+          {
+            "itemOptionId": "HVVR6B5IGZQZJRMR6YVS364L"
+          }
+        ],
+        "categories": [
+          {
+            "id": "7Y7STNAGOSPGAYGXEJUJSXBW",
+            "ordinal": "-2251799796908032"
+          }
+        ],
+        "descriptionHtml": "<p>Klein en hoekig, in drie metaalkleuren.</p>",
+        "descriptionPlaintext": "Klein en hoekig, in drie metaalkleuren.",
+        "isArchived": false
+      },
+      "id": "7SDWDBJ6HLARTJWC5YIY3PKX",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true
+    },
+    {
+      "type": "ITEM",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "itemData": {
+        "name": "PTC Glossy Cat Eye",
+        "description": "Hoogglans afwerking die het photochrome effect extra laat opvallen.",
+        "isTaxable": true,
+        "variations": [
+          {
+            "type": "ITEM_VARIATION",
+            "created_at": "2026-08-02T00:52:06.476Z",
+            "itemVariationData": {
+              "itemId": "RXDNCTJNCFZBIM7FDIN6OC4Y",
+              "name": "Standaard",
+              "sku": "bril-ptc-glossy-cat-eye",
+              "ordinal": 0,
+              "pricingType": "FIXED_PRICING",
+              "priceMoney": {
+                "amount": "69500",
+                "currency": "USD"
+              },
+              "sellable": true,
+              "stockable": true
+            },
+            "id": "X2CIWOQADXDZHUVU64I4NTMC",
+            "updatedAt": "2026-08-02T00:52:06.476Z",
+            "version": "1785631926476",
+            "isDeleted": false,
+            "presentAtAllLocations": true
+          }
+        ],
+        "productType": "REGULAR",
+        "categories": [
+          {
+            "id": "7Y7STNAGOSPGAYGXEJUJSXBW",
+            "ordinal": "-2251799780130816"
+          }
+        ],
+        "descriptionHtml": "<p>Hoogglans afwerking die het photochrome effect extra laat opvallen.</p>",
+        "descriptionPlaintext": "Hoogglans afwerking die het photochrome effect extra laat opvallen.",
+        "isArchived": false
+      },
+      "id": "RXDNCTJNCFZBIM7FDIN6OC4Y",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true
+    },
+    {
+      "type": "ITEM",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "itemData": {
+        "name": "Kids Blue Light Glasses",
+        "description": "Onze lichtste kinderbril, gemaakt voor huiswerk en schermtijd.",
+        "isTaxable": true,
+        "variations": [
+          {
+            "type": "ITEM_VARIATION",
+            "created_at": "2026-08-02T00:52:06.476Z",
+            "itemVariationData": {
+              "itemId": "MWS47EQE7D4VJPLVPSNWSWEH",
+              "name": "Standaard",
+              "sku": "bril-kids-blue-light-glasses",
+              "ordinal": 0,
+              "pricingType": "FIXED_PRICING",
+              "priceMoney": {
+                "amount": "25000",
+                "currency": "USD"
+              },
+              "sellable": true,
+              "stockable": true
+            },
+            "id": "AGNOUNWHINWEWMFVBFYGBVTU",
+            "updatedAt": "2026-08-02T00:52:06.476Z",
+            "version": "1785631926476",
+            "isDeleted": false,
+            "presentAtAllLocations": true
+          }
+        ],
+        "productType": "REGULAR",
+        "categories": [
+          {
+            "id": "U7MJXEDIS6EN4VXPO7BQLCU3",
+            "ordinal": "-2251799796908032"
+          }
+        ],
+        "descriptionHtml": "<p>Onze lichtste kinderbril, gemaakt voor huiswerk en schermtijd.</p>",
+        "descriptionPlaintext": "Onze lichtste kinderbril, gemaakt voor huiswerk en schermtijd.",
+        "isArchived": false
+      },
+      "id": "MWS47EQE7D4VJPLVPSNWSWEH",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true
+    },
+    {
+      "type": "ITEM",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "itemData": {
+        "name": "Transparent Brown",
+        "description": "Doorschijnend bruin dat de eigen oogkleur laat meespelen.",
+        "isTaxable": true,
+        "variations": [
+          {
+            "type": "ITEM_VARIATION",
+            "created_at": "2026-08-02T00:52:06.476Z",
+            "itemVariationData": {
+              "itemId": "OFWLGNJDHXFPPZKTCCOQQT3Q",
+              "name": "Standaard",
+              "sku": "lens-transparent-brown-met-sterkte",
+              "ordinal": 0,
+              "pricingType": "FIXED_PRICING",
+              "priceMoney": {
+                "amount": "65000",
+                "currency": "USD"
+              },
+              "sellable": true,
+              "stockable": true
+            },
+            "id": "E45POEJZENED3S6SWYOTTRUX",
+            "updatedAt": "2026-08-02T00:52:06.476Z",
+            "version": "1785631926476",
+            "isDeleted": false,
+            "presentAtAllLocations": true
+          }
+        ],
+        "productType": "REGULAR",
+        "categories": [
+          {
+            "id": "JR5Q3QLZROXAGJXXMEH6YCRB",
+            "ordinal": "-2251799796908032"
+          }
+        ],
+        "descriptionHtml": "<p>Doorschijnend bruin dat de eigen oogkleur laat meespelen.</p>",
+        "descriptionPlaintext": "Doorschijnend bruin dat de eigen oogkleur laat meespelen.",
+        "isArchived": false
+      },
+      "id": "OFWLGNJDHXFPPZKTCCOQQT3Q",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true
+    },
+    {
+      "type": "ITEM",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "itemData": {
+        "name": "Honey Glow",
+        "description": "Onze breedste sterktereeks, tot en met -8.00.",
+        "isTaxable": true,
+        "variations": [
+          {
+            "type": "ITEM_VARIATION",
+            "created_at": "2026-08-02T00:52:06.476Z",
+            "itemVariationData": {
+              "itemId": "JHP4V6W7GGR2GIFUWLMD7HAO",
+              "name": "Standaard",
+              "sku": "lens-honey-glow-met-sterkte",
+              "ordinal": 0,
+              "pricingType": "FIXED_PRICING",
+              "priceMoney": {
+                "amount": "65000",
+                "currency": "USD"
+              },
+              "sellable": true,
+              "stockable": true
+            },
+            "id": "M7AG2I3ADZVIHTFYHFLA2GGT",
+            "updatedAt": "2026-08-02T00:52:06.476Z",
+            "version": "1785631926476",
+            "isDeleted": false,
+            "presentAtAllLocations": true
+          }
+        ],
+        "productType": "REGULAR",
+        "categories": [
+          {
+            "id": "JR5Q3QLZROXAGJXXMEH6YCRB",
+            "ordinal": "-2251799780130816"
+          }
+        ],
+        "descriptionHtml": "<p>Onze breedste sterktereeks, tot en met -8.00.</p>",
+        "descriptionPlaintext": "Onze breedste sterktereeks, tot en met -8.00.",
+        "isArchived": false
+      },
+      "id": "JHP4V6W7GGR2GIFUWLMD7HAO",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true
+    },
+    {
+      "type": "ITEM",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "itemData": {
+        "name": "Earth Blend",
+        "description": "Aardetinten die in elkaar overlopen, heel natuurlijk.",
+        "isTaxable": true,
+        "variations": [
+          {
+            "type": "ITEM_VARIATION",
+            "created_at": "2026-08-02T00:52:06.476Z",
+            "itemVariationData": {
+              "itemId": "FI3B2ZUHC4S4DGPKEKJ4VRAD",
+              "name": "Standaard",
+              "sku": "lens-earth-blend",
+              "ordinal": 0,
+              "pricingType": "FIXED_PRICING",
+              "priceMoney": {
+                "amount": "55000",
+                "currency": "USD"
+              },
+              "sellable": true,
+              "stockable": true
+            },
+            "id": "SOBUG3WKG4XGDBC3ZR6QUXX3",
+            "updatedAt": "2026-08-02T00:52:06.476Z",
+            "version": "1785631926476",
+            "isDeleted": false,
+            "presentAtAllLocations": true
+          }
+        ],
+        "productType": "REGULAR",
+        "categories": [
+          {
+            "id": "5H2UBKU7XULYRUR3TZ3VFLPJ",
+            "ordinal": "-2251799796908032"
+          }
+        ],
+        "descriptionHtml": "<p>Aardetinten die in elkaar overlopen, heel natuurlijk.</p>",
+        "descriptionPlaintext": "Aardetinten die in elkaar overlopen, heel natuurlijk.",
+        "isArchived": false
+      },
+      "id": "FI3B2ZUHC4S4DGPKEKJ4VRAD",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true
+    },
+    {
+      "type": "ITEM",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "itemData": {
+        "name": "Honey Glow",
+        "description": "Onze bekendste honingtint, ook zonder sterkte.",
+        "isTaxable": true,
+        "variations": [
+          {
+            "type": "ITEM_VARIATION",
+            "created_at": "2026-08-02T00:52:06.476Z",
+            "itemVariationData": {
+              "itemId": "DWXDZ2A2VZXH6NATTD33S7IX",
+              "name": "Standaard",
+              "sku": "lens-honey-glow",
+              "ordinal": 0,
+              "pricingType": "FIXED_PRICING",
+              "priceMoney": {
+                "amount": "55000",
+                "currency": "USD"
+              },
+              "sellable": true,
+              "stockable": true
+            },
+            "id": "XJQ67DTMHPZYDDANZ5IZ4HUC",
+            "updatedAt": "2026-08-02T00:52:06.476Z",
+            "version": "1785631926476",
+            "isDeleted": false,
+            "presentAtAllLocations": true
+          }
+        ],
+        "productType": "REGULAR",
+        "categories": [
+          {
+            "id": "5H2UBKU7XULYRUR3TZ3VFLPJ",
+            "ordinal": "-2251799780130816"
+          }
+        ],
+        "descriptionHtml": "<p>Onze bekendste honingtint, ook zonder sterkte.</p>",
+        "descriptionPlaintext": "Onze bekendste honingtint, ook zonder sterkte.",
+        "isArchived": false
+      },
+      "id": "DWXDZ2A2VZXH6NATTD33S7IX",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true
+    },
+    {
+      "type": "CATEGORY",
+      "id": "7ME7KDEV7RH22Y4XMRYSRTOT",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true,
+      "categoryData": {
+        "name": "Brillen",
+        "categoryType": "REGULAR_CATEGORY",
+        "parentCategory": {
+          "ordinal": "-2251799796908032"
+        },
+        "isTopLevel": true,
+        "onlineVisibility": true
+      }
+    },
+    {
+      "type": "CATEGORY",
+      "id": "RVSKTLZSSB3VQIYNRGN6FFJQ",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true,
+      "categoryData": {
+        "name": "Lenzen",
+        "categoryType": "REGULAR_CATEGORY",
+        "parentCategory": {
+          "ordinal": "-2251799780130816"
+        },
+        "isTopLevel": true,
+        "onlineVisibility": true
+      }
+    },
+    {
+      "type": "CATEGORY",
+      "id": "7Y7STNAGOSPGAYGXEJUJSXBW",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true,
+      "categoryData": {
+        "name": "PTC photochrome brillen",
+        "categoryType": "REGULAR_CATEGORY",
+        "parentCategory": {
+          "id": "7ME7KDEV7RH22Y4XMRYSRTOT",
+          "ordinal": "-2251799796908032"
+        },
+        "isTopLevel": false,
+        "onlineVisibility": true,
+        "rootCategory": "7ME7KDEV7RH22Y4XMRYSRTOT"
+      }
+    },
+    {
+      "type": "CATEGORY",
+      "id": "U7MJXEDIS6EN4VXPO7BQLCU3",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true,
+      "categoryData": {
+        "name": "Kinderbrillen",
+        "categoryType": "REGULAR_CATEGORY",
+        "parentCategory": {
+          "id": "7ME7KDEV7RH22Y4XMRYSRTOT",
+          "ordinal": "-2251799780130816"
+        },
+        "isTopLevel": false,
+        "onlineVisibility": true,
+        "rootCategory": "7ME7KDEV7RH22Y4XMRYSRTOT"
+      }
+    },
+    {
+      "type": "CATEGORY",
+      "id": "JR5Q3QLZROXAGJXXMEH6YCRB",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true,
+      "categoryData": {
+        "name": "Kleurlenzen met sterkte",
+        "categoryType": "REGULAR_CATEGORY",
+        "parentCategory": {
+          "id": "RVSKTLZSSB3VQIYNRGN6FFJQ",
+          "ordinal": "-2251799796908032"
+        },
+        "isTopLevel": false,
+        "onlineVisibility": true,
+        "rootCategory": "RVSKTLZSSB3VQIYNRGN6FFJQ"
+      }
+    },
+    {
+      "type": "CATEGORY",
+      "id": "5H2UBKU7XULYRUR3TZ3VFLPJ",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true,
+      "categoryData": {
+        "name": "Kleurlenzen zonder sterkte",
+        "categoryType": "REGULAR_CATEGORY",
+        "parentCategory": {
+          "id": "RVSKTLZSSB3VQIYNRGN6FFJQ",
+          "ordinal": "-2251799780130816"
+        },
+        "isTopLevel": false,
+        "onlineVisibility": true,
+        "rootCategory": "RVSKTLZSSB3VQIYNRGN6FFJQ"
+      }
+    },
+    {
+      "type": "ITEM_OPTION",
+      "created_at": "2026-08-02T00:48:17.784Z",
+      "itemOptionData": {
+        "name": "TestOptie-1785631696282",
+        "showColors": true,
+        "values": [
+          {
+            "type": "ITEM_OPTION_VAL",
+            "created_at": "2026-08-02T00:48:17.784Z",
+            "itemOptionValueData": {
+              "itemOptionId": "6VZERCQUIAWG35VMCOJWMR6R",
+              "name": "Test",
+              "color": "1b1b1b",
+              "ordinal": 0
+            },
+            "id": "GUICKQWWYICM2AUSVPHCUW5O",
+            "updatedAt": "2026-08-02T00:48:17.784Z",
+            "version": "1785631697784",
+            "isDeleted": false,
+            "presentAtAllLocations": true
+          }
+        ]
+      },
+      "id": "6VZERCQUIAWG35VMCOJWMR6R",
+      "updatedAt": "2026-08-02T00:48:17.784Z",
+      "version": "1785631697784",
+      "isDeleted": false,
+      "presentAtAllLocations": true
+    },
+    {
+      "type": "ITEM_OPTION",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "itemOptionData": {
+        "name": "Kleur",
+        "displayName": "Kleur",
+        "showColors": true,
+        "values": [
+          {
+            "type": "ITEM_OPTION_VAL",
+            "created_at": "2026-08-02T00:52:06.476Z",
+            "itemOptionValueData": {
+              "itemOptionId": "HVVR6B5IGZQZJRMR6YVS364L",
+              "name": "Zwart",
+              "color": "1b1b1b",
+              "ordinal": 0
+            },
+            "id": "LWMIVKI7EIOWABGTVKU4IQMH",
+            "updatedAt": "2026-08-02T00:52:06.476Z",
+            "version": "1785631926476",
+            "isDeleted": false,
+            "presentAtAllLocations": true
+          },
+          {
+            "type": "ITEM_OPTION_VAL",
+            "created_at": "2026-08-02T00:52:06.476Z",
+            "itemOptionValueData": {
+              "itemOptionId": "HVVR6B5IGZQZJRMR6YVS364L",
+              "name": "Rose gold",
+              "color": "c98f7d",
+              "ordinal": 1
+            },
+            "id": "6EGVPMOLGL5CM4AIBSALAHYO",
+            "updatedAt": "2026-08-02T00:52:06.476Z",
+            "version": "1785631926476",
+            "isDeleted": false,
+            "presentAtAllLocations": true
+          },
+          {
+            "type": "ITEM_OPTION_VAL",
+            "created_at": "2026-08-02T00:52:06.476Z",
+            "itemOptionValueData": {
+              "itemOptionId": "HVVR6B5IGZQZJRMR6YVS364L",
+              "name": "Zilver",
+              "color": "b9bdc0",
+              "ordinal": 2
+            },
+            "id": "EQUP53ZI26BVPVJ5JEEFVNOK",
+            "updatedAt": "2026-08-02T00:52:06.476Z",
+            "version": "1785631926476",
+            "isDeleted": false,
+            "presentAtAllLocations": true
+          }
+        ]
+      },
+      "id": "HVVR6B5IGZQZJRMR6YVS364L",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true
+    },
+    {
+      "type": "ITEM_OPTION_VAL",
+      "created_at": "2026-08-02T00:48:17.784Z",
+      "itemOptionValueData": {
+        "itemOptionId": "6VZERCQUIAWG35VMCOJWMR6R",
+        "name": "Test",
+        "color": "1b1b1b",
+        "ordinal": 0
+      },
+      "id": "GUICKQWWYICM2AUSVPHCUW5O",
+      "updatedAt": "2026-08-02T00:48:17.784Z",
+      "version": "1785631697784",
+      "isDeleted": false,
+      "presentAtAllLocations": true
+    },
+    {
+      "type": "ITEM_OPTION_VAL",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "itemOptionValueData": {
+        "itemOptionId": "HVVR6B5IGZQZJRMR6YVS364L",
+        "name": "Zwart",
+        "color": "1b1b1b",
+        "ordinal": 0
+      },
+      "id": "LWMIVKI7EIOWABGTVKU4IQMH",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true
+    },
+    {
+      "type": "ITEM_OPTION_VAL",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "itemOptionValueData": {
+        "itemOptionId": "HVVR6B5IGZQZJRMR6YVS364L",
+        "name": "Rose gold",
+        "color": "c98f7d",
+        "ordinal": 1
+      },
+      "id": "6EGVPMOLGL5CM4AIBSALAHYO",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true
+    },
+    {
+      "type": "ITEM_OPTION_VAL",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "itemOptionValueData": {
+        "itemOptionId": "HVVR6B5IGZQZJRMR6YVS364L",
+        "name": "Zilver",
+        "color": "b9bdc0",
+        "ordinal": 2
+      },
+      "id": "EQUP53ZI26BVPVJ5JEEFVNOK",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true
+    },
+    {
+      "type": "CUSTOM_ATTRIBUTE_DEFINITION",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "customAttributeDefinitionData": {
+        "type": "SELECTION",
+        "name": "Techniek",
+        "sourceApplication": {
+          "applicationId": "sandbox-sq0idb-f-65nNciqV7hMiXosjEfGg",
+          "name": "Sandbox for sq0idp-jJNrHRW8ycia3rM8ByPFpg"
+        },
+        "allowedObjectTypes": [
+          "ITEM"
+        ],
+        "sellerVisibility": "SELLER_VISIBILITY_READ_WRITE_VALUES",
+        "appVisibility": "APP_VISIBILITY_HIDDEN",
+        "selectionConfig": {
+          "allowedSelections": [
+            {
+              "uid": "MB3UM2VS3D4ZRQYUZF5ILGHC",
+              "name": "non-ptc"
+            },
+            {
+              "uid": "YS423WJ5FXRH6IN7VN6KKJYX",
+              "name": "ptc"
+            }
+          ]
+        },
+        "key": "techniek"
+      },
+      "id": "7L5AHITLLV2PKLQJ2XYS4HIN",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true
+    },
+    {
+      "type": "CUSTOM_ATTRIBUTE_DEFINITION",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "customAttributeDefinitionData": {
+        "type": "SELECTION",
+        "name": "Sterktesoort",
+        "sourceApplication": {
+          "applicationId": "sandbox-sq0idb-f-65nNciqV7hMiXosjEfGg",
+          "name": "Sandbox for sq0idp-jJNrHRW8ycia3rM8ByPFpg"
+        },
+        "allowedObjectTypes": [
+          "ITEM"
+        ],
+        "sellerVisibility": "SELLER_VISIBILITY_READ_WRITE_VALUES",
+        "appVisibility": "APP_VISIBILITY_HIDDEN",
+        "selectionConfig": {
+          "allowedSelections": [
+            {
+              "uid": "DTPHTN6443E4CK6BRV6KN2SP",
+              "name": "met-sterkte"
+            },
+            {
+              "uid": "5WGDXN2OEW45FIZWQALJNZW6",
+              "name": "zonder-sterkte"
+            }
+          ]
+        },
+        "key": "sterktesoort"
+      },
+      "id": "HKORA7OPRPUXURZ6ZCFAKP27",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true
+    },
+    {
+      "type": "CUSTOM_ATTRIBUTE_DEFINITION",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "customAttributeDefinitionData": {
+        "type": "SELECTION",
+        "name": "Montuurvorm",
+        "sourceApplication": {
+          "applicationId": "sandbox-sq0idb-f-65nNciqV7hMiXosjEfGg",
+          "name": "Sandbox for sq0idp-jJNrHRW8ycia3rM8ByPFpg"
+        },
+        "allowedObjectTypes": [
+          "ITEM"
+        ],
+        "sellerVisibility": "SELLER_VISIBILITY_READ_WRITE_VALUES",
+        "appVisibility": "APP_VISIBILITY_HIDDEN",
+        "selectionConfig": {
+          "allowedSelections": [
+            {
+              "uid": "SUIYBHMF35RJSXEAJHWS7YFF",
+              "name": "cat-eye"
+            },
+            {
+              "uid": "KDRZZYP3XABWQZZJWPSH6JA5",
+              "name": "kids"
+            },
+            {
+              "uid": "3SPDTJ2XGBR2MV55SDKW7EWB",
+              "name": "square"
+            }
+          ]
+        },
+        "key": "montuurvorm"
+      },
+      "id": "2MPPMCEWDYBDZKBDXT4K5TFD",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true
+    },
+    {
+      "type": "CUSTOM_ATTRIBUTE_DEFINITION",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "customAttributeDefinitionData": {
+        "type": "SELECTION",
+        "name": "Kleurfamilie",
+        "sourceApplication": {
+          "applicationId": "sandbox-sq0idb-f-65nNciqV7hMiXosjEfGg",
+          "name": "Sandbox for sq0idp-jJNrHRW8ycia3rM8ByPFpg"
+        },
+        "allowedObjectTypes": [
+          "ITEM"
+        ],
+        "sellerVisibility": "SELLER_VISIBILITY_READ_WRITE_VALUES",
+        "appVisibility": "APP_VISIBILITY_HIDDEN",
+        "selectionConfig": {
+          "allowedSelections": [
+            {
+              "uid": "JRIVLNZN4Q4GHD3ZQHT4YVQZ",
+              "name": "bruin"
+            },
+            {
+              "uid": "WIYYXKZVUW6DW6MZIACJABDC",
+              "name": "honing"
+            }
+          ]
+        },
+        "key": "kleurfamilie"
+      },
+      "id": "IEXNQ25P3YIVBKOPE5NGJ3AI",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true
+    },
+    {
+      "type": "CUSTOM_ATTRIBUTE_DEFINITION",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "customAttributeDefinitionData": {
+        "type": "SELECTION",
+        "name": "Merk",
+        "sourceApplication": {
+          "applicationId": "sandbox-sq0idb-f-65nNciqV7hMiXosjEfGg",
+          "name": "Sandbox for sq0idp-jJNrHRW8ycia3rM8ByPFpg"
+        },
+        "allowedObjectTypes": [
+          "ITEM"
+        ],
+        "sellerVisibility": "SELLER_VISIBILITY_READ_WRITE_VALUES",
+        "appVisibility": "APP_VISIBILITY_HIDDEN",
+        "selectionConfig": {
+          "allowedSelections": [
+            {
+              "uid": "7CHZDIPL3F6UTU62SC7F6RAM",
+              "name": "UKM Kids"
+            },
+            {
+              "uid": "CENH3K2BI5ZNQX22S3A725LB",
+              "name": "UKM PTC"
+            },
+            {
+              "uid": "XUQS3R5HMXXTASNTL3NC42ND",
+              "name": "UKM Signature"
+            },
+            {
+              "uid": "2JZLVDS4PCLGOUYEMMWXRJYE",
+              "name": "UKM Soft Lenses"
+            },
+            {
+              "uid": "E24YAB5VQ2OTOIL4D4PFZCFT",
+              "name": "UKM Vision"
+            }
+          ]
+        },
+        "key": "merk"
+      },
+      "id": "2RCDB7DKEAMKXXTHHKMPMCHV",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true
+    },
+    {
+      "type": "CUSTOM_ATTRIBUTE_DEFINITION",
+      "created_at": "2026-08-02T00:52:06.476Z",
+      "customAttributeDefinitionData": {
+        "type": "NUMBER",
+        "name": "Vanaf-prijs",
+        "sourceApplication": {
+          "applicationId": "sandbox-sq0idb-f-65nNciqV7hMiXosjEfGg",
+          "name": "Sandbox for sq0idp-jJNrHRW8ycia3rM8ByPFpg"
+        },
+        "allowedObjectTypes": [
+          "ITEM_VARIATION"
+        ],
+        "sellerVisibility": "SELLER_VISIBILITY_READ_WRITE_VALUES",
+        "appVisibility": "APP_VISIBILITY_HIDDEN",
+        "numberConfig": {
+          "precision": 5
+        },
+        "key": "vanaf_prijs"
+      },
+      "id": "HVTRZF6ORCR3BLPODUC7PCXQ",
+      "updatedAt": "2026-08-02T00:52:06.476Z",
+      "version": "1785631926476",
+      "isDeleted": false,
+      "presentAtAllLocations": true
+    }
+  ],
+  "voorraad": null
+}
