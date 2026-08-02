@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { Paginakop } from "@/components/catalogus/paginakop";
 import { VerlanglijstInhoud } from "@/components/winkel/verlanglijst-inhoud";
+import { auth } from "@/auth";
 
 export const metadata: Metadata = {
   title: "Verlanglijst",
@@ -9,13 +10,19 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true },
 };
 
-export default function Verlanglijstpagina() {
+export default async function Verlanglijstpagina() {
+  const sessie = await auth();
+
   return (
     <>
       <Paginakop
         kruimels={[{ label: "Home", href: "/" }, { label: "Verlanglijst" }]}
         titel="Verlanglijst"
-        tekst="De modellen die je hebt bewaard. De lijst blijft in deze browser staan, ook als je later terugkomt."
+        tekst={
+          sessie?.user
+            ? "De modellen die je hebt bewaard, gekoppeld aan je account - ook terug te vinden op een ander apparaat."
+            : "De modellen die je hebt bewaard. De lijst blijft in deze browser staan, tenzij je inlogt."
+        }
       />
 
       <section className="container-ukm py-10 lg:py-14">

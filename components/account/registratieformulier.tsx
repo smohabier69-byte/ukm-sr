@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useActionState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { AlertCircle } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
@@ -14,14 +15,24 @@ const beginstaat: ActieResultaat = { succes: false };
 
 export function Registratieformulier() {
   const router = useRouter();
+  const { update: verversSessie } = useSession();
   const [staat, actie, bezig] = useActionState(registreer, beginstaat);
+  const afgehandeld = React.useRef(false);
 
   React.useEffect(() => {
-    if (staat.succes) {
+    if (!staat.succes || afgehandeld.current) return;
+    afgehandeld.current = true;
+    // router.refresh() ververst alleen servercomponenten; next-auth/react's
+    // eigen sessiecontext (useSession, waar VerlanglijstSync op leunt voor de
+    // verlanglijst-migratie) weet pas van de nieuwe sessie na deze update().
+    // `update` is niet stabiel tussen renders, dus alleen staat.succes als
+    // dependency - anders veroorzaakt de refresh hieronder een lus.
+    void verversSessie().then(() => {
       router.push("/account");
       router.refresh();
-    }
-  }, [staat.succes, router]);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [staat.succes]);
 
   return (
     <form action={actie} className="space-y-5">

@@ -4,7 +4,7 @@ import { Heart } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { useVerlanglijst, useWinkelHydratie } from "@/lib/winkel/stores";
+import { useVerlanglijstActies, useVerlanglijstGereed, useVerlanglijstSlugs } from "@/lib/winkel/verlanglijst-actief";
 import { cn } from "@/lib/utils";
 
 /**
@@ -23,9 +23,10 @@ export function VerlanglijstKnop({
   variant?: "icoon" | "volledig";
   className?: string;
 }) {
-  const gehydrateerd = useWinkelHydratie();
-  const staatErop = useVerlanglijst((staat) => staat.slugs.includes(slug)) && gehydrateerd;
-  const wissel = useVerlanglijst((staat) => staat.wissel);
+  const gehydrateerd = useVerlanglijstGereed();
+  const slugs = useVerlanglijstSlugs();
+  const staatErop = slugs.includes(slug) && gehydrateerd;
+  const { wissel } = useVerlanglijstActies();
 
   const klik = () => {
     wissel(slug);

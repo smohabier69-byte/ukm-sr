@@ -9,7 +9,8 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Productkaart } from "@/components/product/productkaart";
-import { useVerlanglijst, useWinkelHydratie, useWinkelwagen } from "@/lib/winkel/stores";
+import { useWinkelwagen } from "@/lib/winkel/stores";
+import { useVerlanglijstActies, useVerlanglijstGereed, useVerlanglijstSlugs } from "@/lib/winkel/verlanglijst-actief";
 import type { Product } from "@/types/product";
 
 /**
@@ -17,10 +18,9 @@ import type { Product } from "@/types/product";
  * dynamische import binnen in plaats van als prop uit de server.
  */
 export function VerlanglijstInhoud() {
-  const gehydrateerd = useWinkelHydratie();
-  const slugs = useVerlanglijst((staat) => staat.slugs);
-  const verwijder = useVerlanglijst((staat) => staat.verwijder);
-  const leegmaken = useVerlanglijst((staat) => staat.leegmaken);
+  const gehydrateerd = useVerlanglijstGereed();
+  const slugs = useVerlanglijstSlugs();
+  const { verwijder, leegmaken } = useVerlanglijstActies();
   const voegToe = useWinkelwagen((staat) => staat.voegToe);
 
   const [catalogus, setCatalogus] = React.useState<Product[]>([]);

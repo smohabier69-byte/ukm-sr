@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Heart, Menu, Search, ShoppingBag, User } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 import { UkmLogo } from "@/components/merk/ukm-logo";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,8 @@ import { bedrijf } from "@/lib/site";
 import { formatPrijs } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { normaliseerTekst, zoekInIndex } from "@/lib/zoeken";
-import { useVerlanglijst, useWinkelHydratie, useWinkelwagenAantal } from "@/lib/winkel/stores";
+import { useWinkelHydratie, useWinkelwagenAantal } from "@/lib/winkel/stores";
+import { useVerlanglijstGereed, useVerlanglijstSlugs } from "@/lib/winkel/verlanglijst-actief";
 import type { Zoekindexitem } from "@/data/zoekindex";
 import { categorieen, hoofdcategorieen, categorieOpSlug } from "@/data/categorieen";
 import { merken } from "@/data/merken";
@@ -103,9 +105,11 @@ export function SiteHeader() {
   // eerste render op de client gelijk is aan de HTML van de server.
   const gehydrateerd = useWinkelHydratie();
   const wagenAantal = useWinkelwagenAantal();
-  const bewaardAantal = useVerlanglijst((staat) => staat.slugs.length);
+  const verlanglijstGereed = useVerlanglijstGereed();
+  const bewaardAantal = useVerlanglijstSlugs().length;
   const aantalInWagen = gehydrateerd ? wagenAantal : 0;
-  const aantalBewaard = gehydrateerd ? bewaardAantal : 0;
+  const aantalBewaard = verlanglijstGereed ? bewaardAantal : 0;
+  const { data: sessie } = useSession();
 
   const zoek = (formulier: React.FormEvent<HTMLFormElement>) => {
     formulier.preventDefault();
@@ -186,9 +190,18 @@ export function SiteHeader() {
                 <Teller aantal={aantalBewaard} />
               </Link>
             </Button>
-            <Button variant="ghost" size="icon-sm" asChild aria-label="Mijn account" className="hidden sm:inline-flex">
-              <Link href="/account">
-                <User />
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              asChild
+              aria-label={sessie?.user ? `Mijn account (${sessie.user.name ?? sessie.user.email})` : "Mijn account"}
+              className="hidden sm:inline-flex"
+            >
+              <Link href="/account" className="relative">
+                <User className={cn(sessie?.user && "text-salie-700")} />
+                {sessie?.user ? (
+                  <span className="absolute top-0.5 right-0.5 size-2 rounded-full bg-salie-600 ring-2 ring-white" />
+                ) : null}
               </Link>
             </Button>
             <Button variant="ghost" size="icon-sm" asChild aria-label={`Winkelwagen, ${aantalInWagen} artikelen`}>

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 
 import { BewegingProvider } from "@/components/motion/beweging-provider";
+import { SessieProvider } from "@/components/providers/sessie-provider";
 import { Meldingen } from "@/components/layout/meldingen";
 import { bedrijf, siteUrl } from "@/lib/site";
 import "./globals.css";
@@ -86,10 +87,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           De winkel heeft haar eigen omlijsting in app/(winkel)/layout.tsx.
           Hier blijft alleen wat overal geldt.
         */}
-        <BewegingProvider>
-          {children}
-          <Meldingen />
-        </BewegingProvider>
+        <SessieProvider>
+          <BewegingProvider>
+            {children}
+            <Meldingen />
+          </BewegingProvider>
+        </SessieProvider>
       </body>
     </html>
   );

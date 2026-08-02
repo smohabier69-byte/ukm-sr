@@ -5,7 +5,8 @@ import { Heart, ShoppingBag } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useVerlanglijst, useWinkelHydratie, useWinkelwagenAantal } from "@/lib/winkel/stores";
+import { useWinkelHydratie, useWinkelwagenAantal } from "@/lib/winkel/stores";
+import { useVerlanglijstGereed, useVerlanglijstSlugs } from "@/lib/winkel/verlanglijst-actief";
 
 /**
  * Toont wat er werkelijk in deze browser is opgeslagen: de verlanglijst en de
@@ -13,11 +14,12 @@ import { useVerlanglijst, useWinkelHydratie, useWinkelwagenAantal } from "@/lib/
  * aanmelding kan laten zien.
  */
 export function AccountOverzicht() {
-  const gehydrateerd = useWinkelHydratie();
-  const bewaard = useVerlanglijst((staat) => staat.slugs.length);
+  const wagenGehydrateerd = useWinkelHydratie();
+  const verlanglijstGereed = useVerlanglijstGereed();
+  const bewaard = useVerlanglijstSlugs().length;
   const inWagen = useWinkelwagenAantal();
 
-  if (!gehydrateerd) {
+  if (!wagenGehydrateerd || !verlanglijstGereed) {
     return (
       <div className="grid gap-4 sm:grid-cols-2" aria-busy>
         <Skeleton className="h-36 rounded-2xl" />

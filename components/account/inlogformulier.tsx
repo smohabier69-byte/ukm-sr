@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useActionState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { AlertCircle } from "lucide-react";
 
@@ -15,14 +16,21 @@ const beginstaat: ActieResultaat = { succes: false };
 
 export function Inlogformulier() {
   const router = useRouter();
+  const { update: verversSessie } = useSession();
   const [staat, actie, bezig] = useActionState(logIn, beginstaat);
+  const afgehandeld = React.useRef(false);
 
   React.useEffect(() => {
-    if (staat.succes) {
+    if (!staat.succes || afgehandeld.current) return;
+    afgehandeld.current = true;
+    // `update` is niet stabiel tussen renders - alleen staat.succes als
+    // dependency, anders veroorzaakt de refresh hieronder een lus.
+    void verversSessie().then(() => {
       router.push("/account");
       router.refresh();
-    }
-  }, [staat.succes, router]);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [staat.succes]);
 
   return (
     <form action={actie} className="space-y-5">
