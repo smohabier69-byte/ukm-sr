@@ -59,15 +59,33 @@ voor de uitlees-tooling.
      upsert meldt succes (`item upsert: ok`, geen `errors`-array), maar geen
      van beide leesmethodes toont ooit een `customAttributeValues`-veld op
      het item terug.
-   - **Conclusie: dit is een reproduceerbaar nulresultaat, geen giswerk.**
-     Ofwel ontbreekt er nog een vereist veld dat nergens in de SDK-typen of
-     -documentatie terugkomt, ofwel ondersteunt dit sandbox-testaccount
-     (mogelijk plan-afhankelijk) het schrijven van custom attribute values
-     op `ITEM`-objecten niet. Voordat Fase 2 definitief op custom attributes
-     leunt voor Techniek/Sterktesoort/Montuurvorm/Kleurfamilie/Merk, moet dit
-     opgelost zijn — via Square-support, een ander accounttype, of een
-     dashboard-test (handmatig een custom attribute invullen in de Square
-     Dashboard-UI en kijken of die via de API wel zichtbaar wordt).
+   - Daarna nogmaals volledig herhaald **buiten de SDK om, rechtstreeks via
+     `fetch()` tegen `connect.squareupsandbox.com/v2/catalog/object`** met
+     Square's eigen gedocumenteerde voorbeeld-payload vrijwel woordelijk
+     nagebouwd (inclusief `Square-Version: 2025-02-20`, de exacte
+     `custom_attribute_values`-vorm uit hun docs). Zelfde resultaat: de
+     upsert-respons zelf (niet alleen een latere read) toont het veld al
+     niet, status 200, geen `errors`-array.
+   - Ook `app_visibility` als variabele getest: een gloednieuwe attribuut-
+     definitie aangemaakt met `APP_VISIBILITY_READ_WRITE_VALUES` in plaats
+     van `APP_VISIBILITY_HIDDEN` (voor het geval de documentatie-belofte dat
+     de aanmakende app altijd toegang houdt niet klopt) — zelfde nulresultaat.
+   - **Conclusie: dit is een reproduceerbaar nulresultaat, geen giswerk, en
+     geen SDK-bug** — elke client-side variabele die redelijkerwijs getest kon
+     worden (SDK vs rechtstreekse REST, SELECTION vs STRING, definitie-id vs
+     -key als mapsleutel, eigen vs server-toegewezen selection-uid,
+     app_visibility HIDDEN vs READ_WRITE_VALUES, API-versie gelijk aan
+     Square's eigen werkende voorbeeld) is stuk voor stuk uitgesloten. Wat
+     overblijft: een echt platformprobleem, mogelijk specifiek voor dit
+     sandbox-testaccount (databeschadiging, migratie-inconsistentie, of een
+     niet-gedocumenteerde planbeperking). Voordat Fase 2 definitief op custom
+     attributes leunt voor Techniek/Sterktesoort/Montuurvorm/Kleurfamilie/Merk,
+     moet dit opgelost zijn — realistisch alleen nog op te lossen via
+     Square-support (met deze precieze reproductiestappen) of door hetzelfde
+     te testen tegen een ander sandbox-account of het echte productieaccount
+     van de eigenaar, plus de eerder voorgestelde dashboard-test (handmatig
+     een custom attribute invullen in de Square Dashboard-UI en kijken of die
+     via de API zichtbaar wordt).
 
 ## Bijvangst, niet in de oorspronkelijke vragenlijst
 
