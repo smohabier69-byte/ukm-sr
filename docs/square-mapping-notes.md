@@ -100,9 +100,54 @@ voor de uitlees-tooling.
     `VERSION_MISMATCH`. Bij nieuwe objecten (`#`-tijdelijke id's) speelt dit
     niet.
 
+## Workaround: meerdere categorieën per product, in plaats van custom attributes
+
+Een supportverzoek staat klaar (`docs/square-support-report.md`) maar heeft
+geen voorspelbare doorlooptijd. In plaats van Fase 2/3 daarop te laten
+wachten: **categorieën ondersteunen aantoonbaar meerdere toewijzingen per
+item, en dat blijft wél hangen.** Getest: een bestaand item kreeg twee
+extra, niet-hiërarchische categorieën toegewezen naast zijn gewone
+navigatiecategorie, en beide kwamen correct terug bij het uitlezen.
+
+Square kent geen apart categorietype voor "facet/tag" (alleen
+`REGULAR_CATEGORY`, `MENU_CATEGORY`, `KITCHEN_CATEGORY` bestaan) - dit is dus
+een naamgevingsconventie bovenop gewone categorieën, geen native
+Square-functie. Elke as die eerder een custom attribute was, wordt een
+platte set categorieën met een prefix:
+
+- `Techniek: PTC`, `Techniek: Non-PTC`
+- `Sterktesoort: Met sterkte`, `Sterktesoort: Zonder sterkte`
+- `Vorm: Cat-eye`, `Vorm: Square`, ... (11 stuks)
+- `Kleurfamilie: Bruin`, ... (7 stuks)
+- `Merk: UKM Signature`, ... (6 stuks)
+
+Een product krijgt zijn gewone navigatiecategorie (bijv. "PTC photochrome
+brillen") plus alle van toepassing zijnde facet-categorieën in dezelfde
+`categories`-array. Bij het uitlezen (Fase 3) worden facet-categorieën
+herkend aan de prefix vóór de dubbele punt en teruggemapt naar het juiste
+veld op `Product`.
+
+**Nadelen, bewust geaccepteerd:** minder schoon dan custom attributes (geen
+gestructureerd type/schema, alleen een naamconventie); een tikfout in de
+prefix breekt de mapping stilzwijgend; de categorieënlijst in de Square
+Dashboard wordt drukker met facetten die niets met echte navigatie te maken
+hebben. Zodra bevinding 8 door Square is opgelost (of blijkt
+sandbox-specifiek te zijn en werkt wel op het echte account), is overstappen
+naar custom attributes een geïsoleerde wijziging in de synclaag (Fase 3),
+niet in het datamodel van de site zelf (`types/product.ts` verandert niet).
+
+**Vanaf-prijs (sale/was-prijs)** blijft een custom attribute op
+`ITEM_VARIATION` - dat is geen kenmerk om op te filteren dus een categorie
+past hier niet. Tot bevinding 8 is opgelost heeft geen enkel product een
+"vanaf"-prijs in de sync; dat is acceptabel (het is een marketingextraatje,
+geen kernfunctie) en wordt in Fase 3 gewoon overgeslagen totdat custom
+attributes werken.
+
 ## Gevolg voor de Fase 2 mappingtabel
 
-De rijen die op custom attributes leunen (Techniek, Sterktesoort,
-Montuurvorm, Kleurfamilie, Merk, Vanaf-prijs) staan **onder voorbehoud** tot
-bevinding 8 is opgelost. Kleur/swatch en categorieën zijn wel definitief
-bevestigd en kunnen als vaststaand gelden.
+Techniek, Sterktesoort, Montuurvorm, Kleurfamilie en Merk gaan naar de
+categorie-workaround hierboven, niet naar custom attributes - dit is nu de
+**vastgestelde aanpak voor Fase 3**, geen voorbehoud meer. Vanaf-prijs blijft
+een custom attribute en wordt pas gesynchroniseerd zodra bevinding 8 is
+opgelost. Kleur/swatch (Item Option) en categorieën zijn definitief
+bevestigd en vaststaand.
