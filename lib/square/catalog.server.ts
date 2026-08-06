@@ -209,8 +209,12 @@ function bouwCatalogus(alle: RuwCatalogusObject[], voorraadPerId: Map<string, nu
     if (!data?.name) continue;
 
     const categorieIds = (data.categories ?? []).map((c) => c.id).filter((id): id is string => !!id);
-    const slug = facetWaarde("Slug", categorieIds);
-    if (!slug) continue; // sanity: item zonder herkenbare slug-tag negeren
+    // Bij voorkeur de expliciete "Slug: ..."-facetcategorie (garandeert
+    // stabiele URL's), maar een item zonder die tag - bijv. gewoon via het
+    // Square-dashboard aangemaakt, zonder onze facet-conventie - mag niet
+    // stilzwijgend verdwijnen. Dan valt dit terug op de itemnaam; duplicaten
+    // worden na de loop ontdubbeld.
+    const slug = facetWaarde("Slug", categorieIds) ?? slugifyKleur(data.name);
 
     const techniekWaarde = facetWaarde("Techniek", categorieIds); // "PTC" | "Non-PTC"
     const vormWaarde = facetWaarde("Vorm", categorieIds);
@@ -306,6 +310,15 @@ function bouwCatalogus(alle: RuwCatalogusObject[], voorraadPerId: Map<string, nu
       kleurfamilie: kleurfamilieWaarde?.toLowerCase(),
       bron: "Square",
     });
+  }
+
+  // Items zonder "Slug: ..."-facetcategorie vallen terug op een van de naam
+  // afgeleide slug (zie hierboven); bij gelijke productnamen ontdubbelen met
+  // een stukje item-id, zodat elke URL uniek blijft.
+  const slugAantal = new Map<string, number>();
+  for (const p of producten) slugAantal.set(p.slug, (slugAantal.get(p.slug) ?? 0) + 1);
+  for (const p of producten) {
+    if ((slugAantal.get(p.slug) ?? 0) > 1) p.slug = `${p.slug}-${p.id.slice(-6)}`;
   }
 
   const categorieen: Categorie[] = categorieInhoud.map((c) => ({
