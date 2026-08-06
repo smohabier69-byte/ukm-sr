@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import crypto from "node:crypto";
 
 import { squareClient } from "@/lib/square/client";
@@ -6,14 +7,18 @@ import { resendClient } from "@/lib/email/client";
 import { bedrijf, siteUrl } from "@/lib/site";
 
 /**
- * Ontvangt order.updated/payment.updated van Square - de gezaghebbende
- * bevestiging dat een online betaling is afgerond (dekt ook het geval dat de
- * koper het tabblad sluit tijdens de Square-redirect). Stuurt de
- * bevestigingsmail; er is bewust geen eigen orders-tabel om bij te werken.
+ * Ontvangt drie soorten Square-events:
+ * - payment.updated: de gezaghebbende bevestiging dat een online betaling is
+ *   afgerond (dekt ook het geval dat de koper het tabblad sluit tijdens de
+ *   Square-redirect). Stuurt de bevestigingsmail; er is bewust geen eigen
+ *   orders-tabel om bij te werken.
+ * - catalog.version.updated / inventory.count.updated: UKM heeft iets
+ *   gewijzigd in Square (prijs, product, voorraad). Revalideert de
+ *   "square-catalog"-cachetag zodat de wijziging direct zichtbaar is i.p.v.
+ *   pas na de 1u-fallback in lib/square/catalog.server.ts.
  *
  * Registratie (webhook-abonnement aanmaken bij Square, gekoppeld aan de
- * live URL) gebeurt pas bij de Fase 9-cutover, zodra er een publiek
- * bereikbare productie-URL is - zie docs/square-mapping-notes.md.
+ * live URL) - zie scripts/square-webhook-setup.ts.
  */
 
 function verifieerSignature(ruweBody: string, signature: string | null, notificatieUrl: string): boolean {
@@ -65,6 +70,8 @@ export async function POST(request: Request) {
     if (event.type === "payment.updated" && event.data?.object?.payment?.status === "COMPLETED") {
       const orderId = event.data.object.payment.order_id;
       if (orderId) await stuurBevestigingsmail(orderId);
+    } else if (event.type === "catalog.version.updated" || event.type === "inventory.count.updated") {
+      revalidateTag("square-catalog");
     }
   } catch (err) {
     // De bevestigingsmail is een service, geen kernfunctie - een fout hierin

@@ -1,7 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 
-import { squareClient } from "./client";
+import { squareClient, squareLocationId } from "./client";
 import type { Categorie, Merk, Montuurvorm, Product, Sterktesoort, Specificatie, Techniek, Variant } from "@/types/product";
 import { categorieen as categorieInhoud } from "@/data/categorieen";
 import { merken as merkInhoud } from "@/data/merken";
@@ -43,6 +43,7 @@ interface RuwCatalogusObject {
     sku?: string;
     priceMoney?: { amount?: bigint | number; currency?: string };
     itemOptionValues?: { itemOptionId?: string; itemOptionValueId?: string }[];
+    trackInventory?: boolean;
   };
 }
 
@@ -128,7 +129,36 @@ async function haalRuweCatalogusOp(): Promise<RuwCatalogusObject[]> {
   return [...byId.values()];
 }
 
-function bouwCatalogus(alle: RuwCatalogusObject[]): Catalogusdata {
+/**
+ * Haalt echte voorraadaantallen op via de Inventory API, alleen voor
+ * variaties waarop UKM `trackInventory` heeft aangezet in Square. Variaties
+ * zonder IN_STOCK-record (getrackt maar leeg) tellen als 0; niet-getrackte
+ * variaties krijgen hier geen entry en blijven in bouwCatalogus() altijd
+ * besteltbaar, zoals voorheen.
+ */
+async function haalVoorraadOp(variatieIds: string[]): Promise<Map<string, number>> {
+  const voorraadPerId = new Map<string, number>();
+  if (variatieIds.length === 0) return voorraadPerId;
+
+  const client = squareClient();
+  // Square staat maximaal 1000 catalogObjectIds per aanvraag toe.
+  for (let i = 0; i < variatieIds.length; i += 1000) {
+    const stuk = variatieIds.slice(i, i + 1000);
+    const pagina = await client.inventory.batchGetCounts({
+      catalogObjectIds: stuk,
+      locationIds: [squareLocationId()],
+      states: ["IN_STOCK"],
+    });
+    for await (const count of pagina) {
+      if (count.catalogObjectId) {
+        voorraadPerId.set(count.catalogObjectId, Number(count.quantity ?? "0"));
+      }
+    }
+  }
+  return voorraadPerId;
+}
+
+function bouwCatalogus(alle: RuwCatalogusObject[], voorraadPerId: Map<string, number>): Catalogusdata {
   const categorieObjecten = alle.filter((o) => o.type === "CATEGORY");
   const itemObjecten = alle.filter((o) => o.type === "ITEM");
   const imageObjecten = alle.filter((o) => o.type === "IMAGE");
@@ -202,6 +232,12 @@ function bouwCatalogus(alle: RuwCatalogusObject[]): Catalogusdata {
     const variaties = data.variations ?? [];
     const heeftKleuropties = (data.itemOptions?.length ?? 0) > 0;
 
+    // Alleen vertrouwen op de Inventory API als een variatie trackInventory
+    // heeft aanstaan in Square; anders altijd besteltbaar (geen verzonnen
+    // aantal), zoals voorheen.
+    const variatieVoorraad = (v: RuwCatalogusObject): number =>
+      v.itemVariationData?.trackInventory ? (voorraadPerId.get(v.id) ?? 0) : 999;
+
     const varianten: Variant[] = heeftKleuropties
       ? variaties.map((v) => {
           const ov = v.itemVariationData?.itemOptionValues?.[0];
@@ -214,9 +250,7 @@ function bouwCatalogus(alle: RuwCatalogusObject[]): Catalogusdata {
             prijs: v.itemVariationData?.priceMoney?.amount
               ? Number(v.itemVariationData.priceMoney.amount) / 100
               : undefined,
-            // trackInventory staat uit (zie sync-script) - geen verzonnen aantal,
-            // gewoon altijd besteltbaar tot UKM echte aantallen invoert in Square.
-            voorraad: 999,
+            voorraad: variatieVoorraad(v),
             afbeelding: imageUrlById.get(data.imageIds?.[0] ?? ""),
           };
         })
@@ -236,10 +270,13 @@ function bouwCatalogus(alle: RuwCatalogusObject[]): Catalogusdata {
 
     const labels = [...labelWaarden];
     if (isNieuwBinnen && !labels.includes("nieuw")) labels.push("nieuw");
-    // Geen "bijna-uitverkocht"/"uitverkocht": zonder getrackte voorraad in Square
-    // is dat signaal er simpelweg niet, en we verzinnen het niet.
 
     const populariteit = labels.includes("bestseller") ? 100 : 50;
+    // Productniveau-voorraad = som van alle Square-variaties, ook zonder
+    // kleuropties (dan is er precies één variatie). Zo blijft "op
+    // voorraad"-filtering (opVoorraad in producten.ts) correct ongeacht of
+    // het product varianten toont.
+    const voorraad = variaties.reduce((totaal, v) => totaal + variatieVoorraad(v), 0);
 
     producten.push({
       id: item.id,
@@ -258,7 +295,7 @@ function bouwCatalogus(alle: RuwCatalogusObject[]): Catalogusdata {
       kenmerken,
       specificaties,
       varianten,
-      voorraad: 999,
+      voorraad,
       populariteit,
       toegevoegdOp,
       labels,
@@ -285,8 +322,18 @@ function bouwCatalogus(alle: RuwCatalogusObject[]): Catalogusdata {
 }
 
 const haalCatalogusOpGecached = unstable_cache(
-  async (): Promise<Catalogusdata> => bouwCatalogus(await haalRuweCatalogusOp()),
+  async (): Promise<Catalogusdata> => {
+    const alle = await haalRuweCatalogusOp();
+    const variatieIds = alle
+      .filter((o) => o.type === "ITEM")
+      .flatMap((o) => (o.itemData?.variations ?? []).map((v) => v.id));
+    const voorraadPerId = await haalVoorraadOp(variatieIds);
+    return bouwCatalogus(alle, voorraadPerId);
+  },
   ["square-catalogus"],
+  // 1u is een vangnet; catalog.version.updated/inventory.count.updated-webhooks
+  // (app/api/webhooks/square/route.ts) revalideren de tag "square-catalog"
+  // direct zodra Square iets meldt.
   { tags: ["square-catalog"], revalidate: 3600 },
 );
 
