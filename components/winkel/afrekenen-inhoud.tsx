@@ -3,77 +3,58 @@
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { Banknote, Building2, CheckCircle2, CreditCard, Info, MapPin, ShoppingBag, Truck } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { AlertCircle, Banknote, Building2, CreditCard, Landmark, MapPin, ShoppingBag, Truck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Kostenregels } from "@/components/winkel/kostenoverzicht";
 import { useWinkelHydratie, useWinkelwagen } from "@/lib/winkel/stores";
+import { useProductenCache } from "@/lib/winkel/catalogus-cache";
 import { berekenKosten, bouwPosten } from "@/lib/winkel/prijzen";
 import { formatPrijs } from "@/lib/format";
 import { bedrijf } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 type Bezorgwijze = "bezorgen" | "afhalen";
-type Betaalwijze = "contant" | "overschrijving" | "pin";
+type Betaalwijze = "contant" | "overschrijving" | "pin" | "online";
 
 const betaalwijzen: { id: Betaalwijze; label: string; tekst: string; icoon: typeof Banknote }[] = [
+  { id: "online", label: "Online betalen", tekst: "Betaalkaart via een beveiligde Square-pagina", icoon: Landmark },
   { id: "contant", label: "Contant", tekst: "Betaal bij ontvangst of in de winkel", icoon: Banknote },
   { id: "overschrijving", label: "Bankoverschrijving", tekst: "Je ontvangt de gegevens per bericht", icoon: Building2 },
   { id: "pin", label: "Pinnen", tekst: "Met de mobiele pinautomaat of in de winkel", icoon: CreditCard },
 ];
 
+/** Sleutel waaronder de laatste bestelling tijdelijk staat, voor de terugkeer vanaf Square Checkout. */
+const LAATSTE_BESTELLING_KEY = "ukm-laatste-bestelling";
+
 export function AfrekenenInhoud() {
+  const router = useRouter();
   const gehydrateerd = useWinkelHydratie();
+  const { producten, gereed: catalogusGereed } = useProductenCache();
   const regels = useWinkelwagen((staat) => staat.regels);
   const kortingscode = useWinkelwagen((staat) => staat.kortingscode);
+  const leegmaken = useWinkelwagen((staat) => staat.leegmaken);
 
   const [bezorgwijze, setBezorgwijze] = React.useState<Bezorgwijze>("bezorgen");
-  const [betaalwijze, setBetaalwijze] = React.useState<Betaalwijze>("contant");
-  const [verzonden, setVerzonden] = React.useState(false);
+  const [betaalwijze, setBetaalwijze] = React.useState<Betaalwijze>("online");
+  const [bezigMet, setBezigMet] = React.useState(false);
+  const [fout, setFout] = React.useState<string | null>(null);
 
-  const posten = React.useMemo(() => bouwPosten(regels), [regels]);
+  const posten = React.useMemo(() => bouwPosten(regels, producten), [regels, producten]);
   const kosten = React.useMemo(
     () => berekenKosten(posten, bezorgwijze === "afhalen" ? "GRATISBEZORGING" : kortingscode),
     [posten, kortingscode, bezorgwijze],
   );
 
-  if (!gehydrateerd) {
+  if (!gehydrateerd || !catalogusGereed) {
     return (
       <div className="grid gap-10 lg:grid-cols-[1fr_22rem]" aria-busy>
         <Skeleton className="h-[32rem] rounded-3xl" />
         <Skeleton className="h-80 rounded-3xl" />
       </div>
-    );
-  }
-
-  if (verzonden) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="mx-auto max-w-xl rounded-3xl border border-border/70 bg-white p-10 text-center"
-      >
-        <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-salie-100 text-salie-700">
-          <CheckCircle2 className="size-8" />
-        </span>
-        <h2 className="mt-7 font-display text-2xl font-bold">Zo zou een bestelling eruitzien</h2>
-        <p className="mt-4 leading-relaxed text-inkt-zacht">
-          Er is niets verstuurd en er zijn geen gegevens opgeslagen. Deze website is een demonstratie, gemaakt voor
-          UKM. Wilt u werkelijk bestellen, neem dan contact op via WhatsApp of kom langs in de winkel.
-        </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Button asChild size="lg">
-            <Link href="/contact">Contact opnemen</Link>
-          </Button>
-          <Button asChild size="lg" variant="outline" onClick={() => setVerzonden(false)}>
-            <Link href="/producten">Verder kijken</Link>
-          </Button>
-        </div>
-      </motion.div>
     );
   }
 
@@ -94,14 +75,65 @@ export function AfrekenenInhoud() {
     );
   }
 
+  const versturen = async (formulier: React.FormEvent<HTMLFormElement>) => {
+    formulier.preventDefault();
+    setFout(null);
+    setBezigMet(true);
+
+    const data = new FormData(formulier.currentTarget);
+    const contact = {
+      voornaam: String(data.get("voornaam") ?? ""),
+      achternaam: String(data.get("achternaam") ?? ""),
+      telefoon: String(data.get("telefoon") ?? ""),
+      email: String(data.get("email") ?? ""),
+    };
+    const adres =
+      bezorgwijze === "bezorgen"
+        ? {
+            straat: String(data.get("adres") ?? ""),
+            wijk: String(data.get("wijk") ?? "") || undefined,
+            plaats: String(data.get("plaats") ?? ""),
+            opmerking: String(data.get("opmerking") ?? "") || undefined,
+          }
+        : undefined;
+
+    try {
+      const res = await fetch("/api/afrekenen", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          regels: posten.map((post) => ({ slug: post.regel.slug, variantId: post.regel.variantId, aantal: post.regel.aantal })),
+          contact,
+          bezorgwijze,
+          adres,
+          betaalwijze,
+          kortingscode: bezorgwijze === "afhalen" ? null : kortingscode,
+        }),
+      });
+
+      const resultaat = await res.json();
+      if (!res.ok) {
+        setFout(resultaat.fout ?? "De bestelling kon niet worden geplaatst.");
+        setBezigMet(false);
+        return;
+      }
+
+      if (resultaat.checkoutUrl) {
+        sessionStorage.setItem(LAATSTE_BESTELLING_KEY, resultaat.orderId);
+        window.location.href = resultaat.checkoutUrl;
+        return;
+      }
+
+      leegmaken();
+      router.push(`/afrekenen/bevestiging?orderId=${resultaat.orderId}`);
+    } catch {
+      setFout("De bestelling kon niet worden geplaatst. Controleer je internetverbinding en probeer het opnieuw.");
+      setBezigMet(false);
+    }
+  };
+
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        setVerzonden(true);
-      }}
-      className="grid gap-10 lg:grid-cols-[1fr_22rem] lg:gap-14"
-    >
+    <form onSubmit={versturen} className="grid gap-10 lg:grid-cols-[1fr_22rem] lg:gap-14">
       <div className="space-y-10">
         <fieldset>
           <legend className="font-display text-lg font-semibold">Contactgegevens</legend>
@@ -139,7 +171,7 @@ export function AfrekenenInhoud() {
           {bezorgwijze === "bezorgen" ? (
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               <Veld id="adres" label="Straat en huisnummer" autoComplete="street-address" className="sm:col-span-2" />
-              <Veld id="wijk" label="Wijk of buurt" />
+              <Veld id="wijk" label="Wijk of buurt" optioneel />
               <Veld id="plaats" label="Plaats" defaultValue={bedrijf.adres.stad} autoComplete="address-level2" />
               <Veld
                 id="opmerking"
@@ -160,7 +192,7 @@ export function AfrekenenInhoud() {
 
         <fieldset>
           <legend className="font-display text-lg font-semibold">Betaalwijze</legend>
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
             {betaalwijzen.map((wijze) => (
               <Keuzekaart
                 key={wijze.id}
@@ -209,13 +241,19 @@ export function AfrekenenInhoud() {
             <Kostenregels kosten={kosten} />
           </div>
 
-          <Button type="submit" size="lg" className="mt-7 w-full">
-            Bestelling plaatsen
+          {fout ? (
+            <p className="mt-5 flex items-start gap-2 rounded-xl bg-koraal/10 p-3 text-sm text-koraal">
+              <AlertCircle className="mt-0.5 size-4 shrink-0" />
+              {fout}
+            </p>
+          ) : null}
+
+          <Button type="submit" size="lg" className="mt-7 w-full" disabled={bezigMet}>
+            {bezigMet ? "Bezig..." : betaalwijze === "online" ? "Doorgaan naar betalen" : "Bestelling plaatsen"}
           </Button>
 
-          <p className="mt-4 flex items-start gap-2 rounded-xl bg-creme-diep p-3 text-xs leading-relaxed text-inkt-zacht">
-            <Info className="mt-0.5 size-3.5 shrink-0" />
-            Deze website is een demonstratie, gemaakt voor UKM. Er wordt niets verstuurd, opgeslagen of afgerekend.
+          <p className="mt-4 text-center text-xs text-inkt-zacht">
+            Betalen met contant, bankoverschrijving, pin of online via een beveiligde Square-pagina.
           </p>
         </div>
       </aside>

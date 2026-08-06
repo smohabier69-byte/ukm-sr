@@ -5,10 +5,10 @@ import { ArrowUpRight } from "lucide-react";
 import { OnthulGroep, OnthulKind } from "@/components/motion/onthul";
 import { Sectiekop } from "@/components/home/sectiekop";
 import { categorieen } from "@/data/categorieen";
-import { aantalPerCategorie } from "@/data/producten";
+import { aantalPerCategorie } from "@/lib/square/producten";
 
-export function CategorieenSectie() {
-  const aantallen = aantalPerCategorie();
+export async function CategorieenSectie() {
+  const aantallen = await aantalPerCategorie();
 
   return (
     <section className="container-ukm py-14 lg:py-20">

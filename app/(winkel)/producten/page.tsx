@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { Paginakop } from "@/components/catalogus/paginakop";
 import { ProductBrowser } from "@/components/catalogus/product-browser";
-import { producten } from "@/data/producten";
+import { alleProducten } from "@/lib/square/producten";
 import { bouwFacetten, uitZoekparameters } from "@/lib/catalogus";
 
 export const metadata: Metadata = {
@@ -18,6 +18,7 @@ export default async function Productenpagina({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
+  const producten = await alleProducten();
   const facetten = bouwFacetten(producten);
   const beginstaat = uitZoekparameters(params, facetten);
 

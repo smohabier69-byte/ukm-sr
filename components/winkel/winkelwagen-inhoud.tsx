@@ -10,21 +10,23 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Bezorgvoortgang, Kortingscodeveld, Kostenregels } from "@/components/winkel/kostenoverzicht";
 import { useWinkelHydratie, useWinkelwagen } from "@/lib/winkel/stores";
+import { useProductenCache } from "@/lib/winkel/catalogus-cache";
 import { berekenKosten, bouwPosten } from "@/lib/winkel/prijzen";
 import { formatPrijs } from "@/lib/format";
 
 export function WinkelwagenInhoud() {
   const gehydrateerd = useWinkelHydratie();
+  const { producten, gereed: catalogusGereed } = useProductenCache();
   const regels = useWinkelwagen((staat) => staat.regels);
   const kortingscode = useWinkelwagen((staat) => staat.kortingscode);
   const wijzigAantal = useWinkelwagen((staat) => staat.wijzigAantal);
   const verwijder = useWinkelwagen((staat) => staat.verwijder);
   const leegmaken = useWinkelwagen((staat) => staat.leegmaken);
 
-  const posten = React.useMemo(() => bouwPosten(regels), [regels]);
+  const posten = React.useMemo(() => bouwPosten(regels, producten), [regels, producten]);
   const kosten = React.useMemo(() => berekenKosten(posten, kortingscode), [posten, kortingscode]);
 
-  if (!gehydrateerd) return <WinkelwagenSkelet />;
+  if (!gehydrateerd || !catalogusGereed) return <WinkelwagenSkelet />;
 
   if (posten.length === 0) {
     return (

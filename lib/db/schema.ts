@@ -121,6 +121,13 @@ export const addresses = pgTable("address", {
  * niet inloggen; bij de eerste keer inloggen wordt die eenmalig hierheen
  * gemigreerd.
  */
+/** Nieuwsbrief-aanmeldingen. Los van users - een bezoeker hoeft geen account te hebben. */
+export const newsletterSubscribers = pgTable("newsletter_subscriber", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  email: text("email").unique().notNull(),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+});
+
 export const wishlistItems = pgTable(
   "wishlist_item",
   {

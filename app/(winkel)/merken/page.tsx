@@ -6,7 +6,7 @@ import { ArrowUpRight } from "lucide-react";
 import { Paginakop } from "@/components/catalogus/paginakop";
 import { OnthulGroep, OnthulKind } from "@/components/motion/onthul";
 import { merken } from "@/data/merken";
-import { aantalPerMerk, productenVanMerk } from "@/data/producten";
+import { aantalPerMerk, productenVanMerk } from "@/lib/square/producten";
 import { formatPrijs } from "@/lib/format";
 
 export const metadata: Metadata = {
@@ -16,8 +16,9 @@ export const metadata: Metadata = {
   alternates: { canonical: "/merken" },
 };
 
-export default function Merkenpagina() {
-  const aantallen = aantalPerMerk();
+export default async function Merkenpagina() {
+  const aantallen = await aantalPerMerk();
+  const merkProductLijsten = await Promise.all(merken.map((merk) => productenVanMerk(merk.slug)));
 
   return (
     <>
@@ -29,8 +30,8 @@ export default function Merkenpagina() {
 
       <section className="container-ukm py-10 lg:py-14">
         <OnthulGroep className="grid gap-6 lg:grid-cols-2">
-          {merken.map((merk) => {
-            const lijst = productenVanMerk(merk.slug);
+          {merken.map((merk, index) => {
+            const lijst = merkProductLijsten[index];
             const vanafPrijs = lijst.length ? Math.min(...lijst.map((p) => p.prijs)) : 0;
             const voorbeelden = lijst.slice(0, 3);
 

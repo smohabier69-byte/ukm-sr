@@ -151,3 +151,51 @@ categorie-workaround hierboven, niet naar custom attributes - dit is nu de
 een custom attribute en wordt pas gesynchroniseerd zodra bevinding 8 is
 opgelost. Kleur/swatch (Item Option) en categorieën zijn definitief
 bevestigd en vaststaand.
+
+## Fase 3 — uitgevoerd, bevindingen tijdens de bouw
+
+De volledige, echte catalogus (105 producten uit `data/catalogus/brillen.ts` +
+`lenzen.ts`, niet langer een steekproef) staat nu in de sandbox via
+`scripts/square-catalog-sync.ts` (vervangt het oude `square-catalog-seed.ts`).
+`lib/square/catalog.server.ts` leest dit terug en cachet het
+(`unstable_cache`, tag `square-catalog`, revalidate 1u). Nieuwe bevindingen:
+
+11. **Slug moet als eigen facet-categorie, niet afgeleid.** De
+    mens-leesbare slug (`rectangle-frameless`, `hazel-brown-l038`, ...) is
+    niet betrouwbaar terug te leiden uit de naam alleen - meerdere producten
+    hebben een handmatige ontdubbelaar (`-clear`, `-l038`, `-goud-zilver`)
+    die niets met de naam te maken heeft. Oplossing: elk item krijgt ook een
+    `Slug: <slug>` facet-categorie, dezelfde bewezen-werkende route als de
+    andere assen, alleen 1-op-1 in plaats van gedeeld.
+12. **`descriptionHtml` wordt bij opslaan gesaniteerd - custom
+    data-attributen op tags overleven dat niet.** Eerste opzet gaf de
+    kenmerken/specificaties-`<ul>`'s een `data-kenmerken`/`data-specs`
+    attribuut om ze bij het uitlezen uit elkaar te houden; Square slikt de
+    schrijfactie zonder fout, maar strip die attributen alsnog (geverifieerd
+    door het item na opslaan terug te lezen). De leeslaag matcht nu puur op
+    volgorde (eerste `<p>` = korte omschrijving, rest = lange beschrijving,
+    eerste/tweede `<ul>` = kenmerken/specificaties) - werkt, want alleen het
+    sync-script zelf schrijft dit veld.
+13. **`.env.local`'s `SQUARE_LOCATION_ID` stond op de application-id-vorm**
+    (`sandbox-sq0idb-...`) in plaats van een echte locatie-id. De Catalog
+    API gebruikte dit veld niet, dus dit bleef onopgemerkt tot de Orders API
+    er hard op faalde (`FORBIDDEN`). Opgelost door de echte locatie op te
+    halen via `client.locations.list()` (`LWFHZE36Y5E2A` voor dit
+    sandboxaccount) en die in te vullen.
+14. **Orders API eist E.164-telefoonnummers** (`+597...`), niet het lokale
+    formulierformaat (`8xx-xxxx`). `lib/square/bestellen.server.ts` zet
+    hiervoor automatisch `+597` ervoor als het nummer geen landcode heeft.
+15. **Een `PICKUP`/`DELIVERY`-fulfillment met het standaard `scheduleType`
+    (`SCHEDULED`) eist een `pickup_at`/`deliver_at`-tijdstip.** UKM plant
+    geen tijdvakken op de site, dus beide gebruiken expliciet
+    `scheduleType: "ASAP"`.
+
+Fase 6 (echte checkout) is hierop gebouwd en end-to-end geverifieerd tegen de
+sandbox: een order aanmaken zonder online betaling (`client.orders.create`)
+en met online betaling via een echte Payment Link
+(`client.checkout.paymentLinks.create`, geopend en volledig doorlopen tot en
+met "Test Payment" in Square's eigen sandbox-testpaneel) werken beide. De
+webhook-handler (`app/api/webhooks/square/route.ts`, HMAC-signature-check)
+is gebouwd maar het abonnement zelf is nog niet aangemaakt bij Square - dat
+vereist een publiek bereikbare URL en gebeurt daarom pas bij de Fase
+9-cutover, samen met `SQUARE_WEBHOOK_SIGNATURE_KEY`.

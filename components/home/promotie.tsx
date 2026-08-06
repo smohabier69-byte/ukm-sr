@@ -7,14 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Onthul } from "@/components/motion/onthul";
 import { formatPrijs } from "@/lib/format";
 import { bedrijf } from "@/lib/site";
-import { aanbiedingen } from "@/data/producten";
+import { aanbiedingen } from "@/lib/square/producten";
 
 /**
- * Lopende acties. De eerste kaart haalt de scherpste aanbieding uit het
- * assortiment op, zodat de prijs nooit uit de pas loopt met de catalogus.
+ * Lopende acties. Zolang er geen actieprijs vanuit Square gesynchroniseerd
+ * kan worden (zie docs/square-mapping-notes.md, bevinding 8 - een
+ * Square-platformbug op custom attributes), toont de kaart een evergreen
+ * verhaal in plaats van een verzonnen kortingspercentage.
  */
-export function Promotie() {
-  const actie = aanbiedingen[0];
+export async function Promotie() {
+  const aanbiedingenLijst = await aanbiedingen();
+  const actie = aanbiedingenLijst[0];
 
   return (
     <section className="container-ukm py-14 lg:py-20">
@@ -32,18 +35,19 @@ export function Promotie() {
           <div className="relative max-w-lg p-8 sm:p-12 lg:p-14">
             <Badge variant="korting" className="mb-5">
               <Tag />
-              Actie van de maand
+              {actie ? "Actie van de maand" : "PTC photochroom"}
             </Badge>
             <h2 className="font-display text-3xl font-bold sm:text-[2.5rem] sm:leading-[1.1]">
-              Translucent Square nu {actie ? formatPrijs(actie.prijs) : "in de aanbieding"}
+              {actie ? `${actie.naam} nu ${formatPrijs(actie.prijs)}` : "Helder binnen, donker in de zon"}
             </h2>
             <p className="mt-4 max-w-md leading-relaxed text-creme/75">
-              Doorschijnend gekleurd acetaat met photochrome glazen. Zolang de voorraad strekt, in paars, blauw en
-              roze.
+              {actie
+                ? "Zolang de voorraad strekt."
+                : "Onze PTC-monturen combineren UV-bescherming met een blauwlichtfilter, in een glas dat buiten vanzelf donker kleurt."}
             </p>
             <Button asChild variant="wit" size="lg" className="mt-8">
-              <Link href="/aanbiedingen">
-                Naar de aanbiedingen
+              <Link href={actie ? "/aanbiedingen" : "/categorie/ptc"}>
+                {actie ? "Naar de aanbiedingen" : "Ontdek PTC"}
                 <ArrowRight />
               </Link>
             </Button>

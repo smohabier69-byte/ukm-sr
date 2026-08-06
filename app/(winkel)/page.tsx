@@ -9,7 +9,7 @@ import { Productsectie } from "@/components/home/productsectie";
 import { VeelgesteldeVragenPreview } from "@/components/home/veelgestelde-vragen-preview";
 import { Nieuwsbrief } from "@/components/home/nieuwsbrief";
 import { RecentBekeken } from "@/components/product/recent-bekeken";
-import { nieuwBinnen, uitgelicht } from "@/data/producten";
+import { nieuwBinnen, uitgelicht } from "@/lib/square/producten";
 import { bedrijf } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -55,7 +55,9 @@ const winkelSchema = {
  * daarom een eigen rij; een derde bijna-identieke productrij zou de
  * rommeligheid terugbrengen die deze pagina bewust heeft opgelost.
  */
-export default function Homepagina() {
+export default async function Homepagina() {
+  const [uitgelichtProducten, nieuwBinnenProducten] = await Promise.all([uitgelicht(), nieuwBinnen()]);
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(winkelSchema) }} />
@@ -70,7 +72,7 @@ export default function Homepagina() {
         titel="Een doorsnede van de collectie"
         tekst="Uit elke vorm en techniek het model dat op dit moment het best loopt."
         link={{ label: "Bekijk het volledige assortiment", href: "/producten" }}
-        producten={uitgelicht}
+        producten={uitgelichtProducten}
         prioriteit
       />
 
@@ -81,7 +83,7 @@ export default function Homepagina() {
         titel="Net toegevoegd aan het assortiment"
         tekst="De laatste aanvullingen op het assortiment, nog vers in de winkel."
         link={{ label: "Bekijk alle nieuwe modellen", href: "/producten?sorteer=nieuwste" }}
-        producten={nieuwBinnen}
+        producten={nieuwBinnenProducten}
         aantalKolommen={4}
       />
 

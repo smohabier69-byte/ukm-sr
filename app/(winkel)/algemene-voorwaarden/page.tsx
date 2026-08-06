@@ -23,14 +23,6 @@ export default function VoorwaardenPagina() {
       />
 
       <section className="container-ukm py-10 lg:py-14">
-        <div className="mb-10 max-w-[46rem] rounded-2xl border border-goud/30 bg-goud/8 p-5">
-          <p className="font-display font-semibold">Over deze website</p>
-          <p className="mt-1.5 text-sm leading-relaxed text-inkt-zacht">
-            Deze website is een demonstratie. Er kunnen langs deze weg geen overeenkomsten worden gesloten. De
-            voorwaarden hieronder beschrijven hoe {bedrijf.naam} in de winkel en via WhatsApp werkt.
-          </p>
-        </div>
-
         <div className="prose-ukm">
           <h2 id="toepasselijkheid">1. Toepasselijkheid</h2>
           <p>

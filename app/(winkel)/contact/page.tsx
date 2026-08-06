@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Clock, Info, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 
 import { Paginakop } from "@/components/catalogus/paginakop";
 import { Contactformulier } from "@/components/contact/contactformulier";
@@ -140,14 +140,6 @@ export default function ContactPagina() {
             <p className="mt-2 text-sm leading-relaxed text-inkt-zacht">
               Laat uw vraag achter, dan nemen we contact op.
             </p>
-
-            <div className="mt-6 flex items-start gap-2.5 rounded-2xl bg-creme-diep p-4">
-              <Info className="mt-0.5 size-4 shrink-0 text-inkt-zacht" />
-              <p className="text-xs leading-relaxed text-inkt-zacht">
-                Deze website is een demonstratie. Het formulier verstuurt niets en slaat niets op. Gebruik WhatsApp of
-                telefoon om UKM werkelijk te bereiken.
-              </p>
-            </div>
 
             <Contactformulier />
           </div>

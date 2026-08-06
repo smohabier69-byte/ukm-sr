@@ -6,7 +6,7 @@ import { Eye, Heart, MapPin, ShieldCheck } from "lucide-react";
 import { Paginakop } from "@/components/catalogus/paginakop";
 import { Button } from "@/components/ui/button";
 import { Onthul, OnthulGroep, OnthulKind } from "@/components/motion/onthul";
-import { producten } from "@/data/producten";
+import { alleProducten } from "@/lib/square/producten";
 import { bedrijf } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -37,7 +37,9 @@ const waarden = [
   },
 ];
 
-export default function OverOnsPagina() {
+export default async function OverOnsPagina() {
+  const producten = await alleProducten();
+
   return (
     <>
       <Paginakop

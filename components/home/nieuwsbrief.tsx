@@ -1,24 +1,17 @@
 "use client";
 
-import * as React from "react";
+import { useActionState } from "react";
 import { motion } from "framer-motion";
-import { Check, Mail } from "lucide-react";
+import { AlertCircle, Check, Mail } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { meldAanVoorNieuwsbrief, type ActieResultaat } from "./nieuwsbrief-acties";
 
-/**
- * Aanmelding voor de nieuwsbrief. Deze demo verstuurt niets naar een server;
- * de bevestiging is bewust duidelijk over wat er wel en niet gebeurt.
- */
+const beginstaat: ActieResultaat = { succes: false };
+
 export function Nieuwsbrief() {
-  const [email, setEmail] = React.useState("");
-  const [aangemeld, setAangemeld] = React.useState(false);
-
-  const verstuur = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (email.trim()) setAangemeld(true);
-  };
+  const [staat, actie, bezig] = useActionState(meldAanVoorNieuwsbrief, beginstaat);
 
   return (
     <section className="container-ukm py-14 lg:py-20">
@@ -38,7 +31,7 @@ export function Nieuwsbrief() {
             Nieuwe modellen, acties en kleuren die terug op voorraad zijn. Hooguit twee berichten per maand.
           </p>
 
-          {aangemeld ? (
+          {staat.succes ? (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -49,28 +42,32 @@ export function Nieuwsbrief() {
                 <Check className="size-5" />
                 Bedankt voor uw aanmelding
               </p>
-              <p className="mt-2 text-sm text-salie-100">
-                Dit is een demonstratie: er is niets verzonden en uw adres wordt niet opgeslagen.
-              </p>
             </motion.div>
           ) : (
-            <form onSubmit={verstuur} className="mx-auto mt-9 flex max-w-md flex-col gap-3 sm:flex-row">
-              <label htmlFor="nieuwsbrief-email" className="sr-only">
-                E-mailadres
-              </label>
-              <Input
-                id="nieuwsbrief-email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="uw@email.sr"
-                className="flex-1 border-transparent bg-white/95"
-              />
-              <Button type="submit" variant="wit" className="sm:px-8">
-                Aanmelden
-              </Button>
-            </form>
+            <>
+              <form action={actie} className="mx-auto mt-9 flex max-w-md flex-col gap-3 sm:flex-row">
+                <label htmlFor="nieuwsbrief-email" className="sr-only">
+                  E-mailadres
+                </label>
+                <Input
+                  id="nieuwsbrief-email"
+                  name="email"
+                  type="email"
+                  required
+                  placeholder="uw@email.sr"
+                  className="flex-1 border-transparent bg-white/95"
+                />
+                <Button type="submit" variant="wit" className="sm:px-8" disabled={bezig}>
+                  {bezig ? "Bezig..." : "Aanmelden"}
+                </Button>
+              </form>
+              {staat.fout ? (
+                <p className="mt-3 flex items-center justify-center gap-2 text-sm text-white">
+                  <AlertCircle className="size-4 shrink-0" />
+                  {staat.fout}
+                </p>
+              ) : null}
+            </>
           )}
 
           <p className="mt-5 text-xs text-salie-200">

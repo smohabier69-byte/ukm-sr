@@ -4,6 +4,7 @@ import * as React from "react";
 
 import { Productkaart } from "@/components/product/productkaart";
 import { useRecentBekeken, useWinkelHydratie } from "@/lib/winkel/stores";
+import { useProductenCache } from "@/lib/winkel/catalogus-cache";
 import type { Product } from "@/types/product";
 
 /** Legt vast dat dit product bekeken is; rendert zelf niets. */
@@ -29,22 +30,11 @@ export function RegistreerBezoek({ slug }: { slug: string }) {
 export function RecentBekeken({ huidigeSlug, titel = "Recent bekeken" }: { huidigeSlug?: string; titel?: string }) {
   const gehydrateerd = useWinkelHydratie();
   const slugs = useRecentBekeken((staat) => staat.slugs);
-  const [catalogus, setCatalogus] = React.useState<Product[]>([]);
+  const { producten: catalogus, gereed: catalogusGereed } = useProductenCache();
 
   const teTonen = slugs.filter((slug) => slug !== huidigeSlug);
 
-  React.useEffect(() => {
-    if (!gehydrateerd || teTonen.length === 0 || catalogus.length > 0) return;
-    let geannuleerd = false;
-    import("@/data/producten").then((module) => {
-      if (!geannuleerd) setCatalogus(module.producten);
-    });
-    return () => {
-      geannuleerd = true;
-    };
-  }, [gehydrateerd, teTonen.length, catalogus.length]);
-
-  if (!gehydrateerd || catalogus.length === 0) return null;
+  if (!gehydrateerd || !catalogusGereed || catalogus.length === 0) return null;
 
   const producten = teTonen
     .map((slug) => catalogus.find((p) => p.slug === slug))

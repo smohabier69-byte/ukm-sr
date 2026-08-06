@@ -1,11 +1,13 @@
 "use client";
 
 import * as React from "react";
+import { useActionState } from "react";
 import { motion } from "framer-motion";
-import { Check, Send } from "lucide-react";
+import { AlertCircle, Check, Send } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { verstuurContactformulier, type ActieResultaat } from "@/app/(winkel)/contact/acties";
 
 const onderwerpen = [
   "Vraag over een montuur",
@@ -14,14 +16,12 @@ const onderwerpen = [
   "Iets anders",
 ];
 
-/**
- * Contactformulier van de demonstratie. Er gaat niets naar een server; de
- * bevestiging zegt dat er ook expliciet bij, zodat niemand op antwoord wacht.
- */
-export function Contactformulier() {
-  const [verzonden, setVerzonden] = React.useState(false);
+const beginstaat: ActieResultaat = { succes: false };
 
-  if (verzonden) {
+export function Contactformulier() {
+  const [staat, actie, bezig] = useActionState(verstuurContactformulier, beginstaat);
+
+  if (staat.succes) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 12 }}
@@ -34,30 +34,20 @@ export function Contactformulier() {
         </span>
         <p className="mt-4 font-display text-lg font-semibold">Bedankt voor uw bericht</p>
         <p className="mt-2 text-sm leading-relaxed text-inkt-zacht">
-          In deze demonstratie is er niets verstuurd en zijn uw gegevens niet opgeslagen. Neem voor een echte vraag
-          contact op via WhatsApp of telefoon.
+          We nemen zo snel mogelijk contact met u op.
         </p>
-        <Button variant="outline" size="sm" className="mt-5" onClick={() => setVerzonden(false)}>
-          Formulier opnieuw tonen
-        </Button>
       </motion.div>
     );
   }
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        setVerzonden(true);
-      }}
-      className="mt-7 space-y-4"
-    >
+    <form action={actie} className="mt-7 space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <Veld id="contact-naam" label="Naam" autoComplete="name" />
-        <Veld id="contact-telefoon" label="Telefoonnummer" type="tel" autoComplete="tel" />
+        <Veld id="naam" label="Naam" autoComplete="name" />
+        <Veld id="telefoon" label="Telefoonnummer" type="tel" autoComplete="tel" />
       </div>
 
-      <Veld id="contact-email" label="E-mailadres" type="email" autoComplete="email" />
+      <Veld id="email" label="E-mailadres" type="email" autoComplete="email" />
 
       <div>
         <label htmlFor="contact-onderwerp" className="mb-2 block text-sm font-medium">
@@ -88,9 +78,16 @@ export function Contactformulier() {
         />
       </div>
 
-      <Button type="submit" size="lg" className="w-full">
+      {staat.fout ? (
+        <p className="flex items-start gap-2 rounded-xl bg-koraal/10 p-3 text-sm text-koraal">
+          <AlertCircle className="mt-0.5 size-4 shrink-0" />
+          {staat.fout}
+        </p>
+      ) : null}
+
+      <Button type="submit" size="lg" className="w-full" disabled={bezig}>
         <Send />
-        Bericht versturen
+        {bezig ? "Bezig..." : "Bericht versturen"}
       </Button>
     </form>
   );

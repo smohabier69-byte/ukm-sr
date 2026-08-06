@@ -15,12 +15,22 @@ import { bedrijf } from "@/lib/site";
 import { formatPrijs } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { normaliseerTekst, zoekInIndex } from "@/lib/zoeken";
+import { categorielabels } from "@/lib/catalogus";
 import { useWinkelHydratie, useWinkelwagenAantal } from "@/lib/winkel/stores";
 import { useVerlanglijstGereed, useVerlanglijstSlugs } from "@/lib/winkel/verlanglijst-actief";
-import type { Zoekindexitem } from "@/data/zoekindex";
+import { useCatalogusCache } from "@/lib/winkel/catalogus-cache";
 import { categorieen, hoofdcategorieen, categorieOpSlug } from "@/data/categorieen";
 import { merken } from "@/data/merken";
 import { hoofdnavigatie } from "./navigatie-data";
+
+interface Zoekindexitem {
+  slug: string;
+  naam: string;
+  categorie: string;
+  prijs: number;
+  afbeelding: string;
+  zoektekst: string;
+}
 
 interface SuggestieDoel {
   naam: string;
@@ -79,23 +89,35 @@ export function SiteHeader() {
   }, [megaOpen, zoekenOpen]);
 
   const [zoekterm, setZoekterm] = React.useState("");
-  const [zoekindex, setZoekindex] = React.useState<Zoekindexitem[]>([]);
+  const { producten: catalogusProducten } = useCatalogusCache();
 
   /*
-   * De zoekindex wordt pas opgehaald als het zoekveld opengaat. Zo staat de
-   * catalogus niet in de bundel van elke pagina, maar zoekt hij daarna wel
-   * volledig in de browser - zonder verzoek per toetsaanslag.
+   * De zoekindex komt uit de gedeelde catalogus-cache (`/api/catalog`), die
+   * toch al nodig is voor de winkelwagen - geen los verzoek meer nodig zodra
+   * het zoekveld opengaat.
    */
-  React.useEffect(() => {
-    if (!zoekenOpen || zoekindex.length > 0) return;
-    let geannuleerd = false;
-    import("@/data/zoekindex").then((module) => {
-      if (!geannuleerd) setZoekindex(module.zoekindex);
-    });
-    return () => {
-      geannuleerd = true;
-    };
-  }, [zoekenOpen, zoekindex.length]);
+  const zoekindex = React.useMemo<Zoekindexitem[]>(
+    () =>
+      catalogusProducten.map((product) => ({
+        slug: product.slug,
+        naam: product.naam,
+        categorie: categorielabels[product.categorie] ?? product.categorie,
+        prijs: product.prijs,
+        afbeelding: product.afbeeldingen[0] ?? "",
+        zoektekst: normaliseerTekst(
+          [
+            product.naam,
+            product.subcategorie,
+            product.categorie,
+            product.merk,
+            product.kleurfamilie ?? "",
+            product.vorm ?? "",
+            product.techniek ?? "",
+          ].join(" "),
+        ),
+      })),
+    [catalogusProducten],
+  );
 
   const suggesties = React.useMemo(() => zoekInIndex(zoekindex, zoekterm, 5), [zoekindex, zoekterm]);
   const categorieTreffers = React.useMemo(() => zoekInIndex(categorieSuggesties, zoekterm, 3), [zoekterm]);

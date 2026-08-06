@@ -3,8 +3,9 @@ import { notFound } from "next/navigation";
 
 import { Paginakop } from "@/components/catalogus/paginakop";
 import { ProductBrowser } from "@/components/catalogus/product-browser";
-import { merken, merkOpSlug } from "@/data/merken";
-import { productenVanMerk } from "@/data/producten";
+import { merken } from "@/data/merken";
+import { merkOpSlug } from "@/lib/square/merken";
+import { productenVanMerk } from "@/lib/square/producten";
 import { bouwFacetten, uitZoekparameters } from "@/lib/catalogus";
 
 export function generateStaticParams() {
@@ -16,7 +17,7 @@ export const dynamicParams = false;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const merk = merkOpSlug(slug);
+  const merk = await merkOpSlug(slug);
   if (!merk) return { title: "Merk niet gevonden" };
 
   return {
@@ -34,10 +35,10 @@ export default async function Merkpagina({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { slug } = await params;
-  const merk = merkOpSlug(slug);
+  const merk = await merkOpSlug(slug);
   if (!merk) notFound();
 
-  const lijst = productenVanMerk(slug);
+  const lijst = await productenVanMerk(slug);
   const facetten = bouwFacetten(lijst);
   const beginstaat = uitZoekparameters(await searchParams, facetten);
 

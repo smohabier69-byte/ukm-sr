@@ -1,5 +1,4 @@
 import { bedrijf } from "@/lib/site";
-import { productOpSlug } from "@/data/producten";
 import type { Product, Variant } from "@/types/product";
 import type { Winkelwagenregel } from "./stores";
 
@@ -31,12 +30,17 @@ export interface Winkelwagenpost {
   totaal: number;
 }
 
-/** Koppelt opgeslagen regels aan de actuele catalogus; onbekende slugs vallen weg. */
-export function bouwPosten(regels: Winkelwagenregel[]): Winkelwagenpost[] {
+/**
+ * Koppelt opgeslagen regels aan de actuele catalogus; onbekende slugs vallen
+ * weg. Neemt de productenlijst als parameter aan (i.p.v. zelf op te halen),
+ * zodat deze functie puur blijft - clientcomponenten leveren de lijst uit
+ * `useCatalogusCache()` (lib/winkel/catalogus-cache.ts).
+ */
+export function bouwPosten(regels: Winkelwagenregel[], producten: Product[]): Winkelwagenpost[] {
   const posten: Winkelwagenpost[] = [];
 
   for (const regel of regels) {
-    const product = productOpSlug(regel.slug);
+    const product = producten.find((p) => p.slug === regel.slug);
     if (!product) continue;
 
     const variant = regel.variantId ? product.varianten.find((v) => v.id === regel.variantId) : undefined;

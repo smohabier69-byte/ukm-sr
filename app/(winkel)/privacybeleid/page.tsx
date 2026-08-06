@@ -7,7 +7,7 @@ import { formatDatumLang } from "@/lib/format";
 
 export const metadata: Metadata = {
   title: "Privacybeleid",
-  description: "Welke gegevens UKM.sr verwerkt, waarvoor, en wat deze demonstratiewebsite wel en niet opslaat.",
+  description: "Welke gegevens UKM.sr verwerkt en waarvoor.",
   alternates: { canonical: "/privacybeleid" },
 };
 
@@ -23,14 +23,6 @@ export default function PrivacybeleidPagina() {
       />
 
       <section className="container-ukm py-10 lg:py-14">
-        <div className="mb-10 max-w-[46rem] rounded-2xl border border-goud/30 bg-goud/8 p-5">
-          <p className="font-display font-semibold">Over deze website</p>
-          <p className="mt-1.5 text-sm leading-relaxed text-inkt-zacht">
-            Dit is een demonstratieversie van een webwinkel voor {bedrijf.naam}. Er worden geen bestellingen verwerkt
-            en geen betalingen gedaan. Formulieren op deze site versturen niets en slaan niets op.
-          </p>
-        </div>
-
         <div className="prose-ukm">
           <h2 id="wie">Wie is verantwoordelijk</h2>
           <p>

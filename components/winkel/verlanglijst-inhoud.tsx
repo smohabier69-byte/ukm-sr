@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Heart, ShoppingBag, X } from "lucide-react";
@@ -11,39 +10,22 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Productkaart } from "@/components/product/productkaart";
 import { useWinkelwagen } from "@/lib/winkel/stores";
 import { useVerlanglijstActies, useVerlanglijstGereed, useVerlanglijstSlugs } from "@/lib/winkel/verlanglijst-actief";
+import { useProductenCache } from "@/lib/winkel/catalogus-cache";
 import type { Product } from "@/types/product";
 
 /**
- * De verlanglijst bestaat alleen in de browser, dus de catalogus komt via een
- * dynamische import binnen in plaats van als prop uit de server.
+ * De verlanglijst bestaat alleen in de browser; de catalogus komt uit de
+ * gedeelde clientcache (lib/winkel/catalogus-cache.ts), die toch al nodig is
+ * voor winkelwagen en zoeken.
  */
 export function VerlanglijstInhoud() {
   const gehydrateerd = useVerlanglijstGereed();
   const slugs = useVerlanglijstSlugs();
   const { verwijder, leegmaken } = useVerlanglijstActies();
   const voegToe = useWinkelwagen((staat) => staat.voegToe);
+  const { producten: catalogus, gereed: catalogusGereed } = useProductenCache();
 
-  const [catalogus, setCatalogus] = React.useState<Product[]>([]);
-  const [laadt, setLaadt] = React.useState(true);
-
-  React.useEffect(() => {
-    if (!gehydrateerd) return;
-    if (slugs.length === 0) {
-      setLaadt(false);
-      return;
-    }
-    let geannuleerd = false;
-    import("@/data/producten").then((module) => {
-      if (geannuleerd) return;
-      setCatalogus(module.producten);
-      setLaadt(false);
-    });
-    return () => {
-      geannuleerd = true;
-    };
-  }, [gehydrateerd, slugs.length]);
-
-  if (!gehydrateerd || laadt) {
+  if (!gehydrateerd || !catalogusGereed) {
     return (
       <div className="grid grid-cols-2 gap-x-5 gap-y-10 sm:gap-x-6 lg:grid-cols-4" aria-busy>
         {Array.from({ length: 4 }).map((_, i) => (

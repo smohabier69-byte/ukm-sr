@@ -6,7 +6,7 @@ import { Paginakop } from "@/components/catalogus/paginakop";
 import { Productkaart } from "@/components/product/productkaart";
 import { Button } from "@/components/ui/button";
 import { OnthulGroep, OnthulKind } from "@/components/motion/onthul";
-import { aanbiedingen, bestsellers } from "@/data/producten";
+import { aanbiedingen, bestsellers } from "@/lib/square/producten";
 import { formatKorting, formatPrijs } from "@/lib/format";
 
 export const metadata: Metadata = {
@@ -15,8 +15,9 @@ export const metadata: Metadata = {
   alternates: { canonical: "/aanbiedingen" },
 };
 
-export default function Aanbiedingenpagina() {
-  const grootsteKorting = aanbiedingen.reduce(
+export default async function Aanbiedingenpagina() {
+  const [aanbiedingenLijst, bestsellersLijst] = await Promise.all([aanbiedingen(), bestsellers()]);
+  const grootsteKorting = aanbiedingenLijst.reduce(
     (hoogste, p) => Math.max(hoogste, formatKorting(p.vanPrijs ?? p.prijs, p.prijs)),
     0,
   );
@@ -27,15 +28,15 @@ export default function Aanbiedingenpagina() {
         kruimels={[{ label: "Home", href: "/" }, { label: "Aanbiedingen" }]}
         titel="Aanbiedingen"
         tekst={
-          aanbiedingen.length > 0
-            ? `Lopende acties uit de prijslijst van april 2026, met kortingen tot ${grootsteKorting}%. Zolang de voorraad strekt.`
+          aanbiedingenLijst.length > 0
+            ? `Lopende acties uit het assortiment, met kortingen tot ${grootsteKorting}%. Zolang de voorraad strekt.`
             : "Op dit moment lopen er geen acties. Bekijk hieronder wat op dit moment het best verkoopt."
         }
-        aantal={aanbiedingen.length > 0 ? aanbiedingen.length : undefined}
+        aantal={aanbiedingenLijst.length > 0 ? aanbiedingenLijst.length : undefined}
       />
 
       <section className="container-ukm py-10 lg:py-14">
-        {aanbiedingen.length > 0 ? (
+        {aanbiedingenLijst.length > 0 ? (
           <>
             <div className="mb-10 flex items-center gap-3 rounded-2xl border border-koraal/20 bg-koraal/5 px-5 py-4">
               <Tag className="size-5 shrink-0 text-koraal" />
@@ -49,7 +50,7 @@ export default function Aanbiedingenpagina() {
             </div>
 
             <OnthulGroep className="grid grid-cols-2 gap-x-5 gap-y-10 sm:gap-x-6 lg:grid-cols-4">
-              {aanbiedingen.map((product, i) => (
+              {aanbiedingenLijst.map((product, i) => (
                 <OnthulKind key={product.id}>
                   <Productkaart product={product} prioriteit={i < 4} />
                 </OnthulKind>
@@ -75,7 +76,7 @@ export default function Aanbiedingenpagina() {
           </div>
 
           <OnthulGroep className="grid grid-cols-2 gap-x-5 gap-y-10 sm:gap-x-6 lg:grid-cols-4">
-            {bestsellers.slice(0, 4).map((product) => (
+            {bestsellersLijst.slice(0, 4).map((product) => (
               <OnthulKind key={product.id}>
                 <Productkaart product={product} />
               </OnthulKind>
@@ -83,11 +84,11 @@ export default function Aanbiedingenpagina() {
           </OnthulGroep>
         </div>
 
-        {aanbiedingen.length > 0 ? (
+        {aanbiedingenLijst.length > 0 ? (
           <p className="mt-14 text-center text-sm text-inkt-zacht">
             Voordeligste artikel op dit moment:{" "}
             <span className="font-medium text-inkt">
-              {formatPrijs(Math.min(...aanbiedingen.map((p) => p.prijs)))}
+              {formatPrijs(Math.min(...aanbiedingenLijst.map((p) => p.prijs)))}
             </span>
           </p>
         ) : null}

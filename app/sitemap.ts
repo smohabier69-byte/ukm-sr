@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
 
-import { producten } from "@/data/producten";
-import { alleCategorieSlugs } from "@/data/categorieen";
-import { merken } from "@/data/merken";
+import { alleProducten } from "@/lib/square/producten";
+import { alleMerken } from "@/lib/square/merken";
+import { alleCategorieSlugs } from "@/lib/square/categorieen";
 import { mediaItems } from "@/data/media";
 import { siteUrl } from "@/lib/site";
 
@@ -13,8 +13,13 @@ import { siteUrl } from "@/lib/site";
  * bewust niet in: die pagina's zijn persoonlijk en hebben in de
  * zoekresultaten niets te zoeken.
  */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const nu = new Date();
+  const [productenLijst, merkenLijst, categorieSlugs] = await Promise.all([
+    alleProducten(),
+    alleMerken(),
+    alleCategorieSlugs(),
+  ]);
 
   const vast: MetadataRoute.Sitemap = [
     { url: `${siteUrl}/`, lastModified: nu, changeFrequency: "weekly", priority: 1 },
@@ -29,21 +34,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${siteUrl}/algemene-voorwaarden`, lastModified: nu, changeFrequency: "yearly", priority: 0.3 },
   ];
 
-  const categorieen: MetadataRoute.Sitemap = alleCategorieSlugs.map((slug) => ({
+  const categorieen: MetadataRoute.Sitemap = categorieSlugs.map((slug) => ({
     url: `${siteUrl}/categorie/${slug}`,
     lastModified: nu,
     changeFrequency: "weekly",
     priority: 0.8,
   }));
 
-  const merkpaginas: MetadataRoute.Sitemap = merken.map((merk) => ({
+  const merkpaginas: MetadataRoute.Sitemap = merkenLijst.map((merk) => ({
     url: `${siteUrl}/merken/${merk.slug}`,
     lastModified: nu,
     changeFrequency: "monthly",
     priority: 0.6,
   }));
 
-  const productpaginas: MetadataRoute.Sitemap = producten.map((product) => ({
+  const productpaginas: MetadataRoute.Sitemap = productenLijst.map((product) => ({
     url: `${siteUrl}/producten/${product.slug}`,
     lastModified: new Date(product.toegevoegdOp),
     changeFrequency: "weekly",

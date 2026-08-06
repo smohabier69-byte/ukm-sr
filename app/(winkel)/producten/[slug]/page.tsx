@@ -13,22 +13,25 @@ import { Productkaart } from "@/components/product/productkaart";
 import { Badge } from "@/components/ui/badge";
 import { Kruimelpad } from "@/components/ui/kruimelpad";
 import { Onthul } from "@/components/motion/onthul";
-import { gerelateerdeProducten, producten, productOpSlug, vaakSamenGekocht } from "@/data/producten";
-import { merkOpSlug } from "@/data/merken";
-import { categorieOpSlug } from "@/data/categorieen";
+import { alleProducten, gerelateerdeProducten, productOpSlug, vaakSamenGekocht } from "@/lib/square/producten";
+import { merkOpSlug } from "@/lib/square/merken";
+import { categorieOpSlug } from "@/lib/square/categorieen";
 import { formatPrijs } from "@/lib/format";
 import { bedrijf } from "@/lib/site";
 
-export function generateStaticParams() {
-  return producten.map((product) => ({ slug: product.slug }));
+export async function generateStaticParams() {
+  return (await alleProducten()).map((product) => ({ slug: product.slug }));
 }
 
-/** De catalogus ligt vast bij het bouwen, dus een onbekende slug geeft een echte 404. */
-export const dynamicParams = false;
+/**
+ * De catalogus staat nu in Square en kan buiten een build om wijzigen: een
+ * nieuw product moet meteen bereikbaar zijn zonder herbouwen.
+ */
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const product = productOpSlug(slug);
+  const product = await productOpSlug(slug);
   if (!product) return { title: "Product niet gevonden" };
 
   return {
@@ -46,13 +49,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function Productpagina({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = productOpSlug(slug);
+  const product = await productOpSlug(slug);
   if (!product) notFound();
 
-  const merk = merkOpSlug(product.merk);
-  const categorie = categorieOpSlug(product.categorie);
-  const combinaties = vaakSamenGekocht(product);
-  const gerelateerd = gerelateerdeProducten(product, 4);
+  const merk = await merkOpSlug(product.merk);
+  const categorie = await categorieOpSlug(product.categorie);
+  const combinaties = await vaakSamenGekocht(product);
+  const gerelateerd = await gerelateerdeProducten(product, 4);
 
   const productSchema = {
     "@context": "https://schema.org",
@@ -112,10 +115,6 @@ export default async function Productpagina({ params }: { params: Promise<{ slug
 
           <h1 className="mt-2 font-display text-3xl font-bold sm:text-4xl">{product.naam}</h1>
 
-          <p className="mt-1.5 text-sm text-inkt-zacht">
-            Uit de prijslijst als &ldquo;{product.catalogusnaam}&rdquo;
-          </p>
-
           <p className="mt-4 leading-relaxed text-inkt-zacht">{product.korteBeschrijving}</p>
 
           <div id="koopblok" className="mt-8 scroll-mt-28">
@@ -171,7 +170,6 @@ export default async function Productpagina({ params }: { params: Promise<{ slug
           <div className="mt-5">
             <Specificatietabel specificaties={product.specificaties} />
           </div>
-          <p className="mt-4 text-xs text-inkt-zacht">Bron: {product.bron}.</p>
         </Onthul>
       </section>
 

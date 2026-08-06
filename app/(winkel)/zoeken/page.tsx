@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import { Paginakop } from "@/components/catalogus/paginakop";
 import { ProductBrowser } from "@/components/catalogus/product-browser";
 import { Badge } from "@/components/ui/badge";
-import { producten } from "@/data/producten";
+import { alleProducten } from "@/lib/square/producten";
 import { bouwFacetten, uitZoekparameters } from "@/lib/catalogus";
 
 export const metadata: Metadata = {
@@ -32,6 +32,7 @@ export default async function Zoekpagina({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
+  const producten = await alleProducten();
   const facetten = bouwFacetten(producten);
   const beginstaat = uitZoekparameters(params, facetten);
 

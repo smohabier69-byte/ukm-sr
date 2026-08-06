@@ -3,18 +3,20 @@ import { notFound } from "next/navigation";
 
 import { Paginakop } from "@/components/catalogus/paginakop";
 import { ProductBrowser } from "@/components/catalogus/product-browser";
-import { alleCategorieSlugs, categoriecontext, hoofdcategorieen } from "@/data/categorieen";
-import { producten } from "@/data/producten";
+import { hoofdcategorieen, categorieen as categorieInhoud } from "@/data/categorieen";
+import { categoriecontext, type Categoriecontext } from "@/lib/square/categorieen";
+import { alleProducten } from "@/lib/square/producten";
 import { bouwFacetten, uitZoekparameters } from "@/lib/catalogus";
+import type { Product } from "@/types/product";
 
 export function generateStaticParams() {
-  return alleCategorieSlugs.map((slug) => ({ slug }));
+  return [...hoofdcategorieen.map((c) => c.slug), ...categorieInhoud.map((c) => c.slug)].map((slug) => ({ slug }));
 }
 
 /**
- * Het aantal categorieen ligt vast bij het bouwen. Door hier geen andere
- * waarden toe te laten geeft een onbekende slug een echte 404 in plaats van
- * een pagina met foutmelding en statuscode 200.
+ * De catalogus staat nu in Square, maar de categorieen zelf (navigatie +
+ * inhoud) blijven vast in code - dus dit blijft veilig statisch. Een
+ * onbekende slug geeft nog steeds een echte 404.
  */
 export const dynamicParams = false;
 
@@ -22,9 +24,7 @@ export const dynamicParams = false;
  * Een overkoepelende ingang zoals "Brillen" bevat alles van die soort; een
  * losse collectie zoals "PTC" alleen de eigen categorie.
  */
-function productenVoor(slug: string) {
-  const context = categoriecontext(slug);
-  if (!context) return [];
+function productenVoor(producten: Product[], slug: string, context: Categoriecontext) {
   return context.isHoofdcategorie
     ? producten.filter((p) => p.soort === context.soort)
     : producten.filter((p) => p.categorie === slug);
@@ -32,7 +32,7 @@ function productenVoor(slug: string) {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const context = categoriecontext(slug);
+  const context = await categoriecontext(slug);
   if (!context) return { title: "Categorie niet gevonden" };
 
   return {
@@ -55,10 +55,11 @@ export default async function Categoriepagina({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { slug } = await params;
-  const context = categoriecontext(slug);
+  const context = await categoriecontext(slug);
   if (!context) notFound();
 
-  const lijst = productenVoor(slug);
+  const alleProductenLijst = await alleProducten();
+  const lijst = productenVoor(alleProductenLijst, slug, context);
   const facetten = bouwFacetten(lijst);
   const beginstaat = uitZoekparameters(await searchParams, facetten);
 

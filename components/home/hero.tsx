@@ -6,15 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Onthul } from "@/components/motion/onthul";
 import { bedrijf } from "@/lib/site";
-import { producten } from "@/data/producten";
+import { alleProducten } from "@/lib/square/producten";
 
-const kerncijfers = [
-  { waarde: `${producten.length}+`, label: "Modellen op voorraad" },
-  { waarde: "UV400", label: "Bescherming op PTC" },
-  { waarde: "6 mnd", label: "Houdbaarheid lenzen" },
-];
+export async function Hero() {
+  const producten = await alleProducten();
+  const kerncijfers = [
+    { waarde: `${producten.length}+`, label: "Modellen op voorraad" },
+    { waarde: "UV400", label: "Bescherming op PTC" },
+    { waarde: "6 mnd", label: "Houdbaarheid lenzen" },
+  ];
 
-export function Hero() {
   return (
     <section className="relative overflow-hidden">
       {/* Zachte saliegloed achter de tekstkolom. */}

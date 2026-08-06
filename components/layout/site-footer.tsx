@@ -94,10 +94,6 @@ export function SiteFooter() {
           <p>
             &copy; {new Date().getFullYear()} {bedrijf.naam}. Alle rechten voorbehouden.
           </p>
-          <p className="max-w-xl md:text-right">
-            Deze website is een demonstratie, gemaakt voor UKM.sr. Er kunnen geen bestellingen worden geplaatst en er
-            worden geen betalingen verwerkt.
-          </p>
         </div>
       </div>
     </footer>
