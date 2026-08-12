@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { siteUrl } from "@/lib/site";
 
 export interface Kruimel {
   label: string;
@@ -13,11 +14,12 @@ export function Kruimelpad({ kruimels, className }: { kruimels: Kruimel[]; class
   const schema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
+    // Google eist absolute URL's in "item"; een relatief pad wordt genegeerd.
     itemListElement: kruimels.map((kruimel, i) => ({
       "@type": "ListItem",
       position: i + 1,
       name: kruimel.label,
-      ...(kruimel.href ? { item: kruimel.href } : {}),
+      ...(kruimel.href ? { item: `${siteUrl}${kruimel.href}` } : {}),
     })),
   };
 

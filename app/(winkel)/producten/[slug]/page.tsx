@@ -82,22 +82,9 @@ export default async function Productpagina({ params }: { params: Promise<{ slug
     { label: product.naam },
   ];
 
-  /** Kruimelpad ook als gestructureerde gegevens, voor het broodkruimelpad in de zoekresultaten. */
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: kruimels.map((kruimel, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      name: kruimel.label,
-      ...(kruimel.href ? { item: `${siteUrl}${kruimel.href}` } : {}),
-    })),
-  };
-
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       <RegistreerBezoek slug={product.slug} />
 
       <div className="container-ukm pt-8">

@@ -7,7 +7,6 @@ import { hoofdcategorieen, categorieen as categorieInhoud } from "@/data/categor
 import { categoriecontext, type Categoriecontext } from "@/lib/square/categorieen";
 import { alleProducten } from "@/lib/square/producten";
 import { bouwFacetten, uitZoekparameters } from "@/lib/catalogus";
-import { siteUrl } from "@/lib/site";
 import type { Product } from "@/types/product";
 
 export function generateStaticParams() {
@@ -73,20 +72,8 @@ export default async function Categoriepagina({
         { label: context.naam },
       ];
 
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: kruimels.map((kruimel, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      name: kruimel.label,
-      ...(kruimel.href ? { item: `${siteUrl}${kruimel.href}` } : {}),
-    })),
-  };
-
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       <Paginakop
         kruimels={kruimels}
         titel={context.naam}
