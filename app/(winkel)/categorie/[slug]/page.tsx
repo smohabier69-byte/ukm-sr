@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 
 import { Paginakop } from "@/components/catalogus/paginakop";
 import { ProductBrowser } from "@/components/catalogus/product-browser";
+import { ProductBrowserVanafUrl } from "@/components/catalogus/product-browser-vanaf-url";
 import { hoofdcategorieen, categorieen as categorieInhoud } from "@/data/categorieen";
 import { categoriecontext, type Categoriecontext } from "@/lib/square/categorieen";
 import { alleProducten } from "@/lib/square/producten";
@@ -47,13 +49,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default async function Categoriepagina({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
+export default async function Categoriepagina({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const context = await categoriecontext(slug);
   if (!context) notFound();
@@ -61,7 +57,6 @@ export default async function Categoriepagina({
   const alleProductenLijst = await alleProducten();
   const lijst = productenVoor(alleProductenLijst, slug, context);
   const facetten = bouwFacetten(lijst);
-  const beginstaat = uitZoekparameters(await searchParams, facetten);
 
   const hoofd = hoofdcategorieen.find((c) => c.soort === context.soort);
   const kruimels = context.isHoofdcategorie
@@ -83,7 +78,9 @@ export default async function Categoriepagina({
       />
 
       <section className="container-ukm py-10 lg:py-14">
-        <ProductBrowser producten={lijst} beginstaat={beginstaat} />
+        <Suspense fallback={<ProductBrowser producten={lijst} beginstaat={uitZoekparameters({}, facetten)} />}>
+          <ProductBrowserVanafUrl producten={lijst} />
+        </Suspense>
       </section>
     </>
   );
