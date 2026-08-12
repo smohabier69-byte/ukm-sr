@@ -10,7 +10,7 @@ import { VeelgesteldeVragenPreview } from "@/components/home/veelgestelde-vragen
 import { Nieuwsbrief } from "@/components/home/nieuwsbrief";
 import { RecentBekeken } from "@/components/product/recent-bekeken";
 import { nieuwBinnen, uitgelicht } from "@/lib/square/producten";
-import { bedrijf } from "@/lib/site";
+import { bedrijf, siteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: `${bedrijf.naam} | Anti-blauwlicht brillen en kleurlenzen in Paramaribo`,
@@ -18,19 +18,28 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-/** Gestructureerde gegevens voor de winkel, zodat zoekmachines de vestiging herkennen. */
+/**
+ * Gestructureerde gegevens voor de winkel, zodat zoekmachines de vestiging
+ * herkennen. "Optician" (naast "Store") is het meest specifieke schema.org-type
+ * voor een opticien - LocalBusiness > MedicalBusiness > Optician - en geeft
+ * zoekmachines een sterker signaal dan het generieke "Store" alleen.
+ */
 const winkelSchema = {
   "@context": "https://schema.org",
-  "@type": "Store",
+  "@type": ["Optician", "Store"],
   name: bedrijf.naam,
   description: bedrijf.beschrijving,
+  url: siteUrl,
+  image: `${siteUrl}/opengraph-image`,
   telephone: bedrijf.telefoon,
+  email: bedrijf.email,
   address: {
     "@type": "PostalAddress",
     streetAddress: bedrijf.adres.straat,
     addressLocality: bedrijf.adres.stad,
     addressCountry: "SR",
   },
+  areaServed: bedrijf.adres.stad,
   openingHoursSpecification: [
     {
       "@type": "OpeningHoursSpecification",
@@ -41,6 +50,19 @@ const winkelSchema = {
     { "@type": "OpeningHoursSpecification", dayOfWeek: "Saturday", opens: "09:00", closes: "15:00" },
   ],
   sameAs: [bedrijf.instagramUrl, bedrijf.facebookUrl],
+};
+
+/** Sitelinks-zoekvak in Google: laat zoekmachines direct naar /zoeken linken. */
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: bedrijf.naam,
+  url: siteUrl,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: { "@type": "EntryPoint", urlTemplate: `${siteUrl}/zoeken?q={search_term_string}` },
+    "query-input": "required name=search_term_string",
+  },
 };
 
 /**
@@ -61,6 +83,7 @@ export default async function Homepagina() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(winkelSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
 
       <Hero />
       <Voordelen />

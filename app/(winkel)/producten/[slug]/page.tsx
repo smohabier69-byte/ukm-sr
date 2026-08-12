@@ -17,7 +17,7 @@ import { alleProducten, gerelateerdeProducten, productOpSlug, vaakSamenGekocht }
 import { merkOpSlug } from "@/lib/square/merken";
 import { categorieOpSlug } from "@/lib/square/categorieen";
 import { formatPrijs } from "@/lib/format";
-import { bedrijf } from "@/lib/site";
+import { bedrijf, siteUrl } from "@/lib/site";
 
 export async function generateStaticParams() {
   return (await alleProducten()).map((product) => ({ slug: product.slug }));
@@ -64,6 +64,7 @@ export default async function Productpagina({ params }: { params: Promise<{ slug
     description: product.beschrijving,
     image: product.afbeeldingen,
     sku: product.id,
+    url: `${siteUrl}/producten/${product.slug}`,
     brand: { "@type": "Brand", name: merk?.naam ?? bedrijf.naam },
     offers: {
       "@type": "Offer",
@@ -74,20 +75,33 @@ export default async function Productpagina({ params }: { params: Promise<{ slug
     },
   };
 
+  const kruimels = [
+    { label: "Home", href: "/" },
+    { label: product.soort === "bril" ? "Brillen" : "Lenzen", href: `/categorie/${product.soort === "bril" ? "brillen" : "lenzen"}` },
+    ...(categorie ? [{ label: categorie.naam, href: `/categorie/${categorie.slug}` }] : []),
+    { label: product.naam },
+  ];
+
+  /** Kruimelpad ook als gestructureerde gegevens, voor het broodkruimelpad in de zoekresultaten. */
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: kruimels.map((kruimel, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: kruimel.label,
+      ...(kruimel.href ? { item: `${siteUrl}${kruimel.href}` } : {}),
+    })),
+  };
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       <RegistreerBezoek slug={product.slug} />
 
       <div className="container-ukm pt-8">
-        <Kruimelpad
-          kruimels={[
-            { label: "Home", href: "/" },
-            { label: product.soort === "bril" ? "Brillen" : "Lenzen", href: `/categorie/${product.soort === "bril" ? "brillen" : "lenzen"}` },
-            ...(categorie ? [{ label: categorie.naam, href: `/categorie/${categorie.slug}` }] : []),
-            { label: product.naam },
-          ]}
-        />
+        <Kruimelpad kruimels={kruimels} />
       </div>
 
       <section className="container-ukm grid gap-10 py-8 lg:grid-cols-2 lg:gap-16 lg:py-12">
