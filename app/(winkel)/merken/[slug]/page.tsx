@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 
 import { Paginakop } from "@/components/catalogus/paginakop";
 import { ProductBrowser } from "@/components/catalogus/product-browser";
+import { ProductBrowserVanafUrl } from "@/components/catalogus/product-browser-vanaf-url";
 import { merken } from "@/data/merken";
 import { merkOpSlug } from "@/lib/square/merken";
 import { productenVanMerk } from "@/lib/square/producten";
@@ -27,20 +29,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default async function Merkpagina({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
+export default async function Merkpagina({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const merk = await merkOpSlug(slug);
   if (!merk) notFound();
 
   const lijst = await productenVanMerk(slug);
   const facetten = bouwFacetten(lijst);
-  const beginstaat = uitZoekparameters(await searchParams, facetten);
 
   return (
     <>
@@ -57,7 +52,9 @@ export default async function Merkpagina({
       />
 
       <section className="container-ukm py-10 lg:py-14">
-        <ProductBrowser producten={lijst} beginstaat={beginstaat} />
+        <Suspense fallback={<ProductBrowser producten={lijst} beginstaat={uitZoekparameters({}, facetten)} />}>
+          <ProductBrowserVanafUrl producten={lijst} />
+        </Suspense>
       </section>
     </>
   );
