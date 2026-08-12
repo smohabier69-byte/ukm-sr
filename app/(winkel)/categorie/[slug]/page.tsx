@@ -1,14 +1,11 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { notFound } from "next/navigation";
 
 import { Paginakop } from "@/components/catalogus/paginakop";
-import { ProductBrowser } from "@/components/catalogus/product-browser";
 import { ProductBrowserVanafUrl } from "@/components/catalogus/product-browser-vanaf-url";
 import { hoofdcategorieen, categorieen as categorieInhoud } from "@/data/categorieen";
 import { categoriecontext, type Categoriecontext } from "@/lib/square/categorieen";
 import { alleProducten } from "@/lib/square/producten";
-import { bouwFacetten, uitZoekparameters } from "@/lib/catalogus";
 import type { Product } from "@/types/product";
 
 export function generateStaticParams() {
@@ -56,7 +53,6 @@ export default async function Categoriepagina({ params }: { params: Promise<{ sl
 
   const alleProductenLijst = await alleProducten();
   const lijst = productenVoor(alleProductenLijst, slug, context);
-  const facetten = bouwFacetten(lijst);
 
   const hoofd = hoofdcategorieen.find((c) => c.soort === context.soort);
   const kruimels = context.isHoofdcategorie
@@ -78,9 +74,7 @@ export default async function Categoriepagina({ params }: { params: Promise<{ sl
       />
 
       <section className="container-ukm py-10 lg:py-14">
-        <Suspense fallback={<ProductBrowser producten={lijst} beginstaat={uitZoekparameters({}, facetten)} />}>
-          <ProductBrowserVanafUrl producten={lijst} />
-        </Suspense>
+        <ProductBrowserVanafUrl producten={lijst} />
       </section>
     </>
   );
