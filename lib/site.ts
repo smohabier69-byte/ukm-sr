@@ -20,6 +20,9 @@ export const bedrijf = {
     straat: "Rembrandtstraat #84",
     stad: "Paramaribo",
     land: "Suriname",
+    /** Google Maps-geocode van het adres, voor het Optician-schema (lokale kaartresultaten). */
+    lat: 5.8510337,
+    lng: -55.1422288,
   },
   telefoon: "+597 841-1203",
   telefoonPlat: "5978411203",

@@ -39,6 +39,7 @@ const winkelSchema = {
     addressLocality: bedrijf.adres.stad,
     addressCountry: "SR",
   },
+  geo: { "@type": "GeoCoordinates", latitude: bedrijf.adres.lat, longitude: bedrijf.adres.lng },
   areaServed: bedrijf.adres.stad,
   openingHoursSpecification: [
     {
