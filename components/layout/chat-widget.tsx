@@ -169,10 +169,10 @@ export function ChatWidget() {
                         href={deel.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block max-w-[75%] overflow-hidden rounded-2xl shadow-zacht"
+                        className="block overflow-hidden rounded-2xl shadow-zacht"
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={deel.url} alt="Productfoto" className="h-auto w-full object-cover" loading="lazy" />
+                        <img src={deel.url} alt="Productfoto" className="h-auto w-56 max-w-full object-cover" />
                       </a>
                     ) : (
                       <p
