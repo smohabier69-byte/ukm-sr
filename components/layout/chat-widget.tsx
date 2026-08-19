@@ -12,6 +12,36 @@ type Bericht = {
   tekst: string;
 };
 
+type BerichtDeel = { soort: "tekst"; inhoud: string } | { soort: "afbeelding"; url: string };
+
+const AFBEELDING_REGEX = /^https?:\/\/\S+\.(?:jpe?g|png|webp|gif)(?:\?\S*)?$/i;
+
+/** Splitst een bericht in tekst- en afbeeldingdelen: een losse regel met een directe afbeeldings-URL wordt een foto. */
+function ontleedBericht(tekst: string): BerichtDeel[] {
+  const delen: BerichtDeel[] = [];
+  let huidigeTekst: string[] = [];
+
+  const sluitTekstAf = () => {
+    if (huidigeTekst.length > 0) {
+      delen.push({ soort: "tekst", inhoud: huidigeTekst.join("\n").trim() });
+      huidigeTekst = [];
+    }
+  };
+
+  for (const regel of tekst.split("\n")) {
+    const getrimd = regel.trim();
+    if (AFBEELDING_REGEX.test(getrimd)) {
+      sluitTekstAf();
+      delen.push({ soort: "afbeelding", url: getrimd });
+    } else {
+      huidigeTekst.push(regel);
+    }
+  }
+  sluitTekstAf();
+
+  return delen;
+}
+
 const WEBHOOK_URL =
   process.env.NEXT_PUBLIC_N8N_CHAT_WEBHOOK_URL ?? "https://n8n-ukmsr.app.n8n.cloud/webhook/ukmsr-website-chat";
 
@@ -127,18 +157,37 @@ export function ChatWidget() {
               {berichten.map((bericht, index) => (
                 <div
                   key={index}
-                  className={cn("flex", bericht.rol === "gebruiker" ? "justify-end" : "justify-start")}
+                  className={cn(
+                    "flex flex-col gap-1.5",
+                    bericht.rol === "gebruiker" ? "items-end" : "items-start",
+                  )}
                 >
-                  <p
-                    className={cn(
-                      "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap",
-                      bericht.rol === "gebruiker"
-                        ? "rounded-br-sm bg-salie-700 text-white"
-                        : "rounded-bl-sm bg-white text-inkt shadow-zacht",
-                    )}
-                  >
-                    {bericht.tekst}
-                  </p>
+                  {ontleedBericht(bericht.tekst).map((deel, deelIndex) =>
+                    deel.soort === "afbeelding" ? (
+                      <a
+                        key={deelIndex}
+                        href={deel.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block max-w-[75%] overflow-hidden rounded-2xl shadow-zacht"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={deel.url} alt="Productfoto" className="h-auto w-full object-cover" loading="lazy" />
+                      </a>
+                    ) : (
+                      <p
+                        key={deelIndex}
+                        className={cn(
+                          "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap",
+                          bericht.rol === "gebruiker"
+                            ? "rounded-br-sm bg-salie-700 text-white"
+                            : "rounded-bl-sm bg-white text-inkt shadow-zacht",
+                        )}
+                      >
+                        {deel.inhoud}
+                      </p>
+                    ),
+                  )}
                 </div>
               ))}
               {bezigMetVerzenden && (
