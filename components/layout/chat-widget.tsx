@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { MessageCircle, Send, X } from "lucide-react";
+import { FileText, MessageCircle, Send, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { bedrijf } from "@/lib/site";
@@ -12,11 +12,15 @@ type Bericht = {
   tekst: string;
 };
 
-type BerichtDeel = { soort: "tekst"; inhoud: string } | { soort: "afbeelding"; url: string };
+type BerichtDeel =
+  | { soort: "tekst"; inhoud: string }
+  | { soort: "afbeelding"; url: string }
+  | { soort: "bestand"; url: string };
 
 const AFBEELDING_REGEX = /^https?:\/\/\S+\.(?:jpe?g|png|webp|gif)(?:\?\S*)?$/i;
+const URL_REGEX = /^https?:\/\/\S+$/i;
 
-/** Splitst een bericht in tekst- en afbeeldingdelen: een losse regel met een directe afbeeldings-URL wordt een foto. */
+/** Splitst een bericht in tekst-, afbeelding- en bestandsdelen: een losse regel met een directe URL wordt een foto of een bestandslink. */
 function ontleedBericht(tekst: string): BerichtDeel[] {
   const delen: BerichtDeel[] = [];
   let huidigeTekst: string[] = [];
@@ -33,6 +37,9 @@ function ontleedBericht(tekst: string): BerichtDeel[] {
     if (AFBEELDING_REGEX.test(getrimd)) {
       sluitTekstAf();
       delen.push({ soort: "afbeelding", url: getrimd });
+    } else if (URL_REGEX.test(getrimd)) {
+      sluitTekstAf();
+      delen.push({ soort: "bestand", url: getrimd });
     } else {
       huidigeTekst.push(regel);
     }
@@ -173,6 +180,17 @@ export function ChatWidget() {
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={deel.url} alt="Productfoto" className="h-auto w-56 max-w-full object-cover" />
+                      </a>
+                    ) : deel.soort === "bestand" ? (
+                      <a
+                        key={deelIndex}
+                        href={deel.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 rounded-2xl rounded-bl-sm bg-white px-4 py-3 text-sm text-inkt shadow-zacht transition-colors hover:bg-salie-50"
+                      >
+                        <FileText className="size-5 shrink-0 text-salie-700" />
+                        <span className="underline underline-offset-2">Bestand openen</span>
                       </a>
                     ) : (
                       <p
