@@ -3,6 +3,7 @@ import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 
 import { BewegingProvider } from "@/components/motion/beweging-provider";
 import { SessieProvider } from "@/components/providers/sessie-provider";
+import { ChatWidget } from "@/components/layout/chat-widget";
 import { Meldingen } from "@/components/layout/meldingen";
 import { bedrijf, siteUrl } from "@/lib/site";
 import "./globals.css";
@@ -96,6 +97,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <BewegingProvider>
             {children}
             <Meldingen />
+            <ChatWidget />
           </BewegingProvider>
         </SessieProvider>
       </body>
