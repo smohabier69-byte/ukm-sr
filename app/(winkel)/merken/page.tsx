@@ -8,6 +8,7 @@ import { OnthulGroep, OnthulKind } from "@/components/motion/onthul";
 import { merken } from "@/data/merken";
 import { aantalPerMerk, productenVanMerk } from "@/lib/square/producten";
 import { formatPrijs } from "@/lib/format";
+import { fotoStijl } from "@/lib/fotofocus";
 
 export const metadata: Metadata = {
   title: "Merken en huislijnen",
@@ -49,7 +50,8 @@ export default async function Merkenpagina() {
                           alt=""
                           fill
                           sizes="(min-width: 1024px) 16vw, 33vw"
-                          className="object-cover object-top transition-transform duration-700 ease-[var(--ease-uit)] group-hover:scale-105"
+                          style={fotoStijl(product.afbeeldingen[0])}
+                          className="object-cover transition-transform duration-700 ease-[var(--ease-uit)] group-hover:scale-105"
                         />
                       </div>
                     ))}

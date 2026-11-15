@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Onthul, OnthulGroep, OnthulKind } from "@/components/motion/onthul";
 import { alleProducten } from "@/lib/square/producten";
 import { bedrijf } from "@/lib/site";
+import { fotoStijl } from "@/lib/fotofocus";
 
 export const metadata: Metadata = {
   title: "Over ons",
@@ -74,20 +75,22 @@ export default async function OverOnsPagina() {
           <div className="grid grid-cols-2 gap-4">
             <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-creme-diep">
               <Image
-                src="/producten/brillen/brillen-p059-2.jpg"
+                src="/producten/nov26/dames/dames-p032-1.webp"
                 alt="Model draagt een photochrome cat eye van UKM.sr"
                 fill
                 sizes="(min-width: 1024px) 22vw, 45vw"
-                className="object-cover object-top"
+                style={fotoStijl("/producten/nov26/dames/dames-p032-1.webp")}
+                className="object-cover"
               />
             </div>
             <div className="relative mt-8 aspect-[3/4] overflow-hidden rounded-2xl bg-creme-diep">
               <Image
-                src="/producten/lenzen/lenzen-p020-1.jpg"
+                src="/producten/nov26/lenzen/lenzen-p012-1.webp"
                 alt="Kleurlens uit de Soft Lenses collectie"
                 fill
                 sizes="(min-width: 1024px) 22vw, 45vw"
-                className="object-cover object-top"
+                style={fotoStijl("/producten/nov26/lenzen/lenzen-p012-1.webp")}
+                className="object-cover"
               />
             </div>
           </div>

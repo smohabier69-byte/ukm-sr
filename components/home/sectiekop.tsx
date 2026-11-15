@@ -4,6 +4,10 @@ import { ArrowRight } from "lucide-react";
 import { Onthul } from "@/components/motion/onthul";
 import { cn } from "@/lib/utils";
 
+/**
+ * Kop boven een sectie. `titel` mag opmaak bevatten: een `<em>` erin wordt het
+ * cursieve salie-accent van de huisstijl.
+ */
 export function Sectiekop({
   bovenschrift,
   titel,
@@ -13,7 +17,7 @@ export function Sectiekop({
   className,
 }: {
   bovenschrift?: string;
-  titel: string;
+  titel: React.ReactNode;
   tekst?: string;
   link?: { label: string; href: string };
   gecentreerd?: boolean;
@@ -27,20 +31,27 @@ export function Sectiekop({
         className,
       )}
     >
-      <div className={cn("max-w-2xl", gecentreerd && "mx-auto")}>
+      <div className={cn("max-w-2xl", gecentreerd && "mx-auto text-center")}>
         {bovenschrift ? (
-          <p className="font-display text-[0.6875rem] font-semibold tracking-[0.14em] text-salie-600 uppercase">
+          <p
+            className={cn(
+              "inline-flex items-center gap-2.5 text-salie-600 bovenschrift",
+              gecentreerd && "justify-center",
+            )}
+          >
+            <span aria-hidden className="h-px w-6 bg-salie-300" />
             {bovenschrift}
+            {gecentreerd ? <span aria-hidden className="h-px w-6 bg-salie-300" /> : null}
           </p>
         ) : null}
-        <h2 className="mt-3 font-display text-3xl font-bold sm:text-[2.5rem] sm:leading-[1.1]">{titel}</h2>
+        <h2 className="mt-3 font-display text-3xl font-semibold sm:text-[2.625rem] sm:leading-[1.08]">{titel}</h2>
         {tekst ? <p className="mt-4 leading-relaxed text-inkt-zacht">{tekst}</p> : null}
       </div>
 
       {link ? (
         <Link
           href={link.href}
-          className="group inline-flex shrink-0 items-center gap-2 text-sm font-medium text-salie-700 transition-colors hover:text-salie-800"
+          className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-salie-700/20 bg-white/60 px-4 py-2 text-sm font-medium text-salie-800 transition-colors hover:border-salie-700/45 hover:bg-white"
         >
           {link.label}
           <ArrowRight className="size-4 transition-transform duration-300 ease-[var(--ease-uit)] group-hover:translate-x-1" />

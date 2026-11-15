@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useWinkelwagen } from "@/lib/winkel/stores";
 import { formatPrijs } from "@/lib/format";
 import type { Product } from "@/types/product";
+import { fotoStijl } from "@/lib/fotofocus";
 
 /**
  * Balk die verschijnt zodra de hoofdkoopblok (met de #koopblok-anker) buiten
@@ -56,7 +57,7 @@ export function StickyKoopbalk({ product }: { product: Product }) {
         >
           <div className="container-ukm flex items-center gap-4 py-3">
             <div className="relative hidden size-12 shrink-0 overflow-hidden rounded-xl bg-creme-diep sm:block">
-              <Image src={product.afbeeldingen[0]} alt="" fill sizes="48px" className="object-cover object-top" />
+              <Image src={product.afbeeldingen[0]} alt="" fill sizes="48px" style={fotoStijl(product.afbeeldingen[0])} className="object-cover" />
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">{product.naam}</p>

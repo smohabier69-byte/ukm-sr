@@ -1,41 +1,18 @@
 import type { Montuurvorm, Specificatie, Techniek } from "@/types/product";
 
 /**
- * Deterministische pseudo-toevalsgetallen.
+ * Redactionele bouwstenen voor de productteksten.
  *
- * Voorraad en populariteit zijn demowaarden. Ze worden uit de
- * slug afgeleid in plaats van willekeurig getrokken, zodat server en client
- * exact dezelfde cijfers renderen en er geen hydratieverschil ontstaat.
+ * Alles hier is afgeleid van wat de prijslijsten (november 2026) zelf
+ * vermelden. Er staan bewust geen afmetingen, gewichten of percentages in die
+ * UKM niet opgeeft: een specificatie die niet uit de prijslijst komt, hoort
+ * niet op de productpagina.
  */
-function zaad(sleutel: string): number {
-  let h = 2166136261;
-  for (let i = 0; i < sleutel.length; i++) {
-    h ^= sleutel.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return h >>> 0;
-}
 
-export function tussen(slug: string, veld: string, min: number, max: number): number {
-  return min + (zaad(`${slug}:${veld}`) % (max - min + 1));
-}
-
-export function keuze<T>(slug: string, veld: string, opties: readonly T[]): T {
-  return opties[zaad(`${slug}:${veld}`) % opties.length];
-}
-
-/** Datum binnen de afgelopen achttien maanden, geteld vanaf de catalogusdatum. */
-const PEILDATUM = new Date("2026-04-01T00:00:00Z");
-
-export function toegevoegdOp(slug: string): string {
-  const dagenTerug = tussen(slug, "leeftijd", 0, 540);
-  const d = new Date(PEILDATUM.getTime() - dagenTerug * 86_400_000);
-  return d.toISOString().slice(0, 10);
-}
-
-/* -------------------------------------------------------------------------- */
-/* Redactionele bouwstenen                                                     */
-/* -------------------------------------------------------------------------- */
+/** Uitgavedatum van de prijslijsten waarop het assortiment is gebaseerd. */
+export const CATALOGUSDATUM = "2026-11-01";
+/** Modellen zonder "NEW"-lint stonden al in de vorige uitgave. */
+export const VORIGE_UITGAVE = "2026-09-01";
 
 interface Vormprofiel {
   naam: string;
@@ -58,56 +35,53 @@ export const vormprofielen: Record<Montuurvorm, Vormprofiel> = {
   },
   frameless: {
     naam: "Frameless",
-    karakter:
-      "Zonder zichtbare rand blijft het gezicht open; alleen de glazen en de dunne veren zijn te zien.",
+    karakter: "Zonder zichtbare rand blijft het gezicht open; alleen de glazen en de dunne veren zijn te zien.",
     pasvorm: "Ideaal voor wie liever niet ziet dat er een bril op zit.",
   },
   square: {
     naam: "Square",
-    karakter:
-      "Rechte lijnen en zachte hoeken geven dit vierkante montuur een rustige, hedendaagse uitstraling.",
+    karakter: "Rechte lijnen en zachte hoeken geven dit vierkante montuur een rustige, hedendaagse uitstraling.",
     pasvorm: "Brengt balans bij rondere gezichtsvormen.",
   },
   rectangle: {
     naam: "Rectangle",
-    karakter:
-      "Een breed, licht rechthoekig montuur dat het gezicht optisch verbreedt zonder zwaar te worden.",
+    karakter: "Een smal, rechthoekig montuur dat nauwelijks ruimte inneemt op het gezicht.",
     pasvorm: "Werkt goed bij smallere en langere gezichten.",
   },
   aviator: {
     naam: "Aviator",
-    karakter:
-      "De dubbele brug en druppelvormige glazen van deze aviator zijn tijdloos en dragen bijna gewichtloos.",
+    karakter: "De dubbele brug en druppelvormige glazen van deze aviator zijn tijdloos.",
     pasvorm: "Kleedt vrijwel elke gezichtsvorm, van vierkant tot ovaal.",
   },
   oval: {
     naam: "Oval",
-    karakter:
-      "Zachte, doorlopende rondingen zonder scherpe hoeken, waardoor het montuur nooit streng oogt.",
+    karakter: "Zachte, doorlopende rondingen zonder scherpe hoeken, waardoor het montuur nooit streng oogt.",
     pasvorm: "Verzacht hoekige gezichtslijnen.",
   },
   round: {
     naam: "Round",
-    karakter: "Een volledig rond montuur met een eigenzinnig, kunstzinnig karakter.",
+    karakter: "Een rond montuur met een eigenzinnig, kunstzinnig karakter.",
     pasvorm: "Op zijn mooist bij hoekige en vierkante gezichten.",
   },
   geometric: {
     naam: "Geometric",
-    karakter:
-      "Een hoekige, veelvlakkige vorm die duidelijk afwijkt van de standaard en meteen als statement leest.",
+    karakter: "Een hoekige, veelvlakkige vorm die duidelijk afwijkt van de standaard en meteen als statement leest.",
     pasvorm: "Voor wie bewust iets anders wil dan rond of vierkant.",
   },
   "cat-ear": {
     naam: "Cat ear",
-    karakter:
-      "De speelse oortjes bovenop het montuur maken dit model onmiskenbaar; grappig, maar netjes uitgevoerd.",
-    pasvorm: "Een geliefd cadeaumodel en een vaste favoriet in de winkel.",
+    karakter: "De speelse oortjes bovenop het montuur maken dit model onmiskenbaar; grappig, maar netjes uitgevoerd.",
+    pasvorm: "Een geliefd cadeaumodel.",
+  },
+  sport: {
+    naam: "Sport",
+    karakter: "Een gebogen sportmontuur dat dicht om het gezicht sluit en ook in beweging blijft zitten.",
+    pasvorm: "Gemaakt voor hardlopen, fietsen en lange dagen buiten.",
   },
   kids: {
     naam: "Kids",
-    karakter:
-      "Een licht en buigzaam montuur op kindermaat, gemaakt om tegen een stootje te kunnen.",
-    pasvorm: "Geschikt voor kinderen van ongeveer vier tot twaalf jaar.",
+    karakter: "Een licht montuur op kindermaat.",
+    pasvorm: "Geschikt voor kinderen.",
   },
 };
 
@@ -115,74 +89,57 @@ export const techniekprofielen: Record<Techniek, { label: string; tekst: string;
   ptc: {
     label: "PTC photochroom",
     tekst:
-      "De glazen zijn voorzien van onze Photochromic Technology Coating: binnen blijven ze volledig helder, in de zon kleuren ze binnen enkele seconden donker en buiten fel zonlicht keren ze weer terug. Zo heb je bescherming tegen blauw licht en tegen UV in een montuur, zonder te wisselen van bril.",
+      "De glazen hebben onze Photochromic Technology Coating: binnen blijven ze helder, in zonlicht kleuren ze vanzelf donker en daarna worden ze weer helder. Zo heb je bescherming tegen blauw licht en tegen UV in een enkele bril.",
     kenmerken: [
-      "Verkleurt automatisch in zonlicht",
-      "Volledig helder binnenshuis",
-      "Blokkeert 400+ nm UV-straling",
+      "Kleurt automatisch donker in zonlicht",
+      "Helder binnenshuis",
+      "Beschermt tegen UV-straling",
       "Filtert blauw licht van schermen",
     ],
   },
   "non-ptc": {
     label: "Anti-blauwlicht",
     tekst:
-      "De glazen blijven altijd helder en filteren het blauwe licht van telefoons, laptops en televisies. Dat scheelt merkbaar bij lange schermdagen: minder branderige ogen aan het eind van de middag en rustiger inslapen na een avond doorwerken.",
-    kenmerken: [
-      "Filtert blauw licht van schermen",
-      "Blijft helder, verkleurt niet",
-      "Vermindert vermoeide ogen",
-      "Ondersteunt een rustiger slaapritme",
-    ],
+      "De glazen blijven altijd helder en filteren het blauwe licht van telefoon, laptop en televisie. Fijn voor wie meer dan een paar uur per dag achter een scherm zit.",
+    kenmerken: ["Filtert blauw licht van schermen", "Blijft helder, verkleurt niet"],
   },
 };
-
-export const brilKenmerkenBasis = [
-  "Lichtgewicht montuur met veerscharnieren",
-  "Antikras-coating op beide glaszijden",
-  "Inclusief hoes en microvezeldoekje",
-];
 
 export function brilSpecificaties(input: {
   vorm: Montuurvorm;
   techniek: Techniek;
-  materiaal: string;
-  slug: string;
+  kleur: string;
+  sterktes?: string;
 }): Specificatie[] {
-  const { vorm, techniek, materiaal, slug } = input;
+  const { vorm, techniek, kleur, sterktes } = input;
   return [
     { label: "Montuurvorm", waarde: vormprofielen[vorm].naam },
+    { label: "Uitvoering", waarde: kleur },
     { label: "Glastype", waarde: techniek === "ptc" ? "Photochroom (PTC)" : "Helder, anti-blauwlicht" },
-    { label: "Blauwlichtfilter", waarde: `${tussen(slug, "filter", 88, 96)}%` },
-    { label: "UV-bescherming", waarde: techniek === "ptc" ? "UV400" : "UV380" },
-    { label: "Montuurmateriaal", waarde: materiaal },
-    { label: "Glasbreedte", waarde: `${tussen(slug, "glas", 48, 56)} mm` },
-    { label: "Brugbreedte", waarde: `${tussen(slug, "brug", 15, 21)} mm` },
-    { label: "Veerlengte", waarde: `${tussen(slug, "veer", 138, 148)} mm` },
-    { label: "Gewicht", waarde: `${tussen(slug, "gewicht", 17, 31)} gram` },
-    { label: "Meegeleverd", waarde: "Brillenhoes en poetsdoekje" },
+    { label: "Blauwlichtfilter", waarde: "Ja" },
+    { label: "In de zon", waarde: techniek === "ptc" ? "Kleurt donker, beschermt tegen UV" : "Blijft helder" },
+    ...(sterktes ? [{ label: "Leessterktes", waarde: sterktes }] : []),
   ];
 }
 
 /** Vaste specificaties uit de prijslijst; gelden voor het hele lenzenassortiment. */
-export function lensSpecificaties(input: { sterkte: string; slug: string }): Specificatie[] {
+export function lensSpecificaties(input: { sterkte: string; code?: string }): Specificatie[] {
   return [
+    ...(input.code ? [{ label: "Artikelcode", waarde: input.code }] : []),
+    { label: "Sterkte", waarde: input.sterkte },
     { label: "Diameter (DIA)", waarde: "14.0 - 14.5 mm" },
     { label: "Basiscurve", waarde: "8.6 mm" },
-    { label: "Sterkte", waarde: input.sterkte },
     { label: "Watergehalte", waarde: "38% - 42%" },
     { label: "Materiaal", waarde: "58% - 62% PHEMA" },
-    { label: "Houdbaarheid", waarde: "6 maanden na openen" },
-    { label: "Draagduur", waarde: `Maximaal ${tussen(input.slug, "draagduur", 6, 8)} uur per dag` },
-    { label: "Verpakking", waarde: "Set van 2 lenzen in steriele vloeistof" },
+    { label: "Houdbaarheid", waarde: "6 maanden" },
     { label: "Certificering", waarde: "FDA, GMP, ISO en CE goedgekeurd" },
   ];
 }
 
 export const lensKenmerken = [
   "Zacht en comfortabel om te dragen",
-  "Natuurlijk kleurverloop met zachte rand",
   "FDA, GMP, ISO en CE goedgekeurd",
-  "Zes maanden houdbaar na openen",
+  "6 maanden houdbaar",
 ];
 
 interface Kleurprofiel {
@@ -204,8 +161,7 @@ export const kleurprofielen: Record<Kleurfamilie, Kleurprofiel> = {
   honing: {
     familie: "Honing",
     swatch: "#b8843b",
-    tekst:
-      "Goudbruin met een lichte gloed rond de pupil. In daglicht komt de honingtoon het sterkst naar voren.",
+    tekst: "Goudbruin met een lichte gloed rond de pupil. In daglicht komt de honingtoon het sterkst naar voren.",
   },
   grijs: {
     familie: "Grijs",
@@ -216,25 +172,21 @@ export const kleurprofielen: Record<Kleurfamilie, Kleurprofiel> = {
   blauw: {
     familie: "Blauw",
     swatch: "#5b7fae",
-    tekst:
-      "Helder blauw met fijne vertakkingen naar het midden toe, waardoor de lens levendig blijft in plaats van vlak.",
+    tekst: "Blauw met fijne vertakkingen naar het midden toe, waardoor de lens levendig blijft in plaats van vlak.",
   },
   groen: {
     familie: "Groen",
     swatch: "#6f8b5e",
-    tekst:
-      "Zachtgroen met bruine ondertoon, een van de meest natuurlijk ogende kleuren uit het assortiment.",
+    tekst: "Groen met een natuurlijke ondertoon, een van de meest gevraagde kleuren uit het assortiment.",
   },
   roze: {
     familie: "Roze",
     swatch: "#b57289",
-    tekst:
-      "Roze tot violet met een warme gloed. Uitgesproken in fel licht, verrassend zacht binnenshuis.",
+    tekst: "Roze tot violet met een warme gloed. Uitgesproken in fel licht, verrassend zacht binnenshuis.",
   },
   zwart: {
     familie: "Zwart",
     swatch: "#2b2b2f",
-    tekst:
-      "Een diepzwarte lens met brede rand die de iris optisch vergroot; het klassieke doll eye-effect.",
+    tekst: "Een diepzwarte lens met brede rand die de iris optisch vergroot; het klassieke doll eye-effect.",
   },
 };

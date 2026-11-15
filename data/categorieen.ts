@@ -1,5 +1,7 @@
 import type { Categorie } from "@/types/product";
 
+const foto = (lijst: string, bestand: string) => `/producten/nov26/${lijst}/${lijst}-${bestand}.webp`;
+
 export const categorieen: Categorie[] = [
   {
     slug: "ptc",
@@ -7,36 +9,42 @@ export const categorieen: Categorie[] = [
     omschrijving:
       "Helder binnen, donker in de zon. Photochromic Technology Coating beschermt tegen UV en blauw licht in een montuur.",
     soort: "bril",
-    afbeelding: "/producten/brillen/brillen-p036-1.jpg",
+    afbeelding: foto("dames", "p025-1"),
   },
   {
     slug: "anti-blauwlicht",
     naam: "Anti-blauwlicht brillen",
-    omschrijving:
-      "Heldere glazen die het blauwe licht van schermen filteren. Minder vermoeide ogen, minder hoofdpijn, beter slapen.",
+    omschrijving: "Heldere glazen die het blauwe licht van schermen filteren. Voor lange dagen achter laptop en telefoon.",
     soort: "bril",
-    afbeelding: "/producten/brillen/brillen-p013-1.jpg",
+    afbeelding: foto("dames", "p033-2"),
   },
   {
-    slug: "kinderbrillen",
-    naam: "Kinderbrillen",
-    omschrijving: "Lichte monturen op kindermaat, gemaakt voor huiswerk, tablet en televisie.",
+    slug: "leesbrillen",
+    naam: "Leesbrillen",
+    omschrijving: "Leesbrillen met blauwlichtfilter in +1.5, +2.0, +2.5 en +3.0. Van randloos tot cat eye.",
     soort: "bril",
-    afbeelding: "/producten/brillen/brillen-p004-1.jpg",
+    afbeelding: foto("lees", "p003-1"),
+  },
+  {
+    slug: "heren-unisex",
+    naam: "Heren en unisex",
+    omschrijving: "PTC-monturen voor hem en voor iedereen: randloos zeshoekig of sportief.",
+    soort: "bril",
+    afbeelding: foto("heren", "p002-2"),
+  },
+  {
+    slug: "lenzen-zonder-sterkte",
+    naam: "Kleurlenzen zonder sterkte",
+    omschrijving: "Zachte kleurlenzen in dertig tinten, van natuurlijk bruin tot uitgesproken blauw.",
+    soort: "lens",
+    afbeelding: foto("lenzen", "p005-2"),
   },
   {
     slug: "lenzen-met-sterkte",
     naam: "Kleurlenzen met sterkte",
     omschrijving: "Corrigeren en verkleuren tegelijk, met sterktes van -1.00 tot -8.00.",
     soort: "lens",
-    afbeelding: "/producten/lenzen/lenzen-p011-1.jpg",
-  },
-  {
-    slug: "lenzen-zonder-sterkte",
-    naam: "Kleurlenzen zonder sterkte",
-    omschrijving: "Zachte kleurlenzen in ruim dertig tinten, van natuurlijk bruin tot uitgesproken blauw.",
-    soort: "lens",
-    afbeelding: "/producten/lenzen/lenzen-p047-1.jpg",
+    afbeelding: foto("lenzen", "p049-1"),
   },
 ];
 
@@ -45,18 +53,18 @@ export const hoofdcategorieen = [
   {
     slug: "brillen",
     naam: "Brillen",
-    omschrijving: "Anti-blauwlicht en photochrome monturen voor elke dag.",
+    omschrijving: "Photochrome PTC-monturen, anti-blauwlicht brillen en leesbrillen.",
     soort: "bril" as const,
-    afbeelding: "/producten/brillen/brillen-p059-1.jpg",
-    subcategorieen: ["ptc", "anti-blauwlicht", "kinderbrillen"],
+    afbeelding: foto("dames", "p010-2"),
+    subcategorieen: ["ptc", "anti-blauwlicht", "leesbrillen", "heren-unisex"],
   },
   {
     slug: "lenzen",
     naam: "Lenzen",
     omschrijving: "Zachte kleurlenzen, met en zonder sterkte.",
     soort: "lens" as const,
-    afbeelding: "/producten/lenzen/lenzen-p020-1.jpg",
-    subcategorieen: ["lenzen-met-sterkte", "lenzen-zonder-sterkte"],
+    afbeelding: foto("lenzen", "p012-1"),
+    subcategorieen: ["lenzen-zonder-sterkte", "lenzen-met-sterkte"],
   },
 ];
 

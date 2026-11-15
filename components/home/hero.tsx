@@ -1,99 +1,136 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Sun } from "lucide-react";
+import { ArrowRight, Gift, MapPin, MessageCircle, Truck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Onthul } from "@/components/motion/onthul";
+import { Zegel } from "@/components/merk/zegel";
 import { bedrijf } from "@/lib/site";
 import { alleProducten } from "@/lib/square/producten";
+import type { Product } from "@/types/product";
+import { fotoStijl } from "@/lib/fotofocus";
+
+const beloften = [
+  { icoon: Truck, tekst: "Bezorging tot aan huis" },
+  { icoon: MessageCircle, tekst: "Bestellen kan ook via WhatsApp" },
+  { icoon: MapPin, tekst: `Passen aan de ${bedrijf.adres.straat}` },
+];
+
+/** Kaartje in de collage: een foto uit het assortiment met het gouden prijszegel. */
+function Collagekaart({ product, foto, className }: { product: Product; foto: string; className?: string }) {
+  return (
+    <Link
+      href={`/producten/${product.slug}`}
+      className={`group absolute block w-36 rounded-2xl bg-white p-2 pb-3 shadow-zwevend transition-transform duration-500 ease-[var(--ease-uit)] hover:z-10 hover:scale-105 hover:rotate-0 sm:w-44 ${className ?? ""}`}
+    >
+      <span className="relative block aspect-[4/5] overflow-hidden rounded-xl bg-creme-diep">
+        <Image src={foto} alt={product.naam} fill sizes="176px" style={fotoStijl(foto)} className="object-cover" />
+      </span>
+      <span className="mt-2.5 block px-1 font-display text-[0.8125rem] leading-tight font-semibold text-inkt">
+        {product.naam}
+      </span>
+      <Zegel className="absolute -top-5 -right-5 size-16 sm:size-[4.5rem]">
+        <span>
+          <span className="block text-[0.5625rem] font-semibold tracking-[0.12em] uppercase">srd</span>
+          <span className="block font-display text-lg font-bold">{product.prijs},-</span>
+        </span>
+      </Zegel>
+    </Link>
+  );
+}
 
 export async function Hero() {
   const producten = await alleProducten();
-  const kerncijfers = [
-    { waarde: `${producten.length}+`, label: "Modellen op voorraad" },
-    { waarde: "UV400", label: "Bescherming op PTC" },
-    { waarde: "6 mnd", label: "Houdbaarheid lenzen" },
-  ];
+  const opSlug = (slug: string) => producten.find((p) => p.slug === slug);
+  // De collage toont twee vaste modellen uit de prijslijst; ontbreken ze (bijv.
+  // omdat Square een ander assortiment levert), dan valt hij terug op wat er is.
+  const bril = opSlug("duo-tone-cat-eye-ptc") ?? producten.find((p) => p.soort === "bril" && p.voorraad > 0);
+  // Een lens in een kleur die het lenzenblok verderop niet al toont.
+  const lens = opSlug("forest-green") ?? producten.find((p) => p.soort === "lens" && p.voorraad > 0);
 
   return (
-    <section className="relative overflow-hidden">
-      {/* Zachte saliegloed achter de tekstkolom. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-40 -left-40 size-[36rem] rounded-full bg-salie-200/35 blur-3xl"
-      />
+    <section className="relative overflow-hidden bg-gradient-to-b from-blush-50 via-creme to-creme">
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-72 text-blush-200/70 stippen [mask-image:linear-gradient(#000,transparent)]" />
+      <div aria-hidden className="pointer-events-none absolute -top-32 -right-24 size-[30rem] rounded-full bg-boter-100/70 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute top-40 -left-40 size-[28rem] rounded-full bg-salie-100/70 blur-3xl" />
 
-      <div className="container-ukm relative grid items-center gap-12 py-14 lg:grid-cols-2 lg:gap-16 lg:py-24">
-        <Onthul richting="rechts" className="order-2 lg:order-1">
-          <Badge variant="zacht" className="mb-6">
-            {bedrijf.tagline} &middot; {bedrijf.taglineVertaling}
-          </Badge>
+      <div className="container-ukm relative grid items-center gap-14 pt-12 pb-16 lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:pt-20 lg:pb-24">
+        <Onthul richting="rechts">
+          <p className="inline-flex items-center gap-2 rounded-full border border-blush-200 bg-white/70 py-1.5 pr-4 pl-2 text-xs text-inkt-zacht backdrop-blur-sm">
+            <span className="flex size-6 items-center justify-center rounded-full bg-blush-100 text-blush-700">
+              <Gift className="size-3.5" />
+            </span>
+            {bedrijf.tagline} &middot; {bedrijf.taglineVertaling.toLowerCase()}
+          </p>
 
-          <h1 className="font-display text-[2.5rem] leading-[1.04] font-extrabold sm:text-6xl lg:text-[4.25rem]">
-            Bescherm je ogen.
-            <span className="block text-salie-600">Zonder in te leveren op stijl.</span>
+          <h1 className="mt-6 font-display text-[2.75rem] leading-[1.02] font-semibold sm:text-6xl lg:text-[4.5rem]">
+            Mooie ogen zijn het <em>mooiste cadeau.</em>
           </h1>
 
           <p className="mt-6 max-w-lg text-base leading-relaxed text-inkt-zacht sm:text-lg">
-            Anti-blauwlicht brillen, photochrome PTC-monturen en zachte kleurlenzen. Zorgvuldig geselecteerd,
-            persoonlijk gepast aan de {bedrijf.adres.straat} en bezorgd door heel {bedrijf.adres.stad}.
+            Photochrome brillen, leesbrillen en zachte kleurlenzen, met zorg uitgezocht in {bedrijf.adres.stad}. Voor
+            jezelf, of om iemand anders blij mee te maken.
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-3">
             <Button asChild size="lg">
-              <Link href="/categorie/brillen">
-                Bekijk de collectie
+              <Link href="/producten">
+                Shop de collectie
                 <ArrowRight />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href="/categorie/ptc">
-                <Sun />
-                Ontdek PTC
+            <Button asChild size="lg" variant="outline" className="bg-white/60">
+              <Link href="/#cadeauwijzer">
+                <Gift />
+                Cadeau-ideeen
               </Link>
             </Button>
           </div>
 
-          <dl className="mt-12 grid max-w-md grid-cols-3 gap-6 border-t border-border pt-8">
-            {kerncijfers.map((cijfer) => (
-              <div key={cijfer.label}>
-                <dt className="sr-only">{cijfer.label}</dt>
-                <dd>
-                  <span className="block font-display text-2xl font-bold">{cijfer.waarde}</span>
-                  <span className="mt-1 block text-xs leading-snug text-inkt-zacht">{cijfer.label}</span>
-                </dd>
-              </div>
+          <ul className="mt-10 flex flex-wrap gap-x-6 gap-y-3 border-t border-border/80 pt-7 text-sm text-inkt-zacht">
+            {beloften.map(({ icoon: Icoon, tekst }) => (
+              <li key={tekst} className="flex items-center gap-2">
+                <Icoon className="size-4 text-salie-600" />
+                {tekst}
+              </li>
             ))}
-          </dl>
+          </ul>
         </Onthul>
 
-        <Onthul richting="links" vertraging={0.1} className="order-1 lg:order-2">
-          <div className="relative">
-            <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-creme-diep shadow-zwevend">
+        <Onthul richting="links" vertraging={0.1} className="relative mx-auto w-full max-w-md lg:max-w-none">
+          <div className="relative mx-auto w-[78%] sm:w-[70%]">
+            {/* Boogvormig hoofdbeeld, als een etalageraam. */}
+            <div className="relative aspect-[3/4] overflow-hidden rounded-t-full rounded-b-[2rem] bg-creme-diep shadow-zwevend ring-8 ring-white">
               <Image
-                src="/producten/brillen/brillen-p059-1.jpg"
-                alt="Model draagt de PTC Cat Eye Black Gold van UKM.sr"
+                src="/producten/nov26/dames/dames-p026-1.webp"
+                alt="Klant met een Glitter Round PTC-bril van UKM.sr"
                 fill
                 priority
-                sizes="(min-width: 1024px) 44vw, 92vw"
-                className="object-cover object-top"
+                sizes="(min-width: 1024px) 30vw, 70vw"
+                style={fotoStijl("/producten/nov26/dames/dames-p026-1.webp")}
+                className="object-cover"
               />
             </div>
 
-            {/* Zwevende kaart met het kenmerkende PTC-verhaal. */}
-            <div className="absolute -bottom-6 -left-4 w-60 rounded-2xl border border-border/70 bg-white/95 p-4 shadow-zwevend backdrop-blur-sm sm:-left-8 sm:w-72">
-              <div className="flex items-center gap-3">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-salie-100 text-salie-700">
-                  <Sun className="size-4" />
-                </span>
-                <div>
-                  <p className="font-display text-sm font-semibold">Helder binnen, donker buiten</p>
-                  <p className="mt-0.5 text-xs text-inkt-zacht">Photochromic Technology Coating</p>
-                </div>
-              </div>
-            </div>
+            <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-inkt px-5 py-2 text-xs font-medium whitespace-nowrap text-creme shadow-kaart">
+              Nieuw: collectie november 2026
+            </span>
           </div>
+
+          {bril ? (
+            <Collagekaart
+              product={bril}
+              foto={bril.afbeeldingen[0]}
+              className="top-6 -left-1 -rotate-6 sm:top-10 sm:left-0"
+            />
+          ) : null}
+          {lens ? (
+            <Collagekaart
+              product={lens}
+              foto={lens.afbeeldingen[0]}
+              className="right-0 bottom-10 rotate-6 sm:-right-2 sm:bottom-16"
+            />
+          ) : null}
         </Onthul>
       </div>
     </section>

@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useWinkelwagen } from "@/lib/winkel/stores";
 import { formatPrijs } from "@/lib/format";
 import type { Product } from "@/types/product";
+import { fotoStijl } from "@/lib/fotofocus";
 
 /**
  * Combinatieblok. Het hoofdproduct staat vast aangevinkt; de suggesties kunnen
@@ -53,7 +54,8 @@ export function VaakSamenGekocht({ hoofdproduct, suggesties }: { hoofdproduct: P
                   alt={product.naam}
                   fill
                   sizes="96px"
-                  className="object-cover object-top"
+                  style={fotoStijl(product.afbeeldingen[0])}
+                  className="object-cover"
                 />
               </Link>
             </React.Fragment>

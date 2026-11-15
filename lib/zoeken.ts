@@ -56,9 +56,12 @@ const synoniemen: Record<string, string[]> = {
   matte: ["matte"],
   glans: ["glossy"],
   glanzend: ["glossy"],
-  kind: ["kids", "kinder"],
-  kinderen: ["kids"],
-  kinderbril: ["kids"],
+  leesbril: ["leesbrillen", "readers"],
+  lezen: ["leesbril"],
+  heren: ["men", "unisex"],
+  mannen: ["men", "heren", "unisex"],
+  man: ["men", "heren"],
+  sportbril: ["sport"],
 
   // Lenzen en techniek
   lens: ["lenzen", "lens"],

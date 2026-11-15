@@ -1,7 +1,7 @@
 import "server-only";
 import { eq } from "drizzle-orm";
 
-import { squareClient, squareLocationId } from "./client";
+import { squareClient, squareLocationId, squareValuta } from "./client";
 import { catalogus } from "./catalog.server";
 import { db } from "@/lib/db/client";
 import { users } from "@/lib/db/schema";
@@ -129,7 +129,7 @@ export async function maakBestelling(input: MaakBestellingInput): Promise<MaakBe
     lineItems.push({
       name: variant ? `${product.naam} - ${variant.naam}` : product.naam,
       quantity: String(aantal),
-      basePriceMoney: { amount: BigInt(centen), currency: "USD" },
+      basePriceMoney: { amount: BigInt(centen), currency: squareValuta() },
     });
   }
 
@@ -146,7 +146,7 @@ export async function maakBestelling(input: MaakBestellingInput): Promise<MaakBe
       } else if (code.soort === "bedrag") {
         discounts.push({
           name: code.omschrijving,
-          amountMoney: { amount: BigInt(Math.round(code.waarde * 100)), currency: "USD" },
+          amountMoney: { amount: BigInt(Math.round(code.waarde * 100)), currency: squareValuta() },
           scope: "ORDER",
         });
       }

@@ -1,46 +1,41 @@
 /**
- * Volledige, herhaalbare sync van het ECHTE UKM-assortiment naar Square.
+ * Volledige, herhaalbare sync van het UKM-assortiment naar Square.
  *
- * Dit vervangt de eerdere steekproef-only `square-catalog-seed.ts` (Fase 0,
- * bewust een kleine test) met een volledige import van alle 107 echte
- * producten uit data/catalogus/brillen.ts + lenzen.ts, inclusief echte
- * productfoto's. Werkt de sandbox-catalogus bij; wist eerst wat er nu in
- * staat (uitsluitend onze eigen eerdere testdata uit Fase 0, geen echte
- * klantgegevens) zodat dit script herhaalbaar is zonder duplicaten.
+ * Bron is data/producten.ts - exact dezelfde `Product`-objecten die de
+ * winkel toont zolang Square nog leeg is (zie lib/square/catalog.server.ts).
+ * Zo kunnen winkel en Square nooit uit elkaar lopen: wat hier naar Square
+ * gaat, is wat er op de site stond.
  *
- * Eerlijkheids-beslissingen (zie ook docs/square-mapping-notes.md):
- * - Voorraad wordt NIET gesynchroniseerd als verzonnen aantal. Elke variatie
- *   krijgt `trackInventory: false` (altijd besteltbaar), tot UKM echte
- *   aantallen invoert in het Square-dashboard. Geen nepgetallen als "nog 3
- *   op voorraad".
- * - Populariteit/"toegevoegdOp" komen niet meer uit een hash-functie. Nieuw
- *   binnen/bestseller worden alleen gezet als dat expliciet in de brondata
- *   staat (`labels: [...]` in brillen.ts/lenzen.ts) - dat is echte redactionele
- *   curatie, geen verzonnen data. "Nieuw binnen" op basis van datum komt
- *   voortaan uit Square's eigen `createdAt`.
- * - De specificatietabel laat velden weg die willekeurig per product waren
- *   gegenereerd (blauwlichtfilter-percentage, glas-/brug-/veerbreedte,
- *   gewicht, draagduur). Alleen vaste, echte feiten uit de prijslijst blijven
- *   over en gaan als tekst in descriptionHtml (Square heeft geen los
- *   spec-tabelveld).
- * - Vanaf-prijs (sale/was-prijs) wordt NIET gesynchroniseerd: dat vereist een
- *   custom attribute op ITEM_VARIATION en die blijven leeg door een
- *   geconfirmeerd Square-platformprobleem (zie docs/square-mapping-notes.md,
- *   bevinding 8, en de gemelde bug op het Square-forum). Blijft zo tot
- *   Square dat oplost.
+ *   npx tsx scripts/square-catalog-sync.ts            (voegt toe)
+ *   npx tsx scripts/square-catalog-sync.ts --wis      (wist EERST de hele catalogus)
  *
- *   npx tsx scripts/square-catalog-sync.ts
+ * LET OP: sinds de overstap naar de prijslijsten van november 2026 is dit
+ * script nog niet tegen de nieuwe Square-account gedraaid. Draai het eerst
+ * tegen een lege of sandbox-account en controleer het resultaat.
+ *
+ * Beslissingen (zie ook docs/square-mapping-notes.md):
+ * - Voorraad wordt niet als verzonnen aantal gesynchroniseerd. Elke variatie
+ *   krijgt `trackInventory: false` (altijd bestelbaar). Artikelen die de
+ *   prijslijst als "Sold out" afstempelt, moeten in het Square-dashboard zelf
+ *   op voorraad 0 worden gezet (voorraadtelling aan, aantal 0); dit script
+ *   meldt welke dat zijn.
+ * - Facetten (Techniek, Vorm, Sterktesoort, Kleurfamilie, Merk, Slug, Label)
+ *   gaan als categorieen met een prefix, niet als custom attributes: die
+ *   blijven op een ITEM niet hangen (bevinding 8 in de mapping-notities).
+ * - Vanaf-prijs wordt om dezelfde reden niet gesynchroniseerd.
+ * - Square accepteert geen WebP; foto's worden bij het uploaden naar JPEG
+ *   omgezet.
  */
 import process from "node:process";
 import fs from "node:fs";
 import path from "node:path";
+import sharp from "sharp";
 import { SquareClient, SquareEnvironment } from "square";
 
-import { brillenInvoer } from "../data/catalogus/brillen";
-import { lenzenInvoer } from "../data/catalogus/lenzen";
+import { producten } from "../data/producten";
 import { hoofdcategorieen, categorieen } from "../data/categorieen";
 import { merken } from "../data/merken";
-import { vormprofielen, techniekprofielen, kleurprofielen } from "../data/catalogus/gemeenschappelijk";
+import { vormprofielen, kleurprofielen, type Kleurfamilie } from "../data/catalogus/gemeenschappelijk";
 
 process.loadEnvFile(".env.local");
 
@@ -50,11 +45,14 @@ if (!token) {
   process.exit(1);
 }
 
-const SANDBOX_CURRENCY = "USD";
+const isProductie = process.env.SQUARE_ENVIRONMENT === "production";
+/** De valuta van een prijs moet exact overeenkomen met die van de Square-account. */
+const VALUTA = process.env.SQUARE_CURRENCY ?? (isProductie ? "SRD" : "USD");
+const WIS_EERST = process.argv.includes("--wis");
 
 const client = new SquareClient({
   token,
-  environment: process.env.SQUARE_ENVIRONMENT === "production" ? SquareEnvironment.Production : SquareEnvironment.Sandbox,
+  environment: isProductie ? SquareEnvironment.Production : SquareEnvironment.Sandbox,
 });
 
 function naarSquareHex(hex: string): string {
@@ -70,8 +68,7 @@ function escapeHtml(tekst: string): string {
  * omschrijving, de overige <p>'s samen de lange beschrijving, en de eerste/
  * tweede <ul> zijn kenmerken/specificaties. lib/square/catalog.server.ts leest
  * dit puur op volgorde terug - Square saniteert descriptionHtml bij het
- * opslaan en strip elk data-attribuut dat hier ooit op de <ul>'s stond
- * (geverifieerd tegen de sandbox), dus alleen de volgorde is betrouwbaar.
+ * opslaan, dus alleen de volgorde is betrouwbaar.
  */
 function bouwDescriptionHtml(
   intro: string,
@@ -88,7 +85,7 @@ function bouwDescriptionHtml(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Stap 0: sandbox leegmaken (alleen onze eigen Fase-0 testdata)               */
+/* Stap 0 (alleen met --wis): bestaande catalogus leegmaken                    */
 /* -------------------------------------------------------------------------- */
 
 async function wisCatalogus() {
@@ -96,13 +93,13 @@ async function wisCatalogus() {
   const pagina = await client.catalog.list();
   for await (const obj of pagina) if (obj.id) ids.push(obj.id);
   if (ids.length === 0) {
-    console.log("Sandbox-catalogus is al leeg.");
+    console.log("Catalogus is al leeg.");
     return;
   }
   for (let i = 0; i < ids.length; i += 200) {
     await client.catalog.batchDelete({ objectIds: ids.slice(i, i + 200) });
   }
-  console.log(`Verwijderd: ${ids.length} bestaande objecten uit de sandbox.`);
+  console.log(`Verwijderd: ${ids.length} bestaande objecten.`);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -147,14 +144,12 @@ function facetCategorie(prefix: string, waarde: string): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Stap 2: kleur item-optie (gedeeld over alle brillen met varianten)          */
+/* Stap 2: kleur item-optie (gedeeld over alle artikelen met varianten)        */
 /* -------------------------------------------------------------------------- */
 
 const kleurOptieId = tempId("itemopt");
 // Square staat maar een waarde per naam toe binnen een item-optie; de kleurnaam
-// (niet de exacte hex) is de dedup-sleutel. Enkele producten gebruiken een
-// licht andere hex voor dezelfde kleurnaam (bijv. "Zwart" #1b1b1b vs #2b2b2f) -
-// de eerst geziene hex wint, het verschil is visueel verwaarloosbaar.
+// (niet de exacte hex) is de dedup-sleutel. De eerst geziene hex wint.
 const kleurWaardeIdPerNaam = new Map<string, string>();
 const kleurWaardeObjecten: Record<string, unknown>[] = [];
 
@@ -171,10 +166,8 @@ function kleurWaardeId(naam: string, hex: string): string {
   return id;
 }
 
-for (const invoer of brillenInvoer) {
-  for (const variant of invoer.varianten ?? []) {
-    kleurWaardeId(variant.naam, variant.swatch);
-  }
+for (const product of producten) {
+  for (const variant of product.varianten) kleurWaardeId(variant.naam, variant.swatch);
 }
 if (kleurWaardeObjecten.length > 0) {
   objecten.push({
@@ -192,186 +185,90 @@ if (kleurWaardeObjecten.length > 0) {
 interface ItemPlan {
   slug: string;
   itemId: string;
-  afbeeldingen: string[]; // publieke paden, bijv. "/producten/brillen/brillen-p004-1.jpg"
+  afbeeldingen: string[]; // publieke paden, bijv. "/producten/nov26/dames/dames-p005-1.webp"
 }
 const itemPlannen: ItemPlan[] = [];
+const uitverkochtMeldingen: string[] = [];
 
-function brilMerkSlug(techniek: string, vorm: string, prijs: number): string {
-  if (vorm === "kids") return "ukm-kids";
-  if (techniek !== "ptc") return "ukm-clear";
-  return prijs >= 750 ? "ukm-signature" : "ukm-ptc";
+function variatie(itemId: string, naam: string, sku: string, prijs: number, optie?: { naam: string; swatch: string }) {
+  return {
+    id: tempId("variant"),
+    type: "ITEM_VARIATION",
+    itemVariationData: {
+      itemId,
+      name: naam,
+      sku,
+      pricingType: "FIXED_PRICING",
+      priceMoney: { amount: BigInt(Math.round(prijs * 100)), currency: VALUTA },
+      trackInventory: false,
+      sellable: true,
+      stockable: true,
+      itemOptionValues: optie
+        ? [{ itemOptionId: kleurOptieId, itemOptionValueId: kleurWaardeId(optie.naam, optie.swatch) }]
+        : undefined,
+    },
+  };
 }
 
-function merkNaam(slug: string): string {
-  return merken.find((m) => m.slug === slug)?.naam ?? slug;
-}
+for (const product of producten) {
+  const descriptionHtml = bouwDescriptionHtml(
+    product.korteBeschrijving,
+    [product.beschrijving],
+    product.kenmerken,
+    product.specificaties.map((s) => [s.label, s.waarde] as [string, string]),
+  );
 
-function curatedLabelCategorieen(labels: string[] | undefined): string[] {
-  const ids: string[] = [];
-  if (!labels) return ids;
-  if (labels.includes("bestseller")) ids.push(facetCategorie("Label", "Bestseller"));
-  if (labels.includes("nieuw")) ids.push(facetCategorie("Label", "Nieuw"));
-  if (labels.includes("aanbieding")) ids.push(facetCategorie("Label", "Aanbieding"));
-  return ids;
-}
-
-for (const invoer of brillenInvoer) {
-  const vorm = vormprofielen[invoer.vorm];
-  const techniek = techniekprofielen[invoer.techniek];
-  const categorieSlug = invoer.vorm === "kids" ? "kinderbrillen" : invoer.techniek === "ptc" ? "ptc" : "anti-blauwlicht";
-  const merkSlug = brilMerkSlug(invoer.techniek, invoer.vorm, invoer.prijs);
-
-  const beschrijvingAlineas = [
-    `${invoer.naam} is uitgevoerd in ${invoer.kleur.toLowerCase()}, op een montuur van ${invoer.materiaal.toLowerCase()}.`,
-    vorm.karakter,
-    techniek.tekst,
-    vorm.pasvorm,
-  ];
-  const kenmerken = [...techniek.kenmerken, "Lichtgewicht montuur met veerscharnieren", "Antikras-coating op beide glaszijden", "Inclusief hoes en microvezeldoekje"];
-  const specificaties = [
-    ["Montuurvorm", vorm.naam],
-    ["Glastype", invoer.techniek === "ptc" ? "Photochroom (PTC)" : "Helder, anti-blauwlicht"],
-    ["UV-bescherming", invoer.techniek === "ptc" ? "UV400" : "UV380"],
-    ["Montuurmateriaal", invoer.materiaal],
-    ["Meegeleverd", "Brillenhoes en poetsdoekje"],
-  ];
-
-  const descriptionHtml = bouwDescriptionHtml(invoer.intro, beschrijvingAlineas, kenmerken, specificaties as [string, string][]);
-
-  const categorieId = categorieIdBySlug.get(categorieSlug);
   const categorieen_: { id: string }[] = [];
+  const categorieId = categorieIdBySlug.get(product.categorie);
   if (categorieId) categorieen_.push({ id: categorieId });
-  categorieen_.push({ id: facetCategorie("Techniek", invoer.techniek === "ptc" ? "PTC" : "Non-PTC") });
-  categorieen_.push({ id: facetCategorie("Vorm", vorm.naam) });
-  categorieen_.push({ id: facetCategorie("Merk", merkNaam(merkSlug)) });
-  // De echte, mens-leesbare slug is niet betrouwbaar terug te leiden uit de
-  // naam alleen (handmatige ontdubbelaars zoals "-clear", "-l038"), dus die
-  // gaat mee als eigen facet-categorie - dezelfde bewezen-werkende route als
-  // de andere assen, alleen dan 1-op-1 in plaats van gedeeld.
-  categorieen_.push({ id: facetCategorie("Slug", invoer.slug) });
-  for (const id of curatedLabelCategorieen(invoer.labels)) categorieen_.push({ id });
+  if (product.techniek) {
+    categorieen_.push({ id: facetCategorie("Techniek", product.techniek === "ptc" ? "PTC" : "Non-PTC") });
+  }
+  if (product.vorm) categorieen_.push({ id: facetCategorie("Vorm", vormprofielen[product.vorm].naam) });
+  if (product.sterktesoort) {
+    categorieen_.push({
+      id: facetCategorie("Sterktesoort", product.sterktesoort === "met-sterkte" ? "Met sterkte" : "Zonder sterkte"),
+    });
+  }
+  if (product.kleurfamilie) {
+    categorieen_.push({
+      id: facetCategorie("Kleurfamilie", kleurprofielen[product.kleurfamilie as Kleurfamilie].familie),
+    });
+  }
+  const merk = merken.find((m) => m.slug === product.merk);
+  if (merk) categorieen_.push({ id: facetCategorie("Merk", merk.naam) });
+  // De mens-leesbare slug is niet betrouwbaar uit de naam af te leiden (twee
+  // lenzen heten allebei "Ash Grey"), dus die gaat mee als eigen facet.
+  categorieen_.push({ id: facetCategorie("Slug", product.slug) });
+  if (product.labels.includes("bestseller")) categorieen_.push({ id: facetCategorie("Label", "Bestseller") });
+  if (product.labels.includes("nieuw")) categorieen_.push({ id: facetCategorie("Label", "Nieuw") });
 
-  const heeftVarianten = (invoer.varianten ?? []).length > 0;
   const itemId = tempId("item");
+  const heeftVarianten = product.varianten.length > 0;
   const variations = heeftVarianten
-    ? invoer.varianten!.map((variant) => ({
-        id: tempId("variant"),
-        type: "ITEM_VARIATION",
-        itemVariationData: {
-          itemId,
-          name: variant.naam,
-          sku: `${invoer.slug}-${variant.id}`,
-          pricingType: "FIXED_PRICING",
-          priceMoney: { amount: BigInt(Math.round((variant.prijs ?? invoer.prijs) * 100)), currency: SANDBOX_CURRENCY },
-          trackInventory: false,
-          sellable: true,
-          stockable: true,
-          itemOptionValues: [{ itemOptionId: kleurOptieId, itemOptionValueId: kleurWaardeId(variant.naam, variant.swatch) }],
-        },
-      }))
-    : [
-        {
-          id: tempId("variant"),
-          type: "ITEM_VARIATION",
-          itemVariationData: {
-            itemId,
-            name: "Standaard",
-            sku: invoer.slug,
-            pricingType: "FIXED_PRICING",
-            priceMoney: { amount: BigInt(Math.round(invoer.prijs * 100)), currency: SANDBOX_CURRENCY },
-            trackInventory: false,
-            sellable: true,
-            stockable: true,
-          },
-        },
-      ];
+    ? product.varianten.map((v) =>
+        variatie(itemId, v.naam, `${product.slug}-${v.id}`, v.prijs ?? product.prijs, { naam: v.naam, swatch: v.swatch }),
+      )
+    : [variatie(itemId, "Standaard", product.slug, product.prijs)];
+
+  if (heeftVarianten) {
+    for (const v of product.varianten) if (v.voorraad === 0) uitverkochtMeldingen.push(`${product.naam} - ${v.naam}`);
+  } else if (product.voorraad === 0) {
+    uitverkochtMeldingen.push(product.naam);
+  }
 
   objecten.push({
     id: itemId,
     type: "ITEM",
     itemData: {
-      name: invoer.naam,
+      name: product.naam,
       descriptionHtml,
       categories: categorieen_,
       itemOptions: heeftVarianten ? [{ itemOptionId: kleurOptieId }] : undefined,
       variations,
     },
   });
-  itemPlannen.push({ slug: invoer.slug, itemId, afbeeldingen: invoer.afbeeldingen });
-}
-
-for (const invoer of lenzenInvoer) {
-  const kleur = kleurprofielen[invoer.kleur];
-  const opSterkte = invoer.sterktesoort === "met-sterkte";
-  const categorieSlug = opSterkte ? "lenzen-met-sterkte" : "lenzen-zonder-sterkte";
-  const merkSlug = opSterkte ? "ukm-vision" : "ukm-soft-lenses";
-
-  const beschrijvingAlineas = [
-    `${invoer.naam}${invoer.code ? ` (${invoer.code})` : ""} is een zachte kleurlens ${
-      opSterkte
-        ? `die corrigeert en verkleurt in een enkele lens, leverbaar in sterkte ${invoer.sterktebereik.toLowerCase()}`
-        : "zonder sterkte, puur bedoeld om de oogkleur te veranderen"
-    }.`,
-    kleur.tekst,
-    "Een set bestaat uit twee lenzen in steriele vloeistof, na openen zes maanden houdbaar. Het materiaal bevat 38 tot 42 procent water, waardoor de lens de hele dag soepel blijft.",
-    "Draag lenzen nooit langer dan aanbevolen door je opticien en volg de hygieneregels die bij elke bestelling worden meegeleverd.",
-  ];
-  const kenmerken = [
-    opSterkte ? `Leverbaar op sterkte ${invoer.sterktebereik.toLowerCase()}` : "Zonder sterkte, voor iedereen",
-    "Zacht en comfortabel om te dragen",
-    "Natuurlijk kleurverloop met zachte rand",
-    "FDA, GMP, ISO en CE goedgekeurd",
-    "Zes maanden houdbaar na openen",
-  ];
-  const specificaties = [
-    ["Diameter (DIA)", "14.0 - 14.5 mm"],
-    ["Basiscurve", "8.6 mm"],
-    ["Sterkte", invoer.sterktebereik],
-    ["Watergehalte", "38% - 42%"],
-    ["Materiaal", "58% - 62% PHEMA"],
-    ["Houdbaarheid", "6 maanden na openen"],
-    ["Verpakking", "Set van 2 lenzen in steriele vloeistof"],
-    ["Certificering", "FDA, GMP, ISO en CE goedgekeurd"],
-  ];
-
-  const descriptionHtml = bouwDescriptionHtml(invoer.intro, beschrijvingAlineas, kenmerken, specificaties as [string, string][]);
-
-  const categorieId = categorieIdBySlug.get(categorieSlug);
-  const categorieen_: { id: string }[] = [];
-  if (categorieId) categorieen_.push({ id: categorieId });
-  categorieen_.push({ id: facetCategorie("Sterktesoort", opSterkte ? "Met sterkte" : "Zonder sterkte") });
-  categorieen_.push({ id: facetCategorie("Kleurfamilie", kleur.familie) });
-  categorieen_.push({ id: facetCategorie("Merk", merkNaam(merkSlug)) });
-  categorieen_.push({ id: facetCategorie("Slug", invoer.slug) });
-  for (const id of curatedLabelCategorieen(invoer.labels)) categorieen_.push({ id });
-
-  const itemId = tempId("item");
-  objecten.push({
-    id: itemId,
-    type: "ITEM",
-    itemData: {
-      name: invoer.naam,
-      descriptionHtml,
-      categories: categorieen_,
-      variations: [
-        {
-          id: tempId("variant"),
-          type: "ITEM_VARIATION",
-          itemVariationData: {
-            itemId,
-            name: "Standaard",
-            sku: invoer.slug,
-            pricingType: "FIXED_PRICING",
-            priceMoney: { amount: BigInt(Math.round(invoer.prijs * 100)), currency: SANDBOX_CURRENCY },
-            trackInventory: false,
-            sellable: true,
-            stockable: true,
-          },
-        },
-      ],
-    },
-  });
-  itemPlannen.push({ slug: invoer.slug, itemId, afbeeldingen: invoer.afbeeldingen });
+  itemPlannen.push({ slug: product.slug, itemId, afbeeldingen: product.afbeeldingen });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -393,8 +290,10 @@ async function uploadAfbeeldingen(realItemIdBySlug: Map<string, string>) {
         console.warn(`Bestand ontbreekt: ${bestand}`);
         continue;
       }
-      const buffer = fs.readFileSync(bestand);
-      const blob = new Blob([buffer], { type: "image/jpeg" });
+      // Square accepteert JPEG, PNG en GIF; onze foto's zijn WebP. Uitsnedes
+      // met transparantie krijgen daarbij een witte achtergrond.
+      const buffer = await sharp(bestand).flatten({ background: "#ffffff" }).jpeg({ quality: 88 }).toBuffer();
+      const blob = new Blob([new Uint8Array(buffer)], { type: "image/jpeg" });
       try {
         await client.catalog.images.create({
           request: {
@@ -417,7 +316,8 @@ async function uploadAfbeeldingen(realItemIdBySlug: Map<string, string>) {
 }
 
 async function main() {
-  await wisCatalogus();
+  console.log(`Omgeving: ${isProductie ? "production" : "sandbox"}, valuta ${VALUTA}, ${producten.length} artikelen.`);
+  if (WIS_EERST) await wisCatalogus();
 
   console.log(`Verstuur ${objecten.length} catalogusobjecten (categorieen, kleuropties, producten)...`);
   const res = await client.catalog.batchUpsert({
@@ -440,6 +340,10 @@ async function main() {
   console.log("Upload productfoto's (dit duurt enkele minuten)...");
   await uploadAfbeeldingen(realItemIdBySlug);
 
+  if (uitverkochtMeldingen.length > 0) {
+    console.log("\nIn de prijslijst als 'Sold out' afgestempeld - zet deze in het Square-dashboard op voorraad 0:");
+    for (const naam of uitverkochtMeldingen) console.log(`  - ${naam}`);
+  }
   console.log("Sync voltooid.");
 }
 

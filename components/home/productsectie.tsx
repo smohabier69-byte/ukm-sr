@@ -19,7 +19,7 @@ export function Productsectie({
   className,
 }: {
   bovenschrift?: string;
-  titel: string;
+  titel: React.ReactNode;
   tekst?: string;
   link?: { label: string; href: string };
   producten: Product[];

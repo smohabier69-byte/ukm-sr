@@ -13,6 +13,7 @@ import { useWinkelHydratie, useWinkelwagen } from "@/lib/winkel/stores";
 import { useProductenCache } from "@/lib/winkel/catalogus-cache";
 import { berekenKosten, bouwPosten } from "@/lib/winkel/prijzen";
 import { formatPrijs } from "@/lib/format";
+import { fotoStijl } from "@/lib/fotofocus";
 
 export function WinkelwagenInhoud() {
   const gehydrateerd = useWinkelHydratie();
@@ -76,7 +77,8 @@ export function WinkelwagenInhoud() {
                       alt={post.product.naam}
                       fill
                       sizes="112px"
-                      className="object-cover object-top"
+                      style={fotoStijl(post.product.afbeeldingen[0])}
+                      className="object-cover"
                     />
                   </Link>
 

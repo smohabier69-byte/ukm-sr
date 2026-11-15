@@ -75,22 +75,24 @@ const vormlabels: Record<string, string> = {
   round: "Round",
   geometric: "Geometric",
   "cat-ear": "Cat ear",
+  sport: "Sport",
   kids: "Kids",
 };
 
 const categorielabels: Record<string, string> = {
   ptc: "PTC photochroom",
   "anti-blauwlicht": "Anti-blauwlicht",
-  kinderbrillen: "Kinderbrillen",
-  "lenzen-met-sterkte": "Met sterkte",
-  "lenzen-zonder-sterkte": "Zonder sterkte",
+  leesbrillen: "Leesbrillen",
+  "heren-unisex": "Heren en unisex",
+  "lenzen-met-sterkte": "Lenzen met sterkte",
+  "lenzen-zonder-sterkte": "Lenzen zonder sterkte",
 };
 
 const merklabels: Record<string, string> = {
-  "ukm-signature": "UKM Signature",
   "ukm-ptc": "UKM PTC",
   "ukm-clear": "UKM Clear",
-  "ukm-kids": "UKM Kids",
+  "ukm-readers": "UKM Readers",
+  "ukm-men": "UKM Men & Unisex",
   "ukm-vision": "UKM Vision",
   "ukm-soft-lenses": "UKM Soft Lenses",
 };

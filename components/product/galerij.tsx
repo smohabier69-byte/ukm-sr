@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { fotoStijl } from "@/lib/fotofocus";
 
 /**
  * Productgalerij met vergroting.
@@ -61,7 +62,7 @@ export function Galerij({
                   : "opacity-65 hover:opacity-100",
               )}
             >
-              <Image src={afbeelding} alt="" fill sizes="80px" className="object-cover object-top" />
+              <Image src={afbeelding} alt="" fill sizes="80px" style={fotoStijl(afbeelding)} className="object-cover" />
             </button>
           ))}
         </div>
@@ -89,9 +90,9 @@ export function Galerij({
                 fill
                 priority
                 sizes="(min-width: 1024px) 45vw, 100vw"
-                style={{ transformOrigin: oorsprong }}
+                style={{ ...fotoStijl(afbeeldingen[actief]), transformOrigin: oorsprong }}
                 className={cn(
-                  "object-cover object-top transition-transform duration-300 ease-out",
+                  "object-cover transition-transform duration-300 ease-out",
                   zoomt ? "scale-[2]" : "scale-100",
                 )}
               />

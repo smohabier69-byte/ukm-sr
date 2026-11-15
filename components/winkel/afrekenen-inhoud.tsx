@@ -16,6 +16,7 @@ import { berekenKosten, bouwPosten } from "@/lib/winkel/prijzen";
 import { formatPrijs } from "@/lib/format";
 import { bedrijf } from "@/lib/site";
 import { cn } from "@/lib/utils";
+import { fotoStijl } from "@/lib/fotofocus";
 
 type Bezorgwijze = "bezorgen" | "afhalen";
 type Betaalwijze = "contant" | "overschrijving" | "pin" | "online";
@@ -222,7 +223,8 @@ export function AfrekenenInhoud() {
                     alt=""
                     fill
                     sizes="56px"
-                    className="object-cover object-top"
+                    style={fotoStijl(post.product.afbeeldingen[0])}
+                    className="object-cover"
                   />
                   <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-inkt text-[0.625rem] font-medium text-creme">
                     {post.regel.aantal}

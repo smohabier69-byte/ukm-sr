@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Kruimelpad, type Kruimel } from "@/components/ui/kruimelpad";
 import { Onthul } from "@/components/motion/onthul";
 import { cn } from "@/lib/utils";
+import { fotoStijl } from "@/lib/fotofocus";
 
 /** Kop van elke overzichtspagina: kruimelpad, titel, inleiding en optioneel een sfeerbeeld. */
 export function Paginakop({
@@ -46,7 +47,8 @@ export function Paginakop({
                   alt=""
                   fill
                   sizes="(min-width: 1024px) 20rem, 100vw"
-                  className="object-cover object-top"
+                  style={fotoStijl(afbeelding)}
+                  className="object-cover"
                 />
               </div>
             </Onthul>

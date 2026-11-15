@@ -5,12 +5,14 @@ import { squareClient, squareLocationId } from "./client";
 import type { Categorie, Merk, Montuurvorm, Product, Sterktesoort, Specificatie, Techniek, Variant } from "@/types/product";
 import { categorieen as categorieInhoud } from "@/data/categorieen";
 import { merken as merkInhoud } from "@/data/merken";
+import { producten as statischeProducten } from "@/data/producten";
 
 /**
- * Live sync-laag over de Square-catalogus. Vervangt de statische
- * data/producten.ts + data/merken.ts + data/categorieen.ts als bron van
- * producten - Square is nu de bron van waarheid voor assortiment, prijzen en
- * categorieen. data/merken.ts en data/categorieen.ts blijven bestaan als
+ * Live sync-laag over de Square-catalogus. Square is de bron van waarheid
+ * voor assortiment, prijzen en categorieen zodra de gekoppelde account
+ * artikelen bevat; tot die tijd valt de winkel terug op het assortiment uit
+ * de prijslijsten (data/producten.ts, zie catalogusbron() onderaan).
+ * data/merken.ts en data/categorieen.ts blijven bestaan als
  * puur redactionele inhoud (omschrijving, hero-afbeelding): Square's
  * Catalog API heeft geen veld voor marketingcopy per categorie/merk, dus die
  * twee bestanden zijn nu een content-overlay, geen productdata meer.
@@ -334,7 +336,46 @@ function bouwCatalogus(alle: RuwCatalogusObject[], voorraadPerId: Map<string, nu
   return { producten, categorieen, merken, opgehaaldOp: new Date(nu).toISOString() };
 }
 
-const haalCatalogusOpGecached = unstable_cache(
+/**
+ * Het assortiment uit de prijslijsten (data/producten.ts), in dezelfde vorm
+ * als de Square-catalogus. Terugvalbron zolang Square geen artikelen heeft.
+ */
+function statischeCatalogus(): Catalogusdata {
+  return {
+    producten: statischeProducten,
+    categorieen: categorieInhoud.map((c) => ({
+      ...c,
+      aantal: statischeProducten.filter((p) => p.categorie === c.slug).length,
+    })),
+    merken: merkInhoud.map((m) => ({
+      ...m,
+      aantal: statischeProducten.filter((p) => p.merk === m.slug).length,
+    })),
+    opgehaaldOp: new Date().toISOString(),
+  };
+}
+
+/**
+ * Waar het assortiment vandaan komt (omgevingsvariabele CATALOGUS_BRON):
+ *  - "auto" (standaard): Square, tenzij die account geen artikelen bevat of
+ *    onbereikbaar is - dan het assortiment uit de prijslijsten. Zo blijft de
+ *    winkel gevuld tijdens de overstap naar een nieuwe Square-account.
+ *  - "square": altijd Square, ook als die leeg is.
+ *  - "statisch": altijd de prijslijsten, Square wordt niet geraadpleegd.
+ */
+type Catalogusbron = "auto" | "square" | "statisch";
+
+function catalogusbron(): Catalogusbron {
+  const waarde = process.env.CATALOGUS_BRON;
+  return waarde === "square" || waarde === "statisch" ? waarde : "auto";
+}
+
+/**
+ * Alleen het Square-antwoord wordt gecachet. De terugval op de prijslijsten
+ * zit bewust buiten de cache: dat is code, geen netwerkverzoek, en zo is een
+ * wijziging in data/catalogus meteen zichtbaar in plaats van pas na een uur.
+ */
+const haalSquareCatalogusOpGecached = unstable_cache(
   async (): Promise<Catalogusdata> => {
     const alle = await haalRuweCatalogusOp();
     const variatieIds = alle
@@ -351,5 +392,15 @@ const haalCatalogusOpGecached = unstable_cache(
 );
 
 export async function catalogus(): Promise<Catalogusdata> {
-  return haalCatalogusOpGecached();
+  const bron = catalogusbron();
+  if (bron === "statisch") return statischeCatalogus();
+  if (bron === "square") return haalSquareCatalogusOpGecached();
+
+  try {
+    const uitSquare = await haalSquareCatalogusOpGecached();
+    if (uitSquare.producten.length > 0) return uitSquare;
+  } catch (fout) {
+    console.error("Square-catalogus niet beschikbaar, terugval op de prijslijsten:", fout);
+  }
+  return statischeCatalogus();
 }

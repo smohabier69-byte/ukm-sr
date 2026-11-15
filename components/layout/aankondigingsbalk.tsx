@@ -1,11 +1,13 @@
-import { MapPin, Sparkles, Truck } from "lucide-react";
+import { Gift, MapPin, MessageCircle, Sparkles, Truck } from "lucide-react";
 
 import { bedrijf } from "@/lib/site";
 import { formatPrijs } from "@/lib/format";
 
 const berichten = [
-  { icoon: Truck, tekst: `Gratis bezorging in Paramaribo vanaf ${formatPrijs(bedrijf.gratisBezorgingVanaf)}` },
-  { icoon: Sparkles, tekst: "Nieuw binnen: de PTC Signature collectie" },
+  { icoon: Sparkles, tekst: "Nieuw binnen: de collectie van november 2026" },
+  { icoon: Truck, tekst: `Bezorging tot aan huis in ${bedrijf.adres.stad}, vanaf ${formatPrijs(bedrijf.bezorgingVanaf)}` },
+  { icoon: Gift, tekst: "Cadeau zoeken? Bekijk de cadeauwijzer" },
+  { icoon: MessageCircle, tekst: `Bestellen kan ook via WhatsApp: ${bedrijf.telefoon}` },
   { icoon: MapPin, tekst: `Persoonlijk passen aan de ${bedrijf.adres.straat}` },
 ];
 
@@ -15,7 +17,7 @@ const berichten = [
  */
 export function Aankondigingsbalk() {
   return (
-    <div className="relative overflow-hidden bg-inkt text-creme">
+    <div className="relative overflow-hidden bg-salie-700 text-white">
       <div className="flex w-max marquee-spoor motion-reduce:animate-none">
         {[0, 1].map((kopie) => (
           <ul
@@ -25,7 +27,7 @@ export function Aankondigingsbalk() {
           >
             {berichten.map(({ icoon: Icoon, tekst }) => (
               <li key={tekst} className="flex shrink-0 items-center gap-2 whitespace-nowrap">
-                <Icoon className="size-3.5 text-salie-300" />
+                <Icoon className="size-3.5 text-goud-licht" />
                 <span>{tekst}</span>
               </li>
             ))}

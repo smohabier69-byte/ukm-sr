@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 
 import { Hero } from "@/components/home/hero";
-import { Voordelen } from "@/components/home/voordelen";
-import { Promotie } from "@/components/home/promotie";
 import { CategorieenSectie } from "@/components/home/categorieen-sectie";
+import { Cadeauwijzer } from "@/components/home/cadeauwijzer";
 import { PtcDemo } from "@/components/home/ptc-demo";
+import { Lenskleuren } from "@/components/home/lenskleuren";
+import { DuoBanner } from "@/components/home/duo-banner";
+import { ZoBestelJe } from "@/components/home/zo-bestel-je";
 import { Productsectie } from "@/components/home/productsectie";
 import { VeelgesteldeVragenPreview } from "@/components/home/veelgestelde-vragen-preview";
 import { Nieuwsbrief } from "@/components/home/nieuwsbrief";
@@ -13,7 +15,7 @@ import { nieuwBinnen, uitgelicht } from "@/lib/square/producten";
 import { bedrijf, siteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: `${bedrijf.naam} | Anti-blauwlicht brillen en kleurlenzen in Paramaribo`,
+  title: `${bedrijf.naam} | Brillen, leesbrillen en kleurlenzen in Paramaribo`,
   description: bedrijf.beschrijving,
   alternates: { canonical: "/" },
 };
@@ -67,19 +69,23 @@ const websiteSchema = {
 };
 
 /**
- * De homepage is bewust een landingspagina, geen catalogus. Elke sectie doet
- * hier iets dat een andere pagina niet ook al doet: bladeren, filteren en het
- * volledige merkenoverzicht horen bij /producten, /categorie en /merken -
- * bereikbaar via het megamenu, niet nogmaals hier.
+ * De homepage is de etalage van een cadeauboetiek, geen catalogus. De
+ * volgorde volgt hoe iemand een winkel binnenloopt: eerst de sfeer (hero),
+ * dan de schappen (collecties), dan hulp bij kiezen (cadeauwijzer) en pas
+ * daarna de producten zelf. Bladeren en filteren horen bij /producten en
+ * /categorie.
  *
- * "Uitgelicht" is al populariteit-gesorteerd (met spreiding over vorm en
- * techniek), dus een aparte bestsellerssectie zou grotendeels hetzelfde
- * tonen. "Nieuw binnen" is wel een ander signaal (recentheid) en krijgt
- * daarom een eigen rij; een derde bijna-identieke productrij zou de
- * rommeligheid terugbrengen die deze pagina bewust heeft opgelost.
+ * Er staan bewust maar twee productrijen: "Nieuw binnen" (recentheid) en
+ * "Favorieten" (populariteit, gespreid over vorm en techniek). De lenzen
+ * hebben hun eigen blok, ingedeeld op kleur.
  */
 export default async function Homepagina() {
-  const [uitgelichtProducten, nieuwBinnenProducten] = await Promise.all([uitgelicht(), nieuwBinnen()]);
+  // Beide productrijen tonen brillen; de lenzen hebben hun eigen blok (Lenskleuren).
+  const nieuwBinnenProducten = await nieuwBinnen("bril");
+  const uitgelichtProducten = await uitgelicht(
+    nieuwBinnenProducten.map((p) => p.naam),
+    "bril",
+  );
 
   return (
     <>
@@ -87,30 +93,39 @@ export default async function Homepagina() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
 
       <Hero />
-      <Voordelen />
       <CategorieenSectie />
-      <PtcDemo />
-
-      <Productsectie
-        bovenschrift="Uitgelicht"
-        titel="Een doorsnede van de collectie"
-        tekst="Uit elke vorm en techniek het model dat op dit moment het best loopt."
-        link={{ label: "Bekijk het volledige assortiment", href: "/producten" }}
-        producten={uitgelichtProducten}
-        prioriteit
-      />
-
-      <Promotie />
+      <Cadeauwijzer />
 
       <Productsectie
         bovenschrift="Nieuw binnen"
-        titel="Net toegevoegd aan het assortiment"
-        tekst="De laatste aanvullingen op het assortiment, nog vers in de winkel."
-        link={{ label: "Bekijk alle nieuwe modellen", href: "/producten?sorteer=nieuwste" }}
+        titel={
+          <>
+            Net <em>uitgepakt</em>
+          </>
+        }
+        tekst="De nieuwste monturen uit de collectie van november 2026."
+        link={{ label: "Alle nieuwe modellen", href: "/producten?sorteer=nieuwste" }}
         producten={nieuwBinnenProducten}
-        aantalKolommen={4}
+        prioriteit
       />
 
+      <PtcDemo />
+
+      <Productsectie
+        bovenschrift="Favorieten"
+        titel={
+          <>
+            Geliefd in <em>de winkel</em>
+          </>
+        }
+        tekst="Uit elke brillencollectie het model waar het vaakst naar gevraagd wordt."
+        link={{ label: "Bekijk het volledige assortiment", href: "/producten" }}
+        producten={uitgelichtProducten}
+      />
+
+      <Lenskleuren />
+      <DuoBanner />
+      <ZoBestelJe />
       <VeelgesteldeVragenPreview />
       <RecentBekeken />
       <Nieuwsbrief />

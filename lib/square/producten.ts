@@ -26,9 +26,25 @@ export async function productenVanMerk(merk: string): Promise<Product[]> {
 
 const opVoorraad = (p: Product) => p.voorraad > 0;
 
+/**
+ * Sommige lenzen bestaan twee keer: zonder en met sterkte, met dezelfde naam
+ * en vaak dezelfde foto. In een rij op de homepagina of onder een product
+ * leest dat als een dubbel artikel, dus selecties houden per naam het eerste
+ * exemplaar (de lijst is dan al gesorteerd op relevantie).
+ */
+function eenPerNaam(producten: Product[]): Product[] {
+  const gezien = new Set<string>();
+  return producten.filter((p) => {
+    const sleutel = p.naam.trim().toLowerCase();
+    if (gezien.has(sleutel)) return false;
+    gezien.add(sleutel);
+    return true;
+  });
+}
+
 export async function bestsellers(): Promise<Product[]> {
   const producten = await alleProducten();
-  return [...producten].filter(opVoorraad).sort((a, b) => b.populariteit - a.populariteit).slice(0, 8);
+  return eenPerNaam([...producten].filter(opVoorraad).sort((a, b) => b.populariteit - a.populariteit)).slice(0, 8);
 }
 
 export async function aanbiedingen(): Promise<Product[]> {
@@ -36,12 +52,18 @@ export async function aanbiedingen(): Promise<Product[]> {
   return producten.filter((p) => p.vanPrijs && p.vanPrijs > p.prijs);
 }
 
-/** Uitgelicht op de homepagina: een doorsnede van het assortiment. */
-export async function uitgelicht(): Promise<Product[]> {
-  const producten = await alleProducten();
+/**
+ * Uitgelicht op de homepagina: een doorsnede van het assortiment. Namen in
+ * `uitsluiten` (bijvoorbeeld wat al bij "Nieuw binnen" staat) worden
+ * overgeslagen, zodat twee rijen onder elkaar niet hetzelfde tonen.
+ */
+export async function uitgelicht(uitsluiten: string[] = [], soort?: Product["soort"]): Promise<Product[]> {
+  const producten = (await alleProducten()).filter(
+    (p) => !uitsluiten.includes(p.naam) && (!soort || p.soort === soort),
+  );
   const gekozen: Product[] = [];
   const gezien = new Set<string>();
-  for (const p of [...producten].filter(opVoorraad).sort((a, b) => b.populariteit - a.populariteit)) {
+  for (const p of eenPerNaam([...producten].filter(opVoorraad).sort((a, b) => b.populariteit - a.populariteit))) {
     const sleutel = `${p.categorie}:${p.subcategorie}`;
     if (gezien.has(sleutel)) continue;
     gezien.add(sleutel);
@@ -53,23 +75,40 @@ export async function uitgelicht(): Promise<Product[]> {
 
 export async function trending(): Promise<Product[]> {
   const producten = await alleProducten();
-  return [...producten]
-    .filter(opVoorraad)
-    .sort((a, b) => {
+  return eenPerNaam(
+    [...producten].filter(opVoorraad).sort((a, b) => {
       const gewichtB = b.populariteit + (b.labels.includes("nieuw") ? 20 : 0);
       const gewichtA = a.populariteit + (a.labels.includes("nieuw") ? 20 : 0);
       return gewichtB - gewichtA;
-    })
-    .slice(0, 8);
+    }),
+  ).slice(0, 8);
 }
 
-export async function nieuwBinnen(): Promise<Product[]> {
-  const producten = await alleProducten();
-  return [...producten]
-    .filter(opVoorraad)
-    .filter((p) => p.labels.includes("nieuw"))
-    .sort((a, b) => b.toegevoegdOp.localeCompare(a.toegevoegdOp))
-    .slice(0, 8);
+/**
+ * Nieuw binnen, om en om per collectie. Een nieuwe uitgave van de prijslijst
+ * brengt in een keer tientallen modellen met dezelfde datum; puur op datum
+ * sorteren zou dan acht keer dezelfde collectie tonen.
+ */
+export async function nieuwBinnen(soort?: Product["soort"]): Promise<Product[]> {
+  const producten = (await alleProducten()).filter((p) => !soort || p.soort === soort);
+  const nieuw = eenPerNaam(
+    [...producten]
+      .filter(opVoorraad)
+      .filter((p) => p.labels.includes("nieuw"))
+      .sort((a, b) => b.toegevoegdOp.localeCompare(a.toegevoegdOp)),
+  );
+
+  const perCategorie = new Map<string, Product[]>();
+  for (const p of nieuw) perCategorie.set(p.categorie, [...(perCategorie.get(p.categorie) ?? []), p]);
+
+  const gekozen: Product[] = [];
+  const rijen = [...perCategorie.values()];
+  for (let ronde = 0; gekozen.length < 8 && rijen.some((rij) => rij.length > ronde); ronde++) {
+    for (const rij of rijen) {
+      if (rij[ronde] && gekozen.length < 8) gekozen.push(rij[ronde]);
+    }
+  }
+  return gekozen;
 }
 
 export async function aantalPerCategorie(): Promise<Record<string, number>> {
@@ -100,7 +139,7 @@ export async function prijsbereik(): Promise<{ min: number; max: number }> {
 /** Vaak samen gekocht: bewust iets uit de andere productsoort plus een tweede model uit dezelfde categorie. */
 export async function vaakSamenGekocht(product: Product): Promise<Product[]> {
   const producten = await alleProducten();
-  const beschikbaar = producten.filter((p) => p.slug !== product.slug && p.voorraad > 0);
+  const beschikbaar = producten.filter((p) => p.naam !== product.naam && p.voorraad > 0);
   const andereSoort = beschikbaar.filter((p) => p.soort !== product.soort).sort((a, b) => b.populariteit - a.populariteit);
   const zelfdeCategorie = beschikbaar
     .filter((p) => p.categorie === product.categorie)
@@ -122,7 +161,9 @@ export async function vaakSamenGekocht(product: Product): Promise<Product[]> {
 
 export async function gerelateerdeProducten(product: Product, aantal = 4): Promise<Product[]> {
   const producten = await alleProducten();
-  const zelfdeCategorie = producten.filter((p) => p.categorie === product.categorie && p.slug !== product.slug);
-  const rest = producten.filter((p) => p.merk === product.merk && p.categorie !== product.categorie);
-  return [...zelfdeCategorie, ...rest].slice(0, aantal);
+  // Dezelfde lens met of zonder sterkte is geen "vergelijkbaar model" maar hetzelfde.
+  const anders = producten.filter((p) => p.naam !== product.naam);
+  const zelfdeCategorie = anders.filter((p) => p.categorie === product.categorie);
+  const rest = anders.filter((p) => p.merk === product.merk && p.categorie !== product.categorie);
+  return eenPerNaam([...zelfdeCategorie, ...rest]).slice(0, aantal);
 }

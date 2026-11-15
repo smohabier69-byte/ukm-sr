@@ -4,42 +4,37 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Cloud, Sun } from "lucide-react";
+import { ArrowRight, Home, Sun } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { fotoStijl } from "@/lib/fotofocus";
 
 const standen = [
   {
     id: "binnen",
     label: "Binnen",
-    icoon: Cloud,
-    titel: "Volledig helder",
-    tekst: "Binnenshuis blijft het glas transparant. Het blauwlichtfilter werkt gewoon door bij schermwerk.",
-    filter: "none",
+    icoon: Home,
+    titel: "Helder binnenshuis",
+    tekst: "Binnen blijft het glas helder. Het blauwlichtfilter doet gewoon zijn werk bij telefoon en laptop.",
+    foto: "/producten/nov26/dames/dames-p070-1.webp",
+    alt: "Model met een PTC-bril binnen: de glazen zijn helder",
   },
   {
-    id: "bewolkt",
-    label: "Bewolkt",
-    icoon: Cloud,
-    titel: "Licht geschaduwd",
-    tekst: "Bij diffuus daglicht kleurt het glas licht mee, net genoeg om fel wit te dempen.",
-    filter: "brightness(0.82) sepia(0.22) saturate(0.85) contrast(1.06)",
-  },
-  {
-    id: "zon",
-    label: "Volle zon",
+    id: "buiten",
+    label: "In de zon",
     icoon: Sun,
-    titel: "Diep donker",
-    tekst: "In direct zonlicht kleurt het glas binnen enkele seconden donker en blokkeert het UV tot 400 nm.",
-    filter: "brightness(0.6) sepia(0.4) saturate(0.7) contrast(1.14)",
+    titel: "Donker in de zon",
+    tekst: "Buiten kleurt hetzelfde glas vanzelf donker en beschermt het tegen UV. Ga je weer naar binnen, dan wordt het weer helder.",
+    foto: "/producten/nov26/dames/dames-p070-2.webp",
+    alt: "Hetzelfde model buiten: de glazen zijn donker gekleurd",
   },
 ] as const;
 
 /**
- * Toont het photochrome effect als een schuifbare demonstratie. De verdonkering
- * is een CSS-filter over dezelfde foto en dus een illustratie van het effect,
- * geen opname van het glas zelf; dat staat er ook expliciet bij.
+ * Laat het photochrome effect zien met de twee foto's uit de prijslijst:
+ * dezelfde bril binnen en buiten. Geen filter of animatie over een foto, maar
+ * twee echte opnames die in elkaar overvloeien.
  */
 export function PtcDemo() {
   const [actief, setActief] = React.useState<number>(0);
@@ -47,22 +42,28 @@ export function PtcDemo() {
 
   return (
     <section className="container-ukm py-16 lg:py-24">
-      <div className="overflow-hidden rounded-3xl border border-border/70 bg-white shadow-kaart">
+      <div className="overflow-hidden rounded-[2rem] bg-salie-800 text-creme shadow-kaart">
         <div className="grid lg:grid-cols-2">
-          <div className="relative aspect-[4/3] lg:aspect-auto lg:min-h-[32rem]">
-            <motion.div
-              className="absolute inset-0"
-              animate={{ filter: stand.filter }}
-              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <Image
-                src="/producten/brillen/brillen-p036-1.jpg"
-                alt="Model draagt de PTC Diamond Rose Gold Frameless"
-                fill
-                sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-cover object-top"
-              />
-            </motion.div>
+          <div className="relative aspect-[4/5] sm:aspect-[4/3] lg:aspect-auto lg:min-h-[34rem]">
+            {standen.map((s, i) => (
+              <motion.div
+                key={s.id}
+                className="absolute inset-0"
+                initial={false}
+                animate={{ opacity: actief === i ? 1 : 0 }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                aria-hidden={actief !== i}
+              >
+                <Image
+                  src={s.foto}
+                  alt={s.alt}
+                  fill
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  style={fotoStijl(s.foto)}
+                  className="object-cover"
+                />
+              </motion.div>
+            ))}
 
             <div className="absolute inset-x-0 bottom-0 flex justify-center p-5">
               <div
@@ -78,7 +79,7 @@ export function PtcDemo() {
                     aria-selected={actief === i}
                     onClick={() => setActief(i)}
                     className={cn(
-                      "relative rounded-full px-4 py-2 text-xs font-medium transition-colors",
+                      "relative flex items-center gap-1.5 rounded-full px-5 py-2.5 text-xs font-medium transition-colors",
                       actief === i ? "text-inkt" : "text-white/80 hover:text-white",
                     )}
                   >
@@ -89,6 +90,7 @@ export function PtcDemo() {
                         transition={{ type: "spring", stiffness: 320, damping: 32 }}
                       />
                     ) : null}
+                    <s.icoon className="relative size-3.5" />
                     <span className="relative">{s.label}</span>
                   </button>
                 ))}
@@ -96,42 +98,37 @@ export function PtcDemo() {
             </div>
           </div>
 
-          <div className="flex flex-col justify-center p-8 sm:p-12 lg:p-14">
-            <p className="font-display text-[0.6875rem] font-semibold tracking-[0.14em] text-salie-600 uppercase">
-              Photochromic Technology Coating
+          <div className="flex flex-col justify-center p-8 sm:p-12 lg:p-16">
+            <p className="text-salie-300 bovenschrift">Wat betekent PTC?</p>
+            <h2 className="mt-4 font-display text-3xl font-semibold sm:text-[2.625rem] sm:leading-[1.08]">
+              Een bril voor <em className="!text-salie-300">binnen en buiten</em>
+            </h2>
+            <p className="mt-5 max-w-md leading-relaxed text-creme/75">
+              PTC staat voor Photochromic Technology Coating. Bescherming tegen UV en tegen blauw licht, in een enkele
+              bril.
             </p>
-            <h2 className="mt-4 font-display text-3xl font-bold sm:text-4xl">Een bril voor binnen en buiten</h2>
 
-            <motion.div key={stand.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-              <p className="mt-6 flex items-center gap-2 font-display text-lg font-semibold text-salie-700">
-                <stand.icoon className="size-5" />
+            <motion.div
+              key={stand.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="mt-8 rounded-2xl bg-white/8 p-5"
+            >
+              <p className="flex items-center gap-2 font-display text-lg font-semibold">
+                <stand.icoon className="size-5 text-goud-licht" />
                 {stand.titel}
               </p>
-              <p className="mt-2 max-w-md leading-relaxed text-inkt-zacht">{stand.tekst}</p>
+              <p className="mt-2 max-w-md text-sm leading-relaxed text-creme/75">{stand.tekst}</p>
             </motion.div>
 
-            <ul className="mt-8 grid gap-3 text-sm sm:grid-cols-2">
-              {[
-                "Blokkeert UV-straling tot 400 nm",
-                "Filtert blauw licht van schermen",
-                "Terug naar helder binnenshuis",
-                "Geen tweede zonnebril nodig",
-              ].map((punt) => (
-                <li key={punt} className="flex items-start gap-2">
-                  <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-salie-400" />
-                  <span className="text-inkt-zacht">{punt}</span>
-                </li>
-              ))}
-            </ul>
-
-            <div className="mt-9 flex flex-wrap items-center gap-4">
-              <Button asChild>
-                <Link href="/categorie/ptc">
-                  Bekijk de PTC-collectie
+            <div className="mt-9">
+              <Button asChild variant="wit">
+                <Link href="/producten?techniek=ptc">
+                  Bekijk alle PTC-brillen
                   <ArrowRight />
                 </Link>
               </Button>
-              <p className="text-xs text-inkt-zacht">Illustratie van het effect</p>
             </div>
           </div>
         </div>

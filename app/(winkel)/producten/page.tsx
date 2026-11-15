@@ -8,7 +8,7 @@ import { bouwFacetten, uitZoekparameters } from "@/lib/catalogus";
 export const metadata: Metadata = {
   title: "Alle producten",
   description:
-    "Het volledige assortiment van UKM.sr: anti-blauwlicht brillen, photochrome PTC-monturen, kinderbrillen en kleurlenzen met en zonder sterkte.",
+    "Het volledige assortiment van UKM.sr: anti-blauwlicht brillen, photochrome PTC-monturen, leesbrillen en kleurlenzen met en zonder sterkte.",
   alternates: { canonical: "/producten" },
 };
 

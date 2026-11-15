@@ -3,11 +3,11 @@
  * deploy op het echte domein, zodat canonieke links, de sitemap en de
  * deelafbeeldingen naar de juiste plek wijzen.
  */
-export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://ukm-sr.vercel.app").replace(/\/$/, "");
+export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://ukm-sr.com").replace(/\/$/, "");
 
 /**
  * Centrale bedrijfsgegevens. Alles hier komt uit de officiele prijslijsten
- * (april 2026) en de Facebookpagina van UKM.sr.
+ * (november 2026) en de Facebookpagina van UKM.sr.
  */
 export const bedrijf = {
   naam: "UKM.sr",
@@ -15,7 +15,7 @@ export const bedrijf = {
   tagline: "Utsukushiku Kenkōna Me",
   taglineVertaling: "Mooie, gezonde ogen",
   beschrijving:
-    "Anti-blauwlicht brillen, photochrome PTC-brillen en kleurlenzen. Persoonlijk advies aan de Rembrandtstraat, bezorging door heel Paramaribo.",
+    "Photochrome PTC-brillen, anti-blauwlicht brillen, leesbrillen en kleurlenzen. Persoonlijk advies aan de Rembrandtstraat, bezorging tot aan huis in Paramaribo.",
   adres: {
     straat: "Rembrandtstraat #84",
     stad: "Paramaribo",
@@ -44,11 +44,12 @@ export const bedrijf = {
 export const footernavigatie = {
   winkelen: [
     { label: "Alle producten", href: "/producten" },
-    { label: "Anti-blauwlicht brillen", href: "/categorie/anti-blauwlicht" },
     { label: "PTC photochrome brillen", href: "/categorie/ptc" },
-    { label: "Kleurlenzen met sterkte", href: "/categorie/lenzen-met-sterkte" },
+    { label: "Anti-blauwlicht brillen", href: "/categorie/anti-blauwlicht" },
+    { label: "Leesbrillen", href: "/categorie/leesbrillen" },
+    { label: "Heren en unisex", href: "/categorie/heren-unisex" },
     { label: "Kleurlenzen zonder sterkte", href: "/categorie/lenzen-zonder-sterkte" },
-    { label: "Kinderbrillen", href: "/categorie/kinderbrillen" },
+    { label: "Kleurlenzen met sterkte", href: "/categorie/lenzen-met-sterkte" },
   ],
   klantenservice: [
     { label: "Contact", href: "/contact" },

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Fraunces, Inter, Plus_Jakarta_Sans } from "next/font/google";
 
 import { BewegingProvider } from "@/components/motion/beweging-provider";
 import { SessieProvider } from "@/components/providers/sessie-provider";
@@ -17,6 +17,14 @@ const inter = Inter({
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
   subsets: ["latin"],
+  display: "swap",
+});
+
+/** Zachte schreefletter voor de koppen; geeft de winkel haar boetiekkarakter. */
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -39,7 +47,8 @@ export const metadata: Metadata = {
     "opticien Paramaribo",
     "brillenwinkel Suriname",
     "contactlenzen Suriname",
-    "kinderbril Suriname",
+    "leesbril Suriname",
+    "cadeau Paramaribo",
     "zonnebril Paramaribo",
     "UKM.sr",
   ],
@@ -64,13 +73,13 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#faf6f1",
+  themeColor: "#fbf7f1",
   colorScheme: "light",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="nl-SR" className={`${inter.variable} ${jakarta.variable}`}>
+    <html lang="nl-SR" className={`${inter.variable} ${jakarta.variable} ${fraunces.variable}`}>
       <head>
         {/*
           Framer Motion zet de beginwaarde van elke onthulling als inline stijl

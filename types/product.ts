@@ -21,6 +21,7 @@ export type Montuurvorm =
   | "round"
   | "geometric"
   | "cat-ear"
+  | "sport"
   | "kids";
 
 export interface Variant {

@@ -32,3 +32,13 @@ export function squareLocationId(): string {
   }
   return id;
 }
+
+/**
+ * Valuta van de Square-account. Een bedrag in een andere valuta dan die van
+ * de account wordt door Square geweigerd. De productie-account van UKM staat
+ * op SRD; een sandbox-account op USD. Met SQUARE_CURRENCY is dat te
+ * overschrijven.
+ */
+export function squareValuta(): string {
+  return process.env.SQUARE_CURRENCY ?? (process.env.SQUARE_ENVIRONMENT === "production" ? "SRD" : "USD");
+}

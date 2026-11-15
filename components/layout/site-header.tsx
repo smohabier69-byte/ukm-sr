@@ -22,6 +22,7 @@ import { useCatalogusCache } from "@/lib/winkel/catalogus-cache";
 import { categorieen, hoofdcategorieen, categorieOpSlug } from "@/data/categorieen";
 import { merken } from "@/data/merken";
 import { hoofdnavigatie } from "./navigatie-data";
+import { fotoStijl } from "@/lib/fotofocus";
 
 interface Zoekindexitem {
   slug: string;
@@ -143,7 +144,8 @@ export function SiteHeader() {
     <header
       className={cn(
         "sticky top-0 z-50 transition-all duration-500 ease-[var(--ease-uit)]",
-        gescrold ? "glas border-b border-border/60 shadow-zacht" : "bg-transparent",
+        // Dekkend in plaats van melkglas: in Brave bleef tekst er anders doorheen zichtbaar.
+        gescrold ? "border-b border-border/60 bg-creme shadow-zacht" : "bg-transparent",
       )}
     >
       <div className="container-ukm">
@@ -304,11 +306,12 @@ export function SiteHeader() {
                 className="group relative hidden overflow-hidden rounded-2xl bg-creme-diep lg:block"
               >
                 <Image
-                  src="/producten/brillen/brillen-p036-1.jpg"
+                  src="/producten/nov26/dames/dames-p028-1.webp"
                   alt=""
                   fill
                   sizes="20vw"
-                  className="object-cover object-top transition-transform duration-700 ease-[var(--ease-uit)] group-hover:scale-105"
+                  style={fotoStijl("/producten/nov26/dames/dames-p028-1.webp")}
+                  className="object-cover transition-transform duration-700 ease-[var(--ease-uit)] group-hover:scale-105"
                 />
                 <div className="overlay-onder absolute inset-0 flex flex-col justify-end p-5">
                   <p className="text-xs font-medium text-white/80">Uitgelicht</p>
@@ -383,7 +386,8 @@ export function SiteHeader() {
                           alt=""
                           width={44}
                           height={44}
-                          className="size-11 shrink-0 rounded-lg bg-creme-diep object-cover object-top"
+                          style={fotoStijl(suggestie.afbeelding)}
+                          className="size-11 shrink-0 rounded-lg bg-creme-diep object-cover"
                         />
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-sm font-medium">{suggestie.naam}</span>

@@ -10,6 +10,11 @@
  * officiele prijslijsten: salie #A8B8A0, creme #FAF6F1, inkt #100F0D.
  * Salie 300 is de merkkleur; donkerdere stappen bestaan zodat tekst en
  * bedieningselementen op licht papier voldoende contrast houden.
+ *
+ * Sinds de collectie van november 2026 heeft de winkel het karakter van een
+ * cadeauboetiek: blush, boter en lila komen uit de linten en labels in die
+ * prijslijsten, goud uit de prijszegels. Ze zijn accentkleuren - salie blijft
+ * de merkkleur en de kleur van elke knop.
  */
 :root {
   --salie-50: #f4f7f2;
@@ -23,12 +28,26 @@
   --salie-800: #3c4738;
   --salie-900: #333c30;
 
-  --creme: #faf6f1;
-  --creme-diep: #f2ece4;
+  --creme: #fbf7f1;
+  --creme-diep: #f4ede3;
   --inkt: #100f0d;
   --inkt-zacht: #4a4845;
   --goud: #c79a3a;
+  --goud-licht: #ecd08a;
+  --goud-diep: #9a7424;
   --koraal: #c4342b;
+
+  --blush-50: #fdf4f2;
+  --blush-100: #fae5e1;
+  --blush-200: #f4cdc7;
+  --blush-300: #eab0a9;
+  --blush-500: #cf7a74;
+  --blush-700: #9c4f4c;
+  --boter-100: #fbf1d3;
+  --boter-200: #f5e2a6;
+  --lila-100: #efe9f7;
+  --lila-200: #dccfee;
+  --lila-600: #7b62a8;
 
   /*
    * Grafiekkleuren voor het beheerpaneel.
@@ -52,7 +71,7 @@
   --status-ernstig: #ec835a;
   --status-kritiek: #d03b3b;
 
-  --radius: 0.875rem;
+  --radius: 1rem;
 
   --background: var(--creme);
   --foreground: var(--inkt);
@@ -133,7 +152,20 @@
   --color-inkt: var(--inkt);
   --color-inkt-zacht: var(--inkt-zacht);
   --color-goud: var(--goud);
+  --color-goud-licht: var(--goud-licht);
+  --color-goud-diep: var(--goud-diep);
   --color-koraal: var(--koraal);
+  --color-blush-50: var(--blush-50);
+  --color-blush-100: var(--blush-100);
+  --color-blush-200: var(--blush-200);
+  --color-blush-300: var(--blush-300);
+  --color-blush-500: var(--blush-500);
+  --color-blush-700: var(--blush-700);
+  --color-boter-100: var(--boter-100);
+  --color-boter-200: var(--boter-200);
+  --color-lila-100: var(--lila-100);
+  --color-lila-200: var(--lila-200);
+  --color-lila-600: var(--lila-600);
 
   --color-viz-serie-1: var(--viz-serie-1);
   --color-viz-serie-2: var(--viz-serie-2);
@@ -146,7 +178,9 @@
   --color-status-kritiek: var(--status-kritiek);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  /* Koppen in een zachte schreef (Fraunces); labels en knoppen blijven schreefloos. */
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-label: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -186,8 +220,18 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.022em;
+    font-optical-sizing: auto;
+    letter-spacing: -0.018em;
     text-wrap: balance;
+  }
+
+  /* Cursief in een kop is het accent van de boetiek: zelfde letter, andere toon. */
+  h1 em,
+  h2 em,
+  h3 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--salie-600);
   }
 
   p {
@@ -236,7 +280,11 @@
 
 /* Melkglas-effect voor de vastgezette navigatiebalk. */
 @utility glas {
-  background-color: color-mix(in srgb, var(--creme) 72%, transparent);
+  /*
+   * Bijna dekkend: koppen in de grote schreefletter bleven anders zichtbaar
+   * door de balk heen in browsers die backdrop-filter beperken (zoals Brave).
+   */
+  background-color: color-mix(in srgb, var(--creme) 95%, transparent);
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
 }
@@ -323,6 +371,52 @@
 
   & > :first-child {
     margin-top: 0;
+  }
+}
+
+/* Kleine hoofdletters boven een kop: altijd schreefloos, ook in een serif-context. */
+@utility bovenschrift {
+  font-family: var(--font-label);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/*
+ * Geschulpte rand, zoals het randje van een cadeaulabel. De straal is in te
+ * stellen met --schulp.
+ */
+@utility schulp-onder {
+  --schulp: 11px;
+  mask:
+    linear-gradient(#000 0 0) top / 100% calc(100% - var(--schulp) + 0.5px) no-repeat,
+    radial-gradient(circle at 50% 0, #000 calc(var(--schulp) - 0.5px), #0000 var(--schulp)) bottom left /
+      calc(2 * var(--schulp)) var(--schulp) repeat-x;
+}
+
+@utility schulp-boven {
+  --schulp: 11px;
+  mask:
+    linear-gradient(#000 0 0) bottom / 100% calc(100% - var(--schulp) + 0.5px) no-repeat,
+    radial-gradient(circle at 50% 100%, #000 calc(var(--schulp) - 0.5px), #0000 var(--schulp)) top left /
+      calc(2 * var(--schulp)) var(--schulp) repeat-x;
+}
+
+/* Fijn stippenpatroon voor rustige vlakken. */
+@utility stippen {
+  background-image: radial-gradient(currentColor 1px, transparent 1.5px);
+  background-size: 18px 18px;
+}
+
+/* Horizontale rij die op mobiel schuift zonder zichtbare schuifbalk. */
+@utility schuifrij {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
 

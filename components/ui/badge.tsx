@@ -12,9 +12,9 @@ const badgeVariants = cva(
         default: "border-transparent bg-salie-700 text-white",
         zacht: "border-transparent bg-salie-100 text-salie-800",
         outline: "border-salie-700/25 text-salie-800",
-        nieuw: "border-transparent bg-inkt text-creme",
+        nieuw: "border-transparent bg-blush-100 text-blush-700",
         korting: "border-transparent bg-koraal text-white",
-        goud: "border-transparent bg-goud/15 text-goud",
+        goud: "border-transparent bg-gradient-to-r from-goud-licht to-goud text-inkt",
         wit: "border-transparent bg-white/90 text-inkt backdrop-blur-sm",
       },
       size: {

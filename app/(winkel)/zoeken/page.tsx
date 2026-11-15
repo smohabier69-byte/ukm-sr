@@ -20,7 +20,7 @@ const populaireZoektermen = [
   "browline",
   "frameless",
   "luipaard",
-  "kinderbril",
+  "leesbril",
   "grijze lenzen",
   "blauwe lenzen",
   "met sterkte",

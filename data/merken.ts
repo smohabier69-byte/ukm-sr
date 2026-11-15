@@ -1,42 +1,49 @@
 import type { Merk } from "@/types/product";
 
 /**
- * UKM voert geen externe merken maar eigen huislijnen. De prijslijst deelt het
- * assortiment impliciet al zo in - op techniek en prijsklasse - en die indeling
- * is hier expliciet gemaakt zodat klanten op niveau kunnen filteren.
+ * UKM voert geen externe merken maar eigen huislijnen. De prijslijsten delen
+ * het assortiment al zo in - per uitgave en per techniek - en die indeling is
+ * hier expliciet gemaakt zodat klanten per lijn kunnen bladeren.
  */
 export const merken: Merk[] = [
-  {
-    slug: "ukm-signature",
-    naam: "UKM Signature",
-    omschrijving:
-      "De topcollectie: diamantgeslepen monturen, dubbele coating en de meest uitgesproken vormen uit het assortiment. Gemaakt voor wie een bril als sieraad draagt.",
-    herkomst: "Huislijn",
-    positionering: "Premium photochroom",
-  },
   {
     slug: "ukm-ptc",
     naam: "UKM PTC",
     omschrijving:
       "Onze kernlijn met Photochromic Technology Coating. Binnen helder, buiten donker, altijd bescherming tegen UV en blauw licht.",
     herkomst: "Huislijn",
-    positionering: "Photochroom, dagelijks",
+    positionering: "Photochroom",
   },
   {
     slug: "ukm-clear",
     naam: "UKM Clear",
     omschrijving:
-      "Heldere anti-blauwlicht brillen zonder kleurverandering. De toegankelijke instap voor iedereen die veel achter een scherm zit.",
+      "Heldere anti-blauwlicht brillen zonder kleurverandering. Voor iedereen die veel achter een scherm zit.",
     herkomst: "Huislijn",
     positionering: "Anti-blauwlicht",
   },
   {
-    slug: "ukm-kids",
-    naam: "UKM Kids",
+    slug: "ukm-readers",
+    naam: "UKM Readers",
     omschrijving:
-      "Lichte, buigzame monturen op kindermaat. Beschermt jonge ogen tijdens huiswerk, tablet en televisie.",
+      "Leesbrillen met blauwlichtfilter in +1.5, +2.0, +2.5 en +3.0. Van randloos en onopvallend tot uitgesproken cat eye.",
     herkomst: "Huislijn",
-    positionering: "Kinderbrillen",
+    positionering: "Leesbrillen",
+  },
+  {
+    slug: "ukm-men",
+    naam: "UKM Men & Unisex",
+    omschrijving: "PTC-monturen voor hem en voor iedereen: het randloze zeshoekige model en de sportbril.",
+    herkomst: "Huislijn",
+    positionering: "Heren en unisex",
+  },
+  {
+    slug: "ukm-soft-lenses",
+    naam: "UKM Soft Lenses",
+    omschrijving:
+      "Zachte kleurlenzen zonder sterkte, in dertig tinten. FDA, GMP, ISO en CE goedgekeurd en zes maanden houdbaar.",
+    herkomst: "Huislijn",
+    positionering: "Kleurlenzen zonder sterkte",
   },
   {
     slug: "ukm-vision",
@@ -45,14 +52,6 @@ export const merken: Merk[] = [
       "Kleurlenzen op sterkte, van -1.00 tot -8.00. Corrigeren en verkleuren in een enkele lens, zodat een bril niet altijd nodig is.",
     herkomst: "Huislijn",
     positionering: "Kleurlenzen op sterkte",
-  },
-  {
-    slug: "ukm-soft-lenses",
-    naam: "UKM Soft Lenses",
-    omschrijving:
-      "Zachte kleurlenzen zonder sterkte, in ruim dertig tinten. FDA, GMP, ISO en CE goedgekeurd en zes maanden houdbaar.",
-    herkomst: "Huislijn",
-    positionering: "Kleurlenzen zonder sterkte",
   },
 ];
 
