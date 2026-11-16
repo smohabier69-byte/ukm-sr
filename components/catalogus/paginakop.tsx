@@ -41,7 +41,7 @@ export function Paginakop({
 
           {afbeelding ? (
             <Onthul richting="links" vertraging={0.1} className="shrink-0">
-              <div className="relative h-40 w-full overflow-hidden rounded-2xl bg-creme-diep shadow-zacht lg:h-44 lg:w-80">
+              <div className="relative aspect-[2/1] w-full overflow-hidden rounded-2xl bg-creme-diep shadow-zacht lg:aspect-auto lg:h-44 lg:w-80">
                 <Image
                   src={afbeelding}
                   alt=""

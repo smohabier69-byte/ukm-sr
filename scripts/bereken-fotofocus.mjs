@@ -79,6 +79,9 @@ const handmatig = {
   "/producten/nov26/dames/dames-p065-1.webp": "50% 25%",
   "/producten/nov26/dames/dames-p066-1.webp": "50% 25%",
   "/producten/nov26/dames/dames-p066-2.webp": "70% 50%",
+  // Ook in brede kaders (paginakop, megamenu) moeten ogen en montuur in beeld blijven.
+  "/producten/nov26/heren/heren-p002-2.webp": "50% 45%",
+  "/producten/nov26/dames/dames-p028-1.webp": "50% 45%",
   // Night Vision: de uitsneden zijn al gecentreerd opgebouwd, de posters lezen van boven naar onder.
   "/producten/nov26/herennov/herennov-nv-goud.webp": "50% 50%",
   "/producten/nov26/herennov/herennov-nv-zwart.webp": "50% 50%",
@@ -140,10 +143,14 @@ for (const src of verwezenPaden()) {
     .resize({ width: zijde, height: zijde, fit: "cover", position: sharp.strategy.attention })
     .toBuffer({ resolveWithObject: true });
 
+  // Het midden van de gekozen uitsnede, niet de verschuiving ervan. Als
+  // object-position gebruikt valt dat punt in elk kader (staand, vierkant of
+  // breed) ongeveer op dezelfde hoogte; een verschuiving van 0% of 100% zou
+  // in een breed kader juist kruin of kin tonen.
   const links = Math.abs(info.cropOffsetLeft ?? 0);
   const boven = Math.abs(info.cropOffsetTop ?? 0);
-  const x = B > zijde ? (links / (B - zijde)) * 100 : 50;
-  const y = H > zijde ? (boven / (H - zijde)) * 100 : 50;
+  const x = ((links + zijde / 2) / B) * 100;
+  const y = ((boven + zijde / 2) / H) * 100;
   focus[src] = `${procent(x)} ${procent(y)}`;
 }
 
