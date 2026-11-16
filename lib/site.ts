@@ -36,7 +36,8 @@ export const bedrijf = {
     { dagen: "Zaterdag", tijden: "09:00 - 15:00" },
     { dagen: "Zondag", tijden: "Gesloten" },
   ],
-  bezorgingVanaf: 100,
+  /** Bezorgkosten binnen Paramaribo, in SRD. */
+  bezorgingVanaf: 120,
   gratisBezorgingVanaf: 1500,
   btwTarief: 0.1,
 } as const;
@@ -68,28 +69,6 @@ export const footernavigatie = {
   ],
 } as const;
 
-export const voordelen = [
-  {
-    icoon: "Truck",
-    titel: "Bezorging door heel Paramaribo",
-    tekst: `Al vanaf ${bedrijf.bezorgingVanaf === 100 ? "SRD 100,-" : ""} bezorgkosten. Gratis vanaf SRD 1.500,-.`,
-  },
-  {
-    icoon: "Store",
-    titel: "Persoonlijk passen in de winkel",
-    tekst: "Kom langs aan de Rembrandtstraat #84 en probeer elk montuur rustig uit.",
-  },
-  {
-    icoon: "ShieldCheck",
-    titel: "Gecertificeerde kwaliteit",
-    tekst: "Onze lenzen zijn FDA, GMP, ISO en CE goedgekeurd.",
-  },
-  {
-    icoon: "MessageCircle",
-    titel: "Advies via WhatsApp",
-    tekst: "Stuur ons een bericht en we denken met je mee over sterkte, vorm en kleur.",
-  },
-] as const;
 
 export function whatsappLink(bericht: string): string {
   return `https://wa.me/${bedrijf.whatsapp}?text=${encodeURIComponent(bericht)}`;
