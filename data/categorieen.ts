@@ -28,7 +28,7 @@ export const categorieen: Categorie[] = [
   {
     slug: "heren-unisex",
     naam: "Heren en unisex",
-    omschrijving: "PTC-monturen voor hem en voor iedereen: randloos zeshoekig of sportief.",
+    omschrijving: "PTC-monturen voor hem en voor iedereen, van randloos zeshoekig tot sportief, plus de Night Vision-rijbril.",
     soort: "bril",
     afbeelding: foto("heren", "p002-2"),
   },

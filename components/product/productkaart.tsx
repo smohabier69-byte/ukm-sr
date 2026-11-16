@@ -99,6 +99,12 @@ export function Productkaart({
             ) : null}
           </div>
 
+          {product.techniek === "nachtzicht" ? (
+            <span className="pointer-events-none absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[0.6875rem] font-medium text-inkt backdrop-blur-sm">
+              <span aria-hidden className="size-2.5 rounded-full bg-[#f2c418] ring-1 ring-inkt/30" />
+              Nachtzicht
+            </span>
+          ) : null}
           {product.techniek === "ptc" ? (
             <span className="pointer-events-none absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[0.6875rem] font-medium text-inkt backdrop-blur-sm">
               <span aria-hidden className="size-2.5 rounded-full bg-gradient-to-r from-white from-50% to-inkt to-50% ring-1 ring-inkt/40" />

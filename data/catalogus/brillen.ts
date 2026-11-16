@@ -42,13 +42,16 @@ export interface BrilInvoer {
 const d = (bestand: string) => `/producten/nov26/dames/dames-${bestand}.webp`;
 const h = (bestand: string) => `/producten/nov26/heren/heren-${bestand}.webp`;
 const l = (bestand: string) => `/producten/nov26/lees/lees-${bestand}.webp`;
+/** "UKM Prijslijst For Men NOV" (17 pagina's, november 2026). */
+const hn = (bestand: string) => `/producten/nov26/herennov/herennov-${bestand}.webp`;
 
 export const LEESSTERKTES = "+1.5, +2.0, +2.5 en +3.0";
 
 /**
  * Brillencollectie uit de prijslijsten van november 2026:
  *  - "UKM Prijslijst 2026 NOV" (dames, 70 pagina's)
- *  - "UKM Prijslijst For Men & Unisex" (8 pagina's)
+ *  - "UKM Prijslijst For Men & Unisex" (8 pagina's) en de opvolger
+ *    "UKM Prijslijst For Men NOV" (17 pagina's, met de Night Vision-rijbrillen)
  *  - "UKM Leesbrillen Collectie" (12 pagina's)
  *
  * Een reeks die de prijslijst in meerdere kleuren toont (zelfde montuur,
@@ -462,6 +465,85 @@ export const brillenInvoer: BrilInvoer[] = [
     ],
     pagina: "5-8 (Men & Unisex)",
     intro: "Sportmontuur dat blijft zitten, met glas dat meekleurt met de zon.",
+    labels: ["nieuw"],
+  },
+
+  {
+    slug: "matt-chrome-square-ptc",
+    naam: "Matt Chrome Square PTC",
+    catalogusnaam: "Matt Black Chrome Square PTC Glasses / Matt Translucent Chrome Square PTC Glasses",
+    prijs: 695,
+    lijn: "heren",
+    techniek: "ptc",
+    vorm: "square",
+    kleur: "Mat montuur met chromen accenten op de veren",
+    afbeeldingen: [hn("p009-1"), hn("p009-2"), hn("p010-1"), hn("p010-2")],
+    varianten: [
+      { id: "zwart", naam: "Mat zwart", swatch: "#1b1b1b", afbeelding: hn("p009-2") },
+      { id: "transparant", naam: "Mat transparant", swatch: "#dfe3e6", afbeelding: hn("p010-2") },
+    ],
+    pagina: "9-10 (Men NOV)",
+    intro: "Strak vierkant montuur in mat zwart of transparant, met chromen details.",
+    labels: ["nieuw"],
+  },
+  {
+    slug: "matt-grey-chrome-square-ptc",
+    naam: "Matt Grey Chrome Square PTC",
+    catalogusnaam: "Matt Grey Chrome Square PTC Glasses",
+    prijs: 895,
+    lijn: "heren",
+    techniek: "ptc",
+    vorm: "square",
+    kleur: "Mat grijs met chromen accenten op de veren",
+    afbeeldingen: [hn("p011-1"), hn("p011-2")],
+    pagina: "11 (Men NOV)",
+    intro: "Vierkant montuur in mat grijs, met chromen details op de veren.",
+    labels: ["nieuw"],
+  },
+  {
+    slug: "gold-frameless-hexagon-ptc",
+    naam: "Gold Frameless Hexagon PTC",
+    catalogusnaam: "Gold Frameless Hexagon PTC Glasses",
+    prijs: 895,
+    lijn: "heren",
+    techniek: "ptc",
+    vorm: "frameless",
+    kleur: "Randloos met gouden brug en zwart-gouden veren",
+    afbeeldingen: [hn("p012-1"), hn("p012-2")],
+    pagina: "12 (Men NOV)",
+    intro: "Randloos zeshoekig model met een gouden brug: zakelijk en opvallend.",
+    labels: ["nieuw"],
+  },
+  {
+    slug: "zilver-hexagon-thin-frame-ptc",
+    naam: "Zilver Hexagon Thin Frame PTC",
+    catalogusnaam: "Zilver Hexagon Thin Frame PTC Glasses",
+    prijs: 695,
+    lijn: "heren",
+    techniek: "ptc",
+    vorm: "geometric",
+    kleur: "Dun zilveren montuur in zeshoekvorm",
+    afbeeldingen: [hn("p013-1"), hn("p013-2")],
+    pagina: "13 (Men NOV)",
+    intro: "Dun zeshoekig montuur in zilver, licht en modern.",
+    labels: ["nieuw"],
+  },
+  {
+    slug: "night-vision-driving-glasses",
+    naam: "Night Vision Driving Glasses",
+    catalogusnaam: "Night Vision Driving Glasses / Night Vision Polarized Sunglasses",
+    prijs: 695,
+    lijn: "heren",
+    techniek: "nachtzicht",
+    vorm: "aviator",
+    kleur: "Pilotenmontuur met geel Night Vision-glas",
+    afbeeldingen: [hn("nv-model"), hn("nv-goud"), hn("nv-zwart"), hn("nv-polarized"), hn("p015-1"), hn("p016-1"), hn("p017-1")],
+    varianten: [
+      { id: "goud", naam: "Goud", swatch: "#c79a3a", afbeelding: hn("nv-goud") },
+      { id: "zwart", naam: "Zwart", swatch: "#1b1b1b", afbeelding: hn("nv-zwart") },
+    ],
+    pagina: "15-17 (Men NOV)",
+    intro: "Rijbril met geel glas: minder verblinding door koplampen, beter zicht in het donker.",
     labels: ["nieuw"],
   },
 

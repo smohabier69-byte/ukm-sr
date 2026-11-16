@@ -2,10 +2,11 @@
 export type Productsoort = "bril" | "lens";
 
 /**
- * De twee brillenlijnen uit de prijslijst. PTC staat voor Photochromic
- * Technology Coating: helder binnen, donker in de zon.
+ * Het glas in een bril. PTC staat voor Photochromic Technology Coating:
+ * helder binnen, donker in de zon. Non-PTC is helder anti-blauwlicht glas.
+ * Nachtzicht is het gele glas van de Night Vision-rijbrillen.
  */
-export type Techniek = "non-ptc" | "ptc";
+export type Techniek = "non-ptc" | "ptc" | "nachtzicht";
 
 /** Of een kleurlens op sterkte geleverd wordt. */
 export type Sterktesoort = "met-sterkte" | "zonder-sterkte";

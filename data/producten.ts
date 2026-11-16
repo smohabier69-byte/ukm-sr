@@ -43,14 +43,14 @@ function labelsEnVolgorde(labels: string[] = [], uitverkocht: boolean) {
 function brilCategorie(invoer: BrilInvoer): string {
   if (invoer.lijn === "lees") return "leesbrillen";
   if (invoer.lijn === "heren") return "heren-unisex";
-  return invoer.techniek === "ptc" ? "ptc" : "anti-blauwlicht";
+  return invoer.techniek === "non-ptc" ? "anti-blauwlicht" : "ptc";
 }
 
 /** Huislijn volgt uit de prijslijst waarin het model staat en de techniek. */
 function brilMerk(invoer: BrilInvoer): string {
   if (invoer.lijn === "lees") return "ukm-readers";
   if (invoer.lijn === "heren") return "ukm-men";
-  return invoer.techniek === "ptc" ? "ukm-ptc" : "ukm-clear";
+  return invoer.techniek === "non-ptc" ? "ukm-clear" : "ukm-ptc";
 }
 
 function maakBril(invoer: BrilInvoer): Product {

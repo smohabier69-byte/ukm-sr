@@ -100,6 +100,7 @@ export default async function Productpagina({ params }: { params: Promise<{ slug
               {product.vanPrijs ? <Badge variant="korting" size="sm">Aanbieding</Badge> : null}
               {product.labels.includes("nieuw") ? <Badge variant="nieuw" size="sm">Nieuw</Badge> : null}
               {product.techniek === "ptc" ? <Badge variant="wit" size="sm">PTC photochroom</Badge> : null}
+              {product.techniek === "nachtzicht" ? <Badge variant="wit" size="sm">Night Vision</Badge> : null}
             </>
           }
         />

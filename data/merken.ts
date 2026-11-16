@@ -33,7 +33,8 @@ export const merken: Merk[] = [
   {
     slug: "ukm-men",
     naam: "UKM Men & Unisex",
-    omschrijving: "PTC-monturen voor hem en voor iedereen: het randloze zeshoekige model en de sportbril.",
+    omschrijving:
+      "PTC-monturen voor hem en voor iedereen: randloze zeshoeken, strakke vierkante monturen, de sportbril en de Night Vision-rijbril met geel glas.",
     herkomst: "Huislijn",
     positionering: "Heren en unisex",
   },

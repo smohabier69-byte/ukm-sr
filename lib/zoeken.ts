@@ -62,6 +62,11 @@ const synoniemen: Record<string, string[]> = {
   mannen: ["men", "heren", "unisex"],
   man: ["men", "heren"],
   sportbril: ["sport"],
+  nachtbril: ["night vision", "nachtzicht"],
+  rijbril: ["night vision", "driving", "nachtzicht"],
+  autorijden: ["night vision", "driving"],
+  nacht: ["night vision", "nachtzicht"],
+  geel: ["night vision", "nachtzicht", "yellow"],
 
   // Lenzen en techniek
   lens: ["lenzen", "lens"],

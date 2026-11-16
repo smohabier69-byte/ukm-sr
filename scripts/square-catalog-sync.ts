@@ -222,7 +222,8 @@ for (const product of producten) {
   const categorieId = categorieIdBySlug.get(product.categorie);
   if (categorieId) categorieen_.push({ id: categorieId });
   if (product.techniek) {
-    categorieen_.push({ id: facetCategorie("Techniek", product.techniek === "ptc" ? "PTC" : "Non-PTC") });
+    const techniekNaam = { ptc: "PTC", "non-ptc": "Non-PTC", nachtzicht: "Nachtzicht" }[product.techniek];
+    categorieen_.push({ id: facetCategorie("Techniek", techniekNaam) });
   }
   if (product.vorm) categorieen_.push({ id: facetCategorie("Vorm", vormprofielen[product.vorm].naam) });
   if (product.sterktesoort) {

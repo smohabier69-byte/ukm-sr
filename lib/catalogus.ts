@@ -110,6 +110,7 @@ const kleurlabels: Record<string, string> = {
 const technieklabels: Record<string, string> = {
   ptc: "Verkleurt in de zon (PTC)",
   "non-ptc": "Blijft helder",
+  nachtzicht: "Nachtzicht (rijbril)",
 };
 
 const sterktelabels: Record<string, string> = {

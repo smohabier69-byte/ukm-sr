@@ -20,7 +20,7 @@ const banners = [
     categorie: "heren-unisex",
     bovenschrift: "For men & unisex",
     titel: "Ook voor hem",
-    tekst: "Randloos zeshoekig of sportief: PTC-monturen die buiten vanzelf donker kleuren.",
+    tekst: "PTC-monturen die buiten vanzelf donker kleuren, en de Night Vision-rijbril voor in het donker.",
     foto: "/producten/nov26/heren/heren-p007-1.webp",
     vlak: "bg-salie-100",
   },

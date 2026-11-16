@@ -218,7 +218,7 @@ function bouwCatalogus(alle: RuwCatalogusObject[], voorraadPerId: Map<string, nu
     // worden na de loop ontdubbeld.
     const slug = facetWaarde("Slug", categorieIds) ?? slugifyKleur(data.name);
 
-    const techniekWaarde = facetWaarde("Techniek", categorieIds); // "PTC" | "Non-PTC"
+    const techniekWaarde = facetWaarde("Techniek", categorieIds); // "PTC" | "Non-PTC" | "Nachtzicht"
     const vormWaarde = facetWaarde("Vorm", categorieIds);
     const sterktesoortWaarde = facetWaarde("Sterktesoort", categorieIds); // "Met sterkte" | "Zonder sterkte"
     const kleurfamilieWaarde = facetWaarde("Kleurfamilie", categorieIds);
@@ -227,7 +227,13 @@ function bouwCatalogus(alle: RuwCatalogusObject[], voorraadPerId: Map<string, nu
     const navSlug = navigatieCategorieSlug(categorieIds);
 
     const soort: "bril" | "lens" = sterktesoortWaarde ? "lens" : "bril";
-    const techniek: Techniek | undefined = techniekWaarde ? (techniekWaarde === "PTC" ? "ptc" : "non-ptc") : undefined;
+    const techniek: Techniek | undefined = techniekWaarde
+      ? techniekWaarde === "PTC"
+        ? "ptc"
+        : techniekWaarde === "Nachtzicht"
+          ? "nachtzicht"
+          : "non-ptc"
+      : undefined;
     const sterktesoort: Sterktesoort | undefined = sterktesoortWaarde
       ? sterktesoortWaarde === "Met sterkte"
         ? "met-sterkte"

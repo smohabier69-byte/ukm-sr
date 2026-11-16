@@ -35,10 +35,10 @@ function verwezenPaden() {
         loop(vol);
       } else if (/\.(ts|tsx)$/.test(naam.name)) {
         const tekst = fs.readFileSync(vol, "utf8");
-        // Directe paden en de korte helpers d("p005-1") / l("p003-1") / h(...) in de catalogusbestanden.
-        for (const m of tekst.matchAll(/\/producten\/nov26\/[a-z]+\/[a-z]+-p\d{3}-\d+\.webp/g)) gevonden.add(m[0]);
-        const helper = { d: "dames", h: "heren", l: naam.name === "lenzen.ts" ? "lenzen" : "lees" };
-        for (const m of tekst.matchAll(/\b([dhl])\("(p\d{3}-\d+)"\)/g)) {
+        // Directe paden en de korte helpers d("p005-1") / l("p003-1") / h(...) / hn(...) in de catalogusbestanden.
+        for (const m of tekst.matchAll(/\/producten\/nov26\/[a-z]+\/[a-z]+-(?:p\d{3}-\d+|nv-[a-z]+)\.webp/g)) gevonden.add(m[0]);
+        const helper = { d: "dames", h: "heren", hn: "herennov", l: naam.name === "lenzen.ts" ? "lenzen" : "lees" };
+        for (const m of tekst.matchAll(/\b(hn|[dhl])\("(p\d{3}-\d+|nv-[a-z]+)"\)/g)) {
           const lijst = helper[m[1]];
           gevonden.add(`/producten/nov26/${lijst}/${lijst}-${m[2]}.webp`);
         }
@@ -79,6 +79,14 @@ const handmatig = {
   "/producten/nov26/dames/dames-p065-1.webp": "50% 25%",
   "/producten/nov26/dames/dames-p066-1.webp": "50% 25%",
   "/producten/nov26/dames/dames-p066-2.webp": "70% 50%",
+  // Night Vision: de uitsneden zijn al gecentreerd opgebouwd, de posters lezen van boven naar onder.
+  "/producten/nov26/herennov/herennov-nv-goud.webp": "50% 50%",
+  "/producten/nov26/herennov/herennov-nv-zwart.webp": "50% 50%",
+  "/producten/nov26/herennov/herennov-nv-polarized.webp": "50% 50%",
+  "/producten/nov26/herennov/herennov-nv-model.webp": "50% 30%",
+  "/producten/nov26/herennov/herennov-p015-1.webp": "50% 50%",
+  "/producten/nov26/herennov/herennov-p016-1.webp": "50% 50%",
+  "/producten/nov26/herennov/herennov-p017-1.webp": "50% 50%",
   // Liggende close-ups van een montuur: midden houden, anders valt een glas weg.
   "/producten/nov26/dames/dames-p015-1.webp": "50% 50%",
   "/producten/nov26/dames/dames-p016-1.webp": "50% 50%",

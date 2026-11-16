@@ -97,6 +97,16 @@ export const techniekprofielen: Record<Techniek, { label: string; tekst: string;
       "Filtert blauw licht van schermen",
     ],
   },
+  nachtzicht: {
+    label: "Nachtzicht",
+    tekst:
+      "Het gele Night Vision-glas vermindert de verblinding van koplampen en straatverlichting, waardoor je 's avonds, bij schemer en in de regen rustiger en scherper ziet. Ook overdag te dragen: het glas beschermt tegen UV en blauw licht.",
+    kenmerken: [
+      "Minder verblinding door tegenliggers",
+      "Beter zicht bij schemer, nacht en regen",
+      "Ook overdag: anti-UV en anti-blauwlicht",
+    ],
+  },
   "non-ptc": {
     label: "Anti-blauwlicht",
     tekst:
@@ -115,9 +125,25 @@ export function brilSpecificaties(input: {
   return [
     { label: "Montuurvorm", waarde: vormprofielen[vorm].naam },
     { label: "Uitvoering", waarde: kleur },
-    { label: "Glastype", waarde: techniek === "ptc" ? "Photochroom (PTC)" : "Helder, anti-blauwlicht" },
+    {
+      label: "Glastype",
+      waarde:
+        techniek === "ptc"
+          ? "Photochroom (PTC)"
+          : techniek === "nachtzicht"
+            ? "Geel Night Vision-glas"
+            : "Helder, anti-blauwlicht",
+    },
     { label: "Blauwlichtfilter", waarde: "Ja" },
-    { label: "In de zon", waarde: techniek === "ptc" ? "Kleurt donker, beschermt tegen UV" : "Blijft helder" },
+    {
+      label: "In de zon",
+      waarde:
+        techniek === "ptc"
+          ? "Kleurt donker, beschermt tegen UV"
+          : techniek === "nachtzicht"
+            ? "Blijft geel, beschermt tegen UV"
+            : "Blijft helder",
+    },
     ...(sterktes ? [{ label: "Leessterktes", waarde: sterktes }] : []),
   ];
 }

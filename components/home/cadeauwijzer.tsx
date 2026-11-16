@@ -31,7 +31,7 @@ const ontvangers: Ontvanger[] = [
   },
   {
     titel: "Voor hem",
-    tekst: "Randloos zeshoekig of sportief. Strak, licht en klaar voor buiten.",
+    tekst: "Strakke PTC-monturen, een sportbril en de Night Vision-rijbril voor in het donker.",
     href: "/categorie/heren-unisex",
     hoort: (p) => p.categorie === "heren-unisex",
     kleur: "bg-salie-100",
