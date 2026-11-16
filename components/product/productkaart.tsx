@@ -114,15 +114,15 @@ export function Productkaart({
         </div>
 
         <div className="flex flex-1 flex-col px-1 pt-4">
-          {/* Op smalle kaarten (twee kolommen op mobiel) staat de prijs onder de naam. */}
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+          {/* Prijs onder de naam: zo breekt een lange naam nooit af naast de prijs. */}
+          <div className="flex flex-col gap-1">
             <h3 className="font-display text-base leading-snug font-semibold text-inkt transition-colors group-hover:text-salie-700 sm:text-[1.0625rem]">
               {product.naam}
             </h3>
-            <span className="shrink-0 sm:pt-0.5 sm:text-right">
-              <span className="block text-[0.9375rem] font-semibold whitespace-nowrap">{formatPrijs(product.prijs)}</span>
+            <span className="flex items-baseline gap-2">
+              <span className="text-[0.9375rem] font-semibold whitespace-nowrap">{formatPrijs(product.prijs)}</span>
               {product.vanPrijs ? (
-                <span className="block text-xs text-inkt-zacht line-through">{formatPrijs(product.vanPrijs)}</span>
+                <span className="text-xs text-inkt-zacht line-through">{formatPrijs(product.vanPrijs)}</span>
               ) : null}
             </span>
           </div>

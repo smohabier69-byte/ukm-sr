@@ -63,7 +63,7 @@ export const hoofdcategorieen = [
     naam: "Lenzen",
     omschrijving: "Zachte kleurlenzen, met en zonder sterkte.",
     soort: "lens" as const,
-    afbeelding: foto("lenzen", "p012-1"),
+    afbeelding: foto("lenzen", "p025-1"),
     subcategorieen: ["lenzen-zonder-sterkte", "lenzen-met-sterkte"],
   },
 ];

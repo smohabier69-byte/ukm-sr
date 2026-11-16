@@ -160,7 +160,8 @@ export const lenzenInvoer: LensInvoer[] = [
     sterktesoort: "zonder-sterkte",
     sterktebereik: ZONDER,
     kleur: "blauw",
-    afbeeldingen: [l("p032-1"), l("p031-1")],
+    // p016-1 is een uitsnede van de pagina zelf (zonder het prijslabel); de andere foto's zijn close-ups.
+    afbeeldingen: [l("p016-1"), l("p032-1"), l("p031-1")],
     pagina: "16-17, 31-32",
     intro: "Zacht hemelsblauw met een lichte waas.",
   },
@@ -212,7 +213,7 @@ export const lenzenInvoer: LensInvoer[] = [
     sterktebereik: ZONDER,
     kleur: "blauw",
     code: "L-019",
-    afbeeldingen: [l("p041-1"), l("p041-3")],
+    afbeeldingen: [l("p041-3"), l("p041-1")],
     pagina: "41-42",
     intro: "Grijsblauw als gewassen denim.",
   },
