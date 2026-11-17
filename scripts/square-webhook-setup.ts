@@ -10,10 +10,10 @@
  *
  *   npx vercel env add SQUARE_WEBHOOK_SIGNATURE_KEY production
  *
- * Let op: het abonnement is gekoppeld aan de omgeving van SQUARE_ACCESS_TOKEN
- * (nu sandbox). Zodra UKM's echte Square-productietoken is ingevuld, moet dit
- * script opnieuw draaien tegen dat token om het productie-abonnement aan te
- * maken.
+ * Let op: het abonnement hoort bij de Square-account van SQUARE_ACCESS_TOKEN.
+ * Na een overstap naar een andere Square-account moet dit script opnieuw
+ * draaien met het nieuwe token, en moet de nieuwe signature key ook in
+ * Vercel.
  *
  *   npx tsx scripts/square-webhook-setup.ts
  */
@@ -32,7 +32,7 @@ if (!token) {
 // Altijd de publieke productie-URL, nooit process.env.NEXT_PUBLIC_SITE_URL:
 // die staat lokaal op http://localhost:3000, en Square accepteert alleen een
 // publiek bereikbare https-URL als notification_url.
-const PRODUCTIE_URL = "https://ukm-sr.vercel.app";
+const PRODUCTIE_URL = "https://ukm-sr.com";
 const notificationUrl = `${PRODUCTIE_URL}/api/webhooks/square`;
 const NAAM = "UKM.sr storefront";
 const EVENT_TYPES = ["payment.updated", "catalog.version.updated", "inventory.count.updated"];
