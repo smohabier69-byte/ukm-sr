@@ -95,9 +95,26 @@ function bouwDescriptionHtml(
 /* -------------------------------------------------------------------------- */
 
 async function wisCatalogus() {
-  const ids: string[] = [];
+  // De account bevat ook de Pink by Moon-charms (andere winkel, zelfde
+  // eigenaar). Die categorie, haar items, variaties en foto's blijven staan.
+  const alle: { id?: string; type?: string; categoryData?: { name?: string }; itemData?: { categories?: { id?: string }[]; imageIds?: string[]; variations?: { id?: string }[] } }[] = [];
   const pagina = await client.catalog.list();
-  for await (const obj of pagina) if (obj.id) ids.push(obj.id);
+  for await (const obj of pagina) alle.push(obj as (typeof alle)[number]);
+  const pinkCategorieen = new Set(
+    alle
+      .filter((o) => o.type === "CATEGORY")
+      .filter((o) => o.categoryData?.name === "Pink by Moon" || o.categoryData?.name?.startsWith("Pink: "))
+      .map((o) => o.id),
+  );
+  const behouden = new Set<string | undefined>(pinkCategorieen);
+  for (const o of alle) {
+    if (o.type !== "ITEM" || !(o.itemData?.categories ?? []).some((c) => pinkCategorieen.has(c.id))) continue;
+    behouden.add(o.id);
+    for (const v of o.itemData?.variations ?? []) behouden.add(v.id);
+    for (const img of o.itemData?.imageIds ?? []) behouden.add(img);
+  }
+  const ids = alle.map((o) => o.id).filter((id): id is string => !!id && !behouden.has(id));
+  if (behouden.size > 0) console.log(`Pink by Moon blijft staan (${behouden.size} objecten).`);
   if (ids.length === 0) {
     console.log("Catalogus is al leeg.");
     return;

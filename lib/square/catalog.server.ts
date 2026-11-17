@@ -424,9 +424,33 @@ function catalogusbron(): Catalogusbron {
  * zit bewust buiten de cache: dat is code, geen netwerkverzoek, en zo is een
  * wijziging in data/catalogus meteen zichtbaar in plaats van pas na een uur.
  */
+/**
+ * De Square-account (Moonjewels and more) bevat ook artikelen van andere
+ * winkels van dezelfde eigenaar, zoals de Pink by Moon-charms. Die horen niet
+ * op UKM.sr: elk item in de categorie "Pink by Moon" (of een "Pink: ..."-
+ * subcategorie) wordt hier weggelaten, voordat er voorraad wordt opgevraagd.
+ */
+const ANDERE_WINKEL_CATEGORIE = "Pink by Moon";
+
+function zonderAndereWinkels(alle: RuwCatalogusObject[]): RuwCatalogusObject[] {
+  const uitgesloten = new Set(
+    alle
+      .filter((o) => o.type === "CATEGORY")
+      .filter((o) => {
+        const naam = o.categoryData?.name ?? "";
+        return naam === ANDERE_WINKEL_CATEGORIE || naam.startsWith("Pink: ");
+      })
+      .map((o) => o.id),
+  );
+  if (uitgesloten.size === 0) return alle;
+  return alle.filter(
+    (o) => o.type !== "ITEM" || !(o.itemData?.categories ?? []).some((c) => c.id && uitgesloten.has(c.id)),
+  );
+}
+
 const haalSquareCatalogusOpGecached = unstable_cache(
   async (): Promise<Catalogusdata> => {
-    const alle = await haalRuweCatalogusOp();
+    const alle = zonderAndereWinkels(await haalRuweCatalogusOp());
     const variatieIds = alle
       .filter((o) => o.type === "ITEM")
       .flatMap((o) => (o.itemData?.variations ?? []).map((v) => v.id));
