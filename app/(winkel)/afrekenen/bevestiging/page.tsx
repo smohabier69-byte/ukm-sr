@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { AlertCircle, ArrowRight } from "lucide-react";
+import { AlertCircle, ArrowRight, CheckCircle2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -61,22 +61,47 @@ function Bevestiging({ bestelling }: { bestelling: GeplaatsteBestelling }) {
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="mx-auto max-w-xl rounded-3xl border border-border/70 bg-white p-8 text-center sm:p-10"
     >
-      <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-[#25d366]/12 text-[#1da851]">
-        <WhatsAppIcoon className="size-8" />
-      </span>
-      <p className="mt-6 text-salie-600 bovenschrift">Bestelnummer {bestelling.bestelnummer}</p>
-      <h1 className="mt-2 font-display text-2xl font-bold sm:text-3xl">Nog één stap: stuur je bestelling via WhatsApp</h1>
-      <p className="mt-4 leading-relaxed text-inkt-zacht">
-        Je bestelling staat klaar in een WhatsApp-bericht aan {bedrijf.naam} ({bedrijf.telefoon}). Druk op versturen,
-        dan is ze bij ons binnen. We bevestigen {bezorgen ? "de bezorgkosten en " : ""}alles via WhatsApp.
-      </p>
-
-      <Button asChild size="lg" className="mt-7 w-full bg-[#25d366] text-white hover:bg-[#1fbd5a] sm:w-auto">
-        <a href={bestelling.whatsappUrl} target="_blank" rel="noreferrer noopener">
-          <WhatsAppIcoon className="size-5" />
-          Verstuur bestelling via WhatsApp
-        </a>
-      </Button>
+      {bestelling.automatisch ? (
+        <>
+          {/* De WhatsApp-bot stuurt de bestelling zelf door; de klant hoeft niets meer te doen. */}
+          <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-salie-100 text-salie-700">
+            <CheckCircle2 className="size-8" />
+          </span>
+          <p className="mt-6 text-salie-600 bovenschrift">Bestelnummer {bestelling.bestelnummer}</p>
+          <h1 className="mt-2 font-display text-2xl font-bold sm:text-3xl">Bedankt, we hebben je bestelling</h1>
+          <p className="mt-4 leading-relaxed text-inkt-zacht">
+            {bedrijf.naam} neemt zo snel mogelijk contact met je op via WhatsApp om{" "}
+            {bezorgen ? "de bezorgkosten en de levering" : "het afhalen"} af te spreken.
+          </p>
+          <Button asChild size="lg" variant="outline" className="mt-7">
+            <a href={bestelling.whatsappUrl} target="_blank" rel="noreferrer noopener">
+              <WhatsAppIcoon className="size-5" />
+              Vraag over je bestelling? App ons
+            </a>
+          </Button>
+        </>
+      ) : (
+        <>
+          <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-[#25d366]/12 text-[#1da851]">
+            <WhatsAppIcoon className="size-8" />
+          </span>
+          <p className="mt-6 text-salie-600 bovenschrift">Bestelnummer {bestelling.bestelnummer}</p>
+          <h1 className="mt-2 font-display text-2xl font-bold sm:text-3xl">
+            Nog één stap: stuur je bestelling via WhatsApp
+          </h1>
+          <p className="mt-4 leading-relaxed text-inkt-zacht">
+            Je bestelling staat klaar in een WhatsApp-bericht aan {bedrijf.naam} ({bedrijf.telefoon}). Druk op
+            versturen, dan is ze bij ons binnen. We bevestigen {bezorgen ? "de bezorgkosten en " : ""}alles via
+            WhatsApp.
+          </p>
+          <Button asChild size="lg" className="mt-7 w-full bg-[#25d366] text-white hover:bg-[#1fbd5a] sm:w-auto">
+            <a href={bestelling.whatsappUrl} target="_blank" rel="noreferrer noopener">
+              <WhatsAppIcoon className="size-5" />
+              Verstuur bestelling via WhatsApp
+            </a>
+          </Button>
+        </>
+      )}
 
       <ul className="mt-8 space-y-3 rounded-2xl bg-salie-50 p-5 text-left text-sm">
         {bestelling.regels.map((regel, i) => (

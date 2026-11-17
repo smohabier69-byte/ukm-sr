@@ -7,6 +7,7 @@ import {
   boolean,
   uuid,
   uniqueIndex,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "next-auth/adapters";
 
@@ -126,6 +127,22 @@ export const newsletterSubscribers = pgTable("newsletter_subscriber", {
   id: uuid("id").defaultRandom().primaryKey(),
   email: text("email").unique().notNull(),
   createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+});
+
+/**
+ * Bestellingen van de website. De WhatsApp-bot van UKM (TCT, met de plugin
+ * in scripts/tct-ukm-bestellingen.lua) haalt elke minuut de nog niet
+ * afgeleverde bestellingen op via /api/bestellingen/openstaand, stuurt ze
+ * door naar het nummer van de eigenaar en zet afgeleverdOp.
+ */
+export const bestellingen = pgTable("bestelling", {
+  bestelnummer: text("bestelnummer").primaryKey(),
+  /** Het kant-en-klare WhatsApp-bericht, zoals de bot het doorstuurt. */
+  bericht: text("bericht").notNull(),
+  /** Gestructureerde kopie (regels, kosten, klant, adres) voor later gebruik. */
+  gegevens: jsonb("gegevens").notNull(),
+  aangemaaktOp: timestamp("aangemaaktOp", { mode: "date" }).defaultNow().notNull(),
+  afgeleverdOp: timestamp("afgeleverdOp", { mode: "date" }),
 });
 
 export const wishlistItems = pgTable(

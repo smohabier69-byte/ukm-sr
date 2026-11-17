@@ -1,6 +1,8 @@
 import "server-only";
 
 import { catalogus } from "@/lib/square/catalog.server";
+import { db } from "@/lib/db/client";
+import { bestellingen } from "@/lib/db/schema";
 import { berekenKosten, bouwPosten, type Bezorgwijze, type Kostenoverzicht } from "@/lib/winkel/prijzen";
 import type { Winkelwagenregel } from "@/lib/winkel/stores";
 import { formatPrijs } from "@/lib/format";
@@ -12,10 +14,11 @@ import { bedrijf, siteUrl, whatsappLink } from "@/lib/site";
  * handelen. De site prijst alles hier opnieuw na (de client levert alleen
  * slug + variant + aantal, nooit een prijs) en bouwt dat bericht.
  *
- * Optioneel gaat dezelfde bestelling ook naar een webhook
- * (BESTELLING_WEBHOOK_URL), bijvoorbeeld de n8n-flow die al aan het
- * WhatsApp-nummer hangt. Zo komt een bestelling ook binnen als de klant het
- * bericht niet zelf verstuurt.
+ * Elke bestelling wordt ook opgeslagen. De TCT-WhatsApp-bot van UKM haalt
+ * nieuwe bestellingen elke minuut op (/api/bestellingen/openstaand) en stuurt
+ * ze naar de eigenaar, zonder dat de klant iets hoeft te doen. Zolang die bot
+ * niet gekoppeld is (BESTELLING_BOT_SLEUTEL ontbreekt), verstuurt de klant het
+ * bericht zelf vanaf de bevestigingspagina.
  */
 
 export type Betaalwijze = "contant" | "overschrijving" | "pin";
@@ -42,6 +45,8 @@ export interface GeplaatsteBestelling {
   regels: BestellingRegel[];
   kosten: Kostenoverzicht;
   bezorgwijze: Bezorgwijze;
+  /** True als de WhatsApp-bot de bestelling zelf doorstuurt; de klant hoeft dan niets te doen. */
+  automatisch: boolean;
 }
 
 export class BestellingFout extends Error {}
@@ -96,21 +101,9 @@ function bouwBericht(invoer: BestellingInvoer, bestelnummer: string, regels: Bes
   return r.join("\n");
 }
 
-async function meldAanWebhook(gegevens: Record<string, unknown>) {
-  const url = process.env.BESTELLING_WEBHOOK_URL;
-  if (!url) return;
-  try {
-    await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(gegevens),
-      signal: AbortSignal.timeout(5000),
-    });
-  } catch (fout) {
-    // Een gemiste melding mag de bestelling zelf niet laten mislukken: het
-    // WhatsApp-bericht van de klant is het hoofdkanaal.
-    console.error("Bestelling-webhook mislukt:", fout);
-  }
+/** De bot is gekoppeld zodra de gedeelde sleutel op de server staat. */
+export function botGekoppeld(): boolean {
+  return Boolean(process.env.BESTELLING_BOT_SLEUTEL);
 }
 
 export async function plaatsBestelling(invoer: BestellingInvoer): Promise<GeplaatsteBestelling> {
@@ -139,16 +132,36 @@ export async function plaatsBestelling(invoer: BestellingInvoer): Promise<Geplaa
   const bestelnummer = maakBestelnummer();
   const bericht = bouwBericht(invoer, bestelnummer, regels, kosten);
 
-  await meldAanWebhook({
+  // Alleen opslaan als de bot gekoppeld is: zonder bot haalt niemand de
+  // bestelling op, en de klant stuurt haar dan zelf via WhatsApp.
+  let opgeslagen = false;
+  if (botGekoppeld()) try {
+    await db.insert(bestellingen).values({
+      bestelnummer,
+      bericht,
+      gegevens: {
+        regels,
+        kosten,
+        contact: invoer.contact,
+        bezorgwijze: invoer.bezorgwijze,
+        adres: invoer.adres ?? null,
+        betaalwijze: invoer.betaalwijze,
+        kortingscode: invoer.kortingscode ?? null,
+      },
+    });
+    opgeslagen = true;
+  } catch (fout) {
+    // Zonder opslag kan de bot de bestelling niet ophalen; de klant krijgt
+    // dan de knop om haar zelf via WhatsApp te sturen.
+    console.error("Bestelling opslaan mislukt:", fout);
+  }
+
+  return {
     bestelnummer,
-    bericht,
+    whatsappUrl: whatsappLink(bericht),
     regels,
     kosten,
-    contact: invoer.contact,
     bezorgwijze: invoer.bezorgwijze,
-    adres: invoer.adres,
-    betaalwijze: invoer.betaalwijze,
-  });
-
-  return { bestelnummer, whatsappUrl: whatsappLink(bericht), regels, kosten, bezorgwijze: invoer.bezorgwijze };
+    automatisch: opgeslagen && botGekoppeld(),
+  };
 }
