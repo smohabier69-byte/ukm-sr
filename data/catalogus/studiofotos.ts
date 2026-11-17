@@ -5,15 +5,16 @@
  *
  * - `fotos[0]` wordt de hoofdfoto van het product (kaart, galerij, Square).
  * - `varianten` koppelt een kleurvariant aan haar studiofoto.
- * - `hover` is de index in de bestaande catalogusfoto's van de foto die op de
- *   productkaart verschijnt bij hover: bij voorkeur iemand die het product draagt.
+ * - `hover` is de index in de catalogusfoto's van de foto van iemand die het
+ *   product draagt; die verschijnt bij hover op de productkaart. `false` als de
+ *   catalogus zo'n foto niet heeft. De overige catalogusfoto's worden niet getoond.
  *
  * Bestanden staan als 4:5-versie in public/producten/studio/ (scripts/studiofotos-verwerken.mjs).
  */
 export interface Studiofotos {
   fotos: string[];
   varianten?: Record<string, string>;
-  hover?: number;
+  hover?: number | false;
 }
 
 const s = (pad: string) => `/producten/studio/${pad.replace(/\.webp$/, "")}.webp`;
@@ -65,6 +66,7 @@ export const studiofotos: Record<string, Studiofotos> = {
       "roze-goud": s("collection/thin-frame-cat-eye-glitter-pink-gold-ptc-glasses"),
       "zwart-goud": s("collection/thin-frame-cat-eye-glitter-black-gold-ptc-glasses"),
     },
+    hover: false,
   },
   "gold-cat-eye-ptc": {
     fotos: [s("collection/baby-pink-gold-cat-eye-ptc-glasses"), s("collection/white-gold-cat-eye-ptc-glasses")],
@@ -135,6 +137,7 @@ export const studiofotos: Record<string, Studiofotos> = {
   "oval-gold-pearl-ptc": { fotos: [s("collection/oval-gold-pearl-ptc-glasses")] },
   "pink-sharp-edge-thick-frame-ptc": {
     fotos: [s("collection/pink-sharp-edge-thick-frame-ptc"), s("collection/pink-cat-eye-glitter-thin-frame-ptc")],
+    hover: false,
   },
   "ptc-glossy-cat-eye": {
     fotos: [s("collection/ptc-glossy-cat-eye-pink"), s("collection/ptc-glossy-cat-eye-black")],
@@ -226,19 +229,22 @@ export const studiofotos: Record<string, Studiofotos> = {
   "leesbril-small-brown-cat-eye": {
     fotos: [s("reading/small-brown-silver-blue-light"), s("reading/small-brown-gold-blue-light")],
     varianten: { zilver: s("reading/small-brown-silver-blue-light"), goud: s("reading/small-brown-gold-blue-light") },
+    hover: false,
   },
-  "leesbril-cat-eye-green": { fotos: [s("reading/cat-eye-green")] },
-  "leesbril-thin-brow": { fotos: [s("reading/thin-brow-glasses")] },
-  "leesbril-black-gold-square": { fotos: [s("reading/black-gold-square")] },
+  "leesbril-cat-eye-green": { fotos: [s("reading/cat-eye-green")], hover: false },
+  "leesbril-thin-brow": { fotos: [s("reading/thin-brow-glasses")], hover: false },
+  "leesbril-black-gold-square": { fotos: [s("reading/black-gold-square")], hover: false },
   "leesbril-oval": {
     fotos: [s("reading/oval-dark-brown-blue-light"), s("reading/oval-light-brown-blue-light")],
     varianten: { donkerbruin: s("reading/oval-dark-brown-blue-light"), lichtbruin: s("reading/oval-light-brown-blue-light") },
+    hover: false,
   },
   "leesbril-small-thin": {
     fotos: [s("reading/small-silver-thin-glasses"), s("reading/small-black-thin-glasses")],
     varianten: { zilver: s("reading/small-silver-thin-glasses"), zwart: s("reading/small-black-thin-glasses") },
+    hover: false,
   },
-  "leesbril-purple-frameless": { fotos: [s("reading/purple-frameless")] },
+  "leesbril-purple-frameless": { fotos: [s("reading/purple-frameless")], hover: false },
 
   // Lenzen zonder sterkte (catalogusfoto's tonen allemaal iemand die de lens draagt)
   "ash-grey": { fotos: [s("lenses/ash-grey")] },
@@ -287,16 +293,15 @@ export const studiofotos: Record<string, Studiofotos> = {
 };
 
 /**
- * Fotovolgorde met studiofoto's: studio-hoofdfoto, dan de hoverfoto (iemand
- * die het product draagt), dan de overige studiofoto's en catalogusfoto's.
+ * Fotoreeks van een product: studio-hoofdfoto, dan de foto van iemand die het
+ * product draagt (hover op de productkaart), dan de overige studiofoto's.
+ * De oude catalogusfoto's (vasthouden, plat neergelegd) vallen weg.
  */
 export function metStudiofotos(slug: string, catalogus: string[]): string[] {
   const studio = studiofotos[slug];
   if (!studio) return catalogus;
-  const hoverIndex = Math.min(studio.hover ?? 0, catalogus.length - 1);
-  const hover = catalogus[hoverIndex];
-  const rest = catalogus.filter((_, i) => i !== hoverIndex);
-  return [studio.fotos[0], ...(hover ? [hover] : []), ...studio.fotos.slice(1), ...rest];
+  const model = studio.hover === false ? undefined : catalogus[studio.hover ?? 0];
+  return [studio.fotos[0], ...(model ? [model] : []), ...studio.fotos.slice(1)];
 }
 
 export function studiofotoVariant(slug: string, variantId: string): string | undefined {
