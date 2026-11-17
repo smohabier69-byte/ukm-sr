@@ -20,7 +20,7 @@ export const vraaggroepen: Vraaggroep[] = [
     vragen: [
       {
         vraag: "Wat kost bezorging?",
-        antwoord: `Bezorging binnen ${bedrijf.adres.stad} kost ${formatPrijs(bedrijf.bezorgingVanaf)}. Vanaf een bestelbedrag van ${formatPrijs(bedrijf.gratisBezorgingVanaf)} bezorgen we gratis.`,
+        antwoord: `Bezorging kost minimaal ${formatPrijs(bedrijf.bezorgingVanaf)}, plus ${formatPrijs(bedrijf.bezorgingPerKm)} per extra kilometer. Het exacte bedrag bevestigen we via WhatsApp voordat we je bestelling brengen. Afhalen aan de ${bedrijf.adres.straat} is gratis.`,
       },
       {
         vraag: "Hoe lang duurt het voordat mijn bestelling er is?",

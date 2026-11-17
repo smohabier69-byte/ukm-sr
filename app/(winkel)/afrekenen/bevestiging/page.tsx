@@ -1,142 +1,154 @@
 "use client";
 
 import * as React from "react";
-import { Suspense } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useWinkelwagen } from "@/lib/winkel/stores";
+import { WhatsAppIcoon } from "@/components/merk/sociale-iconen";
 import { formatPrijs } from "@/lib/format";
+import { bedrijf, whatsappLink } from "@/lib/site";
+import type { GeplaatsteBestelling } from "@/lib/winkel/bestelling.server";
 
 const LAATSTE_BESTELLING_KEY = "ukm-laatste-bestelling";
 
-interface BestellingOverzicht {
-  id: string;
-  status: string | undefined;
-  totaal: number;
-  regels: { naam: string; aantal: number; totaal: number }[];
-}
-
+/**
+ * Laatste stap van een bestelling: het WhatsApp-bericht met de hele
+ * bestelling versturen naar het zakelijke nummer van UKM. Pas dan is de
+ * bestelling binnen, dus deze pagina zegt dat ook letterlijk.
+ */
 export default function BevestigingPagina() {
+  const [staat, setStaat] = React.useState<"laden" | "gevonden" | "leeg">("laden");
+  const [bestelling, setBestelling] = React.useState<GeplaatsteBestelling | null>(null);
+
+  React.useEffect(() => {
+    try {
+      const opgeslagen = sessionStorage.getItem(LAATSTE_BESTELLING_KEY);
+      if (opgeslagen) {
+        setBestelling(JSON.parse(opgeslagen) as GeplaatsteBestelling);
+        setStaat("gevonden");
+        return;
+      }
+    } catch {
+      // sessionStorage kan geblokkeerd zijn; dan valt de pagina terug op "leeg".
+    }
+    setStaat("leeg");
+  }, []);
+
   return (
     <section className="container-ukm py-14 lg:py-20">
-      <Suspense fallback={<Skeleton className="mx-auto h-96 max-w-xl rounded-3xl" />}>
-        <BevestigingInhoud />
-      </Suspense>
+      {staat === "laden" ? (
+        <Skeleton className="mx-auto h-96 max-w-xl rounded-3xl" />
+      ) : staat === "leeg" || !bestelling ? (
+        <GeenBestelling />
+      ) : (
+        <Bevestiging bestelling={bestelling} />
+      )}
     </section>
   );
 }
 
-function BevestigingInhoud() {
-  const params = useSearchParams();
-  const leegmaken = useWinkelwagen((staat) => staat.leegmaken);
-  const [staat, setStaat] = React.useState<"laden" | "gevonden" | "mislukt">("laden");
-  const [bestelling, setBestelling] = React.useState<BestellingOverzicht | null>(null);
-  const geleegd = React.useRef(false);
-
-  React.useEffect(() => {
-    const orderId = params.get("orderId") ?? sessionStorage.getItem(LAATSTE_BESTELLING_KEY);
-    if (!orderId) {
-      setStaat("mislukt");
-      return;
-    }
-
-    let geannuleerd = false;
-    fetch(`/api/afrekenen/${orderId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("niet gevonden");
-        return res.json();
-      })
-      .then((data: BestellingOverzicht) => {
-        if (geannuleerd) return;
-        setBestelling(data);
-        setStaat("gevonden");
-        sessionStorage.removeItem(LAATSTE_BESTELLING_KEY);
-        // De bestelling is nu bevestigd bij Square - de winkelwagen leegmaken
-        // hoort hierbij, niet al bij het versturen (dat is vóór het echte
-        // afrekenen bij online betalen).
-        if (!geleegd.current) {
-          geleegd.current = true;
-          leegmaken();
-        }
-      })
-      .catch(() => {
-        if (!geannuleerd) setStaat("mislukt");
-      });
-    return () => {
-      geannuleerd = true;
-    };
-  }, [params, leegmaken]);
-
-  if (staat === "laden") {
-    return <Skeleton className="mx-auto h-96 max-w-xl rounded-3xl" />;
-  }
-
-  if (staat === "mislukt" || !bestelling) {
-    return (
-      <div className="mx-auto max-w-xl rounded-3xl border border-border/70 bg-white p-10 text-center">
-        <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-koraal/10 text-koraal">
-          <AlertCircle className="size-8" />
-        </span>
-        <h1 className="mt-7 font-display text-2xl font-bold">We konden je bestelling niet vinden</h1>
-        <p className="mt-4 leading-relaxed text-inkt-zacht">
-          Is er onderweg iets misgegaan bij het betalen? Neem contact met ons op, dan zoeken we het voor je uit.
-        </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Button asChild size="lg">
-            <Link href="/contact">Contact opnemen</Link>
-          </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link href="/producten">Verder winkelen</Link>
-          </Button>
-        </div>
-      </div>
-    );
-  }
+function Bevestiging({ bestelling }: { bestelling: GeplaatsteBestelling }) {
+  const { kosten } = bestelling;
+  const bezorgen = bestelling.bezorgwijze === "bezorgen";
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="mx-auto max-w-xl rounded-3xl border border-border/70 bg-white p-10 text-center"
+      className="mx-auto max-w-xl rounded-3xl border border-border/70 bg-white p-8 text-center sm:p-10"
     >
-      <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-salie-100 text-salie-700">
-        <CheckCircle2 className="size-8" />
+      <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-[#25d366]/12 text-[#1da851]">
+        <WhatsAppIcoon className="size-8" />
       </span>
-      <h1 className="mt-7 font-display text-2xl font-bold">Bedankt voor je bestelling</h1>
+      <p className="mt-6 text-salie-600 bovenschrift">Bestelnummer {bestelling.bestelnummer}</p>
+      <h1 className="mt-2 font-display text-2xl font-bold sm:text-3xl">Nog één stap: stuur je bestelling via WhatsApp</h1>
       <p className="mt-4 leading-relaxed text-inkt-zacht">
-        Bestelling {bestelling.id.slice(0, 8).toUpperCase()} is geplaatst. We nemen contact met je op om alles te
-        bevestigen.
+        Je bestelling staat klaar in een WhatsApp-bericht aan {bedrijf.naam} ({bedrijf.telefoon}). Druk op versturen,
+        dan is ze bij ons binnen. We bevestigen {bezorgen ? "de bezorgkosten en " : ""}alles via WhatsApp.
       </p>
+
+      <Button asChild size="lg" className="mt-7 w-full bg-[#25d366] text-white hover:bg-[#1fbd5a] sm:w-auto">
+        <a href={bestelling.whatsappUrl} target="_blank" rel="noreferrer noopener">
+          <WhatsAppIcoon className="size-5" />
+          Verstuur bestelling via WhatsApp
+        </a>
+      </Button>
 
       <ul className="mt-8 space-y-3 rounded-2xl bg-salie-50 p-5 text-left text-sm">
         {bestelling.regels.map((regel, i) => (
-          <li key={i} className="flex items-center justify-between gap-4">
+          <li key={i} className="flex items-start justify-between gap-4">
             <span className="text-inkt-zacht">
               {regel.aantal}&times; {regel.naam}
+              {regel.uitvoering ? <span className="block text-xs">{regel.uitvoering}</span> : null}
             </span>
-            <span className="font-medium">{formatPrijs(regel.totaal)}</span>
+            <span className="shrink-0 font-medium">{formatPrijs(regel.totaal)}</span>
           </li>
         ))}
+        {kosten.korting > 0 ? (
+          <li className="flex justify-between gap-4 text-salie-700">
+            <span>Korting</span>
+            <span>-{formatPrijs(kosten.korting)}</span>
+          </li>
+        ) : null}
+        <li className="flex justify-between gap-4">
+          <span className="text-inkt-zacht">Bezorging</span>
+          <span className="text-right font-medium">
+            {bezorgen ? (
+              <>
+                vanaf {formatPrijs(kosten.bezorgkosten)}
+                <span className="block text-xs font-normal text-inkt-zacht">
+                  + {formatPrijs(bedrijf.bezorgingPerKm)} per extra km
+                </span>
+              </>
+            ) : (
+              "Afhalen, gratis"
+            )}
+          </span>
+        </li>
         <li className="flex items-center justify-between gap-4 border-t border-salie-200 pt-3 font-display font-semibold">
           <span>Totaal</span>
-          <span>{formatPrijs(bestelling.totaal)}</span>
+          <span>
+            {bezorgen ? <span className="mr-1 font-sans text-xs font-normal text-inkt-zacht">vanaf</span> : null}
+            {formatPrijs(kosten.totaal)}
+          </span>
         </li>
       </ul>
 
+      <Button asChild size="lg" variant="outline" className="mt-7">
+        <Link href="/producten">
+          Verder winkelen
+          <ArrowRight />
+        </Link>
+      </Button>
+    </motion.div>
+  );
+}
+
+function GeenBestelling() {
+  return (
+    <div className="mx-auto max-w-xl rounded-3xl border border-border/70 bg-white p-10 text-center">
+      <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-koraal/10 text-koraal">
+        <AlertCircle className="size-8" />
+      </span>
+      <h1 className="mt-7 font-display text-2xl font-bold">Geen openstaande bestelling gevonden</h1>
+      <p className="mt-4 leading-relaxed text-inkt-zacht">
+        Heb je net besteld maar zie je hier niets? Stuur ons gerust een bericht, dan zoeken we het samen uit.
+      </p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Button asChild size="lg">
-          <Link href="/account/bestellingen">Mijn bestellingen</Link>
+          <a href={whatsappLink("Hallo UKM.sr, ik heb een vraag over mijn bestelling.")} target="_blank" rel="noreferrer noopener">
+            <WhatsAppIcoon className="size-5" />
+            WhatsApp ons
+          </a>
         </Button>
         <Button asChild size="lg" variant="outline">
           <Link href="/producten">Verder winkelen</Link>
         </Button>
       </div>
-    </motion.div>
+    </div>
   );
 }

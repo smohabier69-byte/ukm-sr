@@ -11,12 +11,13 @@ export interface Kortingscode {
   vanaf?: number;
 }
 
-/** Demonstratiecodes. Een echte winkel haalt deze uit de administratie. */
-export const kortingscodes: Kortingscode[] = [
-  { code: "WELKOM10", omschrijving: "10% korting op je eerste bestelling", soort: "percentage", waarde: 10 },
-  { code: "UKM50", omschrijving: "SRD 50,- korting vanaf SRD 500,-", soort: "bedrag", waarde: 50, vanaf: 500 },
-  { code: "GRATISBEZORGING", omschrijving: "Gratis bezorging in Paramaribo", soort: "bezorging", waarde: 0 },
-];
+/**
+ * Geldige kortingscodes. Leeg: de vroegere demonstratiecodes (WELKOM10,
+ * UKM50, GRATISBEZORGING) gaven korting die UKM nooit heeft aangeboden. Voeg
+ * hier een echte code toe als UKM een actie start; het kortingscodeveld in de
+ * winkelwagen verschijnt dan vanzelf.
+ */
+export const kortingscodes: Kortingscode[] = [];
 
 export function zoekKortingscode(code: string): Kortingscode | undefined {
   return kortingscodes.find((k) => k.code === code.trim().toUpperCase());
@@ -51,16 +52,18 @@ export function bouwPosten(regels: Winkelwagenregel[], producten: Product[]): Wi
   return posten;
 }
 
+export type Bezorgwijze = "bezorgen" | "afhalen";
+
 export interface Kostenoverzicht {
   subtotaal: number;
   korting: number;
+  /** Bij bezorgen het minimumbedrag; extra kilometers komen erbij. */
   bezorgkosten: number;
+  /** True bij bezorgen: bezorgkosten en totaal zijn een "vanaf"-bedrag. */
+  bezorgingVanaf: boolean;
   /** BTW die al in de prijzen zit, puur ter informatie. */
   btwAandeel: number;
   totaal: number;
-  gratisBezorging: boolean;
-  /** Wat er nog besteed moet worden voor gratis bezorging. */
-  tekortVoorGratis: number;
 }
 
 /**
@@ -72,7 +75,11 @@ export interface Kostenoverzicht {
  * Er tien procent bij optellen zou de artikelen duurder maken dan ze in de
  * winkel zijn.
  */
-export function berekenKosten(posten: Winkelwagenpost[], kortingscode: string | null): Kostenoverzicht {
+export function berekenKosten(
+  posten: Winkelwagenpost[],
+  kortingscode: string | null,
+  bezorgwijze: Bezorgwijze = "bezorgen",
+): Kostenoverzicht {
   const subtotaal = posten.reduce((som, post) => som + post.totaal, 0);
 
   let korting = 0;
@@ -86,20 +93,12 @@ export function berekenKosten(posten: Winkelwagenpost[], kortingscode: string | 
   }
 
   const naKorting = Math.max(0, subtotaal - korting);
-  const haaltDrempel = naKorting >= bedrijf.gratisBezorgingVanaf;
-  const gratisBezorging = posten.length === 0 || haaltDrempel || bezorgingGratisViaCode;
-  const bezorgkosten = gratisBezorging ? 0 : bedrijf.bezorgingVanaf;
+  // Bezorgen kost minimaal bedrijf.bezorgingVanaf; extra kilometers rekent UKM na via WhatsApp.
+  const bezorgen = bezorgwijze === "bezorgen" && posten.length > 0 && !bezorgingGratisViaCode;
+  const bezorgkosten = bezorgen ? bedrijf.bezorgingVanaf : 0;
 
   const totaal = naKorting + bezorgkosten;
   const btwAandeel = Math.round((totaal * bedrijf.btwTarief) / (1 + bedrijf.btwTarief));
 
-  return {
-    subtotaal,
-    korting,
-    bezorgkosten,
-    btwAandeel,
-    totaal,
-    gratisBezorging,
-    tekortVoorGratis: Math.max(0, bedrijf.gratisBezorgingVanaf - naKorting),
-  };
+  return { subtotaal, korting, bezorgkosten, bezorgingVanaf: bezorgen, btwAandeel, totaal };
 }

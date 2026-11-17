@@ -60,9 +60,9 @@ export default function VoorwaardenPagina() {
 
           <h2 id="bezorging">5. Bezorging en afhalen</h2>
           <p>
-            Bezorging binnen {bedrijf.adres.stad} kost {formatPrijs(bedrijf.bezorgingVanaf)}. Vanaf{" "}
-            {formatPrijs(bedrijf.gratisBezorgingVanaf)} bezorgen we gratis. Afhalen aan de {bedrijf.adres.straat} is
-            kosteloos.
+            Bezorging kost minimaal {formatPrijs(bedrijf.bezorgingVanaf)}, plus{" "}
+            {formatPrijs(bedrijf.bezorgingPerKm)} per extra kilometer. Het exacte bedrag bevestigen we voor de
+            levering via WhatsApp. Afhalen aan de {bedrijf.adres.straat} is kosteloos.
           </p>
           <p>
             Genoemde bezorgtermijnen zijn een indicatie. We spreken altijd eerst een moment af. Lukt bezorging niet

@@ -1,13 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { Check, TicketPercent, X } from "lucide-react";
+import { Check, TicketPercent, Truck, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useWinkelwagen } from "@/lib/winkel/stores";
-import { zoekKortingscode, type Kostenoverzicht as Kosten } from "@/lib/winkel/prijzen";
+import { kortingscodes, zoekKortingscode, type Kostenoverzicht as Kosten } from "@/lib/winkel/prijzen";
 import { formatPrijs } from "@/lib/format";
 import { bedrijf } from "@/lib/site";
 
@@ -38,6 +38,9 @@ export function Kortingscodeveld({ subtotaal }: { subtotaal: number }) {
   };
 
   const actief = kortingscode ? zoekKortingscode(kortingscode) : undefined;
+
+  // Zonder lopende acties geen invoerveld: een veld dat altijd "ongeldig" zegt, frustreert alleen.
+  if (kortingscodes.length === 0) return null;
 
   if (actief) {
     return (
@@ -81,35 +84,17 @@ export function Kortingscodeveld({ subtotaal }: { subtotaal: number }) {
   );
 }
 
-/** Voortgang naar gratis bezorging; verdwijnt zodra de drempel gehaald is. */
-export function Bezorgvoortgang({ kosten }: { kosten: Kosten }) {
-  if (kosten.tekortVoorGratis <= 0) {
-    return (
-      <p className="flex items-center gap-2 rounded-2xl bg-salie-100 px-4 py-3 text-sm text-salie-800">
-        <Check className="size-4 shrink-0" />
-        Je bestelling wordt gratis bezorgd.
-      </p>
-    );
-  }
-
-  const voortgang = Math.min(
-    100,
-    ((bedrijf.gratisBezorgingVanaf - kosten.tekortVoorGratis) / bedrijf.gratisBezorgingVanaf) * 100,
-  );
-
+/** Uitleg over de bezorgkosten: een minimumbedrag plus kilometers, bevestigd via WhatsApp. */
+export function Bezorginfo() {
   return (
-    <div className="rounded-2xl bg-creme-diep px-4 py-3.5">
-      <p className="text-sm text-inkt-zacht">
-        Nog <span className="font-medium text-inkt">{formatPrijs(kosten.tekortVoorGratis)}</span> tot gratis
-        bezorging.
-      </p>
-      <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-white">
-        <div
-          className="h-full rounded-full bg-salie-500 transition-[width] duration-500 ease-[var(--ease-uit)]"
-          style={{ width: `${voortgang}%` }}
-        />
-      </div>
-    </div>
+    <p className="flex items-start gap-2.5 rounded-2xl bg-creme-diep px-4 py-3.5 text-sm leading-relaxed text-inkt-zacht">
+      <Truck className="mt-0.5 size-4 shrink-0 text-salie-700" />
+      <span>
+        Bezorging kost minimaal <span className="font-medium text-inkt">{formatPrijs(bedrijf.bezorgingVanaf)}</span>,
+        plus {formatPrijs(bedrijf.bezorgingPerKm)} per extra kilometer. Het exacte bedrag bevestigen we via WhatsApp.
+        Afhalen aan de {bedrijf.adres.straat} is gratis.
+      </span>
+    </p>
   );
 }
 
@@ -131,18 +116,28 @@ export function Kostenregels({ kosten }: { kosten: Kosten }) {
 
       <div className="flex justify-between">
         <dt className="text-inkt-zacht">Bezorging</dt>
-        <dd className="font-medium">
-          {kosten.gratisBezorging ? (
-            <span className="text-salie-700">Gratis</span>
+        <dd className="text-right font-medium">
+          {kosten.bezorgingVanaf ? (
+            <>
+              vanaf {formatPrijs(kosten.bezorgkosten)}
+              <span className="block text-xs font-normal text-inkt-zacht">
+                + {formatPrijs(bedrijf.bezorgingPerKm)} per extra km
+              </span>
+            </>
           ) : (
-            formatPrijs(kosten.bezorgkosten)
+            <span className="text-salie-700">Afhalen, gratis</span>
           )}
         </dd>
       </div>
 
       <div className="flex justify-between border-t border-border pt-3.5 font-display text-lg font-bold">
         <dt>Totaal</dt>
-        <dd>{formatPrijs(kosten.totaal)}</dd>
+        <dd>
+          {kosten.bezorgingVanaf ? (
+            <span className="mr-1 font-sans text-sm font-normal text-inkt-zacht">vanaf</span>
+          ) : null}
+          {formatPrijs(kosten.totaal)}
+        </dd>
       </div>
 
       {/*

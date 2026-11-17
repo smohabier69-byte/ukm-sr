@@ -36,9 +36,13 @@ export const bedrijf = {
     { dagen: "Zaterdag", tijden: "09:00 - 15:00" },
     { dagen: "Zondag", tijden: "Gesloten" },
   ],
-  /** Bezorgkosten binnen Paramaribo, in SRD. */
+  /**
+   * Bezorgkosten in SRD: minimaal bezorgingVanaf, plus bezorgingPerKm voor
+   * elke extra kilometer. De site kent de afstand niet; het exacte bedrag
+   * bevestigt UKM via WhatsApp.
+   */
   bezorgingVanaf: 120,
-  gratisBezorgingVanaf: 1500,
+  bezorgingPerKm: 30,
   btwTarief: 0.1,
 } as const;
 

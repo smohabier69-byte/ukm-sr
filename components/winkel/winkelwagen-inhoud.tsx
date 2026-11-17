@@ -8,7 +8,7 @@ import { ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Bezorgvoortgang, Kortingscodeveld, Kostenregels } from "@/components/winkel/kostenoverzicht";
+import { Bezorginfo, Kortingscodeveld, Kostenregels } from "@/components/winkel/kostenoverzicht";
 import { useWinkelHydratie, useWinkelwagen } from "@/lib/winkel/stores";
 import { useProductenCache } from "@/lib/winkel/catalogus-cache";
 import { berekenKosten, bouwPosten } from "@/lib/winkel/prijzen";
@@ -169,7 +169,7 @@ export function WinkelwagenInhoud() {
           <h2 className="font-display text-lg font-semibold">Overzicht</h2>
 
           <div className="mt-6 space-y-4">
-            <Bezorgvoortgang kosten={kosten} />
+            <Bezorginfo />
             <Kortingscodeveld subtotaal={kosten.subtotaal} />
           </div>
 

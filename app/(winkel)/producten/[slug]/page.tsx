@@ -151,8 +151,8 @@ export default async function Productpagina({ params }: { params: Promise<{ slug
             <ul className="mt-4 space-y-3 text-sm text-inkt-zacht">
               <li className="flex items-start gap-2.5">
                 <PackageCheck className="mt-0.5 size-4 shrink-0 text-salie-600" />
-                Bezorging door heel {bedrijf.adres.stad} vanaf {formatPrijs(bedrijf.bezorgingVanaf)}, gratis vanaf{" "}
-                {formatPrijs(bedrijf.gratisBezorgingVanaf)}.
+                Bezorging tot aan huis, minimaal {formatPrijs(bedrijf.bezorgingVanaf)} plus{" "}
+                {formatPrijs(bedrijf.bezorgingPerKm)} per extra kilometer.
               </li>
               <li className="flex items-start gap-2.5">
                 <MapPin className="mt-0.5 size-4 shrink-0 text-salie-600" />

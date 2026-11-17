@@ -147,8 +147,8 @@ export function Koopblok({ product }: { product: Product }) {
       <div className="mt-7 flex items-start gap-3 rounded-2xl bg-salie-50 p-4 text-sm">
         <Truck className="mt-0.5 size-4 shrink-0 text-salie-700" />
         <p className="text-inkt-zacht">
-          Bezorging in {bedrijf.adres.stad} vanaf {formatPrijs(bedrijf.bezorgingVanaf)}, gratis boven{" "}
-          {formatPrijs(bedrijf.gratisBezorgingVanaf)}. Zelf afhalen kan aan de {bedrijf.adres.straat}.{" "}
+          Bezorging vanaf {formatPrijs(bedrijf.bezorgingVanaf)}, plus {formatPrijs(bedrijf.bezorgingPerKm)} per extra
+          kilometer. Zelf afhalen kan gratis aan de {bedrijf.adres.straat}.{" "}
           <Link href="/veelgestelde-vragen#bezorging" className="font-medium text-salie-700 underline underline-offset-4">
             Voorwaarden
           </Link>

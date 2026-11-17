@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { auth } from "@/auth";
-import { maakBestelling, BestellingFout } from "@/lib/square/bestellen.server";
+import { BestellingFout, plaatsBestelling } from "@/lib/winkel/bestelling.server";
 
 const bodySchema = z.object({
   regels: z
@@ -29,10 +28,16 @@ const bodySchema = z.object({
       opmerking: z.string().optional(),
     })
     .optional(),
-  betaalwijze: z.enum(["contant", "overschrijving", "pin", "online"]),
+  // Online betalen via Square staat uit tot de nieuwe Square-account gekoppeld is.
+  betaalwijze: z.enum(["contant", "overschrijving", "pin"]),
   kortingscode: z.string().optional().nullable(),
 });
 
+/**
+ * Plaatst een bestelling. Die gaat als WhatsApp-bericht naar UKM (zie
+ * lib/winkel/bestelling.server.ts); deze route levert het bestelnummer, het
+ * nagerekende overzicht en de WhatsApp-link.
+ */
 export async function POST(request: Request) {
   const json = await request.json().catch(() => null);
   const ingevoerd = bodySchema.safeParse(json);
@@ -45,24 +50,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ fout: "Bezorgadres ontbreekt." }, { status: 400 });
   }
 
-  const sessie = await auth();
-
   try {
-    const resultaat = await maakBestelling({
-      userId: sessie?.user?.id,
-      regels: data.regels,
-      contact: data.contact,
-      bezorgwijze: data.bezorgwijze,
-      adres: data.adres,
-      betaalwijze: data.betaalwijze,
-      kortingscode: data.kortingscode,
-    });
-    return NextResponse.json(resultaat);
+    return NextResponse.json(await plaatsBestelling(data));
   } catch (err) {
     if (err instanceof BestellingFout) {
       return NextResponse.json({ fout: err.message }, { status: 400 });
     }
-    console.error("Bestelling aanmaken mislukt:", err);
-    return NextResponse.json({ fout: "De bestelling kon niet worden aangemaakt. Probeer het opnieuw." }, { status: 500 });
+    console.error("Bestelling plaatsen mislukt:", err);
+    return NextResponse.json({ fout: "De bestelling kon niet worden geplaatst. Probeer het opnieuw." }, { status: 500 });
   }
 }

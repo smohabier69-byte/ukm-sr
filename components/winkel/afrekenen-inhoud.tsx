@@ -4,7 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertCircle, Banknote, Building2, CreditCard, Landmark, MapPin, ShoppingBag, Truck } from "lucide-react";
+import { AlertCircle, Banknote, Building2, CreditCard, MapPin, MessageCircle, ShoppingBag, Truck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,16 +19,19 @@ import { cn } from "@/lib/utils";
 import { fotoStijl } from "@/lib/fotofocus";
 
 type Bezorgwijze = "bezorgen" | "afhalen";
-type Betaalwijze = "contant" | "overschrijving" | "pin" | "online";
+type Betaalwijze = "contant" | "overschrijving" | "pin";
 
+/**
+ * Online betalen (Square) staat uit tot de nieuwe Square-account gekoppeld is:
+ * een betaling zou anders op de oude account binnenkomen.
+ */
 const betaalwijzen: { id: Betaalwijze; label: string; tekst: string; icoon: typeof Banknote }[] = [
-  { id: "online", label: "Online betalen", tekst: "Betaalkaart via een beveiligde Square-pagina", icoon: Landmark },
   { id: "contant", label: "Contant", tekst: "Betaal bij ontvangst of in de winkel", icoon: Banknote },
   { id: "overschrijving", label: "Bankoverschrijving", tekst: "Je ontvangt de gegevens per bericht", icoon: Building2 },
   { id: "pin", label: "Pinnen", tekst: "Met de mobiele pinautomaat of in de winkel", icoon: CreditCard },
 ];
 
-/** Sleutel waaronder de laatste bestelling tijdelijk staat, voor de terugkeer vanaf Square Checkout. */
+/** Sleutel waaronder de geplaatste bestelling staat, voor de bevestigingspagina. */
 const LAATSTE_BESTELLING_KEY = "ukm-laatste-bestelling";
 
 export function AfrekenenInhoud() {
@@ -40,13 +43,13 @@ export function AfrekenenInhoud() {
   const leegmaken = useWinkelwagen((staat) => staat.leegmaken);
 
   const [bezorgwijze, setBezorgwijze] = React.useState<Bezorgwijze>("bezorgen");
-  const [betaalwijze, setBetaalwijze] = React.useState<Betaalwijze>("online");
+  const [betaalwijze, setBetaalwijze] = React.useState<Betaalwijze>("contant");
   const [bezigMet, setBezigMet] = React.useState(false);
   const [fout, setFout] = React.useState<string | null>(null);
 
   const posten = React.useMemo(() => bouwPosten(regels, producten), [regels, producten]);
   const kosten = React.useMemo(
-    () => berekenKosten(posten, bezorgwijze === "afhalen" ? "GRATISBEZORGING" : kortingscode),
+    () => berekenKosten(posten, kortingscode, bezorgwijze),
     [posten, kortingscode, bezorgwijze],
   );
 
@@ -108,7 +111,7 @@ export function AfrekenenInhoud() {
           bezorgwijze,
           adres,
           betaalwijze,
-          kortingscode: bezorgwijze === "afhalen" ? null : kortingscode,
+          kortingscode,
         }),
       });
 
@@ -119,14 +122,10 @@ export function AfrekenenInhoud() {
         return;
       }
 
-      if (resultaat.checkoutUrl) {
-        sessionStorage.setItem(LAATSTE_BESTELLING_KEY, resultaat.orderId);
-        window.location.href = resultaat.checkoutUrl;
-        return;
-      }
-
+      // De bevestigingspagina toont het overzicht en de knop naar WhatsApp.
+      sessionStorage.setItem(LAATSTE_BESTELLING_KEY, JSON.stringify(resultaat));
       leegmaken();
-      router.push(`/afrekenen/bevestiging?orderId=${resultaat.orderId}`);
+      router.push("/afrekenen/bevestiging");
     } catch {
       setFout("De bestelling kon niet worden geplaatst. Controleer je internetverbinding en probeer het opnieuw.");
       setBezigMet(false);
@@ -156,7 +155,7 @@ export function AfrekenenInhoud() {
               bijKeuze={() => setBezorgwijze("bezorgen")}
               icoon={Truck}
               titel="Laten bezorgen"
-              tekst={`In ${bedrijf.adres.stad}, gratis vanaf ${formatPrijs(bedrijf.gratisBezorgingVanaf)}`}
+              tekst={`Vanaf ${formatPrijs(bedrijf.bezorgingVanaf)}, + ${formatPrijs(bedrijf.bezorgingPerKm)} per extra km`}
             />
             <Keuzekaart
               naam="bezorgwijze"
@@ -251,11 +250,13 @@ export function AfrekenenInhoud() {
           ) : null}
 
           <Button type="submit" size="lg" className="mt-7 w-full" disabled={bezigMet}>
-            {bezigMet ? "Bezig..." : betaalwijze === "online" ? "Doorgaan naar betalen" : "Bestelling plaatsen"}
+            {bezigMet ? "Bezig..." : "Bestelling plaatsen"}
           </Button>
 
-          <p className="mt-4 text-center text-xs text-inkt-zacht">
-            Betalen met contant, bankoverschrijving, pin of online via een beveiligde Square-pagina.
+          <p className="mt-4 flex items-start gap-2 text-xs leading-relaxed text-inkt-zacht">
+            <MessageCircle className="mt-0.5 size-3.5 shrink-0 text-salie-600" />
+            Je bestelling gaat via WhatsApp naar {bedrijf.naam}. Daar bevestigen we de bezorgkosten en spreken we de
+            levering af.
           </p>
         </div>
       </aside>
