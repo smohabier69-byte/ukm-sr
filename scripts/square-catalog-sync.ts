@@ -8,17 +8,22 @@
  *
  *   npx tsx scripts/square-catalog-sync.ts            (voegt toe)
  *   npx tsx scripts/square-catalog-sync.ts --wis      (wist EERST de hele catalogus)
+ *   npx tsx scripts/square-catalog-sync.ts --met-fotos (uploadt ook de productfoto's)
  *
- * LET OP: sinds de overstap naar de prijslijsten van november 2026 is dit
- * script nog niet tegen de nieuwe Square-account gedraaid. Draai het eerst
- * tegen een lege of sandbox-account en controleer het resultaat.
+ * Standaard gaan alleen namen, prijzen, kleuren en categorieen naar Square:
+ * UKM wil geen foto's in Square. De website toont haar eigen foto's.
+ *
+ * Draai eerst scripts/square-account-check.mjs om te zien naar welke account
+ * dit schrijft. De prijs gaat als hetzelfde getal in de valuta van de
+ * account (SQUARE_CURRENCY); de website toont het bedrag altijd als SRD.
  *
  * Beslissingen (zie ook docs/square-mapping-notes.md):
- * - Voorraad wordt niet als verzonnen aantal gesynchroniseerd. Elke variatie
- *   krijgt `trackInventory: false` (altijd bestelbaar). Artikelen die de
- *   prijslijst als "Sold out" afstempelt, moeten in het Square-dashboard zelf
- *   op voorraad 0 worden gezet (voorraadtelling aan, aantal 0); dit script
- *   meldt welke dat zijn.
+ * - Voorraad wordt niet als verzonnen aantal gesynchroniseerd. Variaties
+ *   krijgen geen voorraadtelling (altijd bestelbaar) tot UKM in Square een
+ *   aantal invult. Wat de prijslijst als "Sold out" afstempelt, krijgt de
+ *   telling wel aan, zonder aantal: dat is 0 op voorraad.
+ * - Foto's krijgen hun lokale pad als bijschrift; de website gebruikt dan
+ *   haar eigen bestand (lib/square/catalog.server.ts).
  * - Facetten (Techniek, Vorm, Sterktesoort, Kleurfamilie, Merk, Slug, Label)
  *   gaan als categorieen met een prefix, niet als custom attributes: die
  *   blijven op een ITEM niet hangen (bevinding 8 in de mapping-notities).
@@ -49,6 +54,7 @@ const isProductie = process.env.SQUARE_ENVIRONMENT === "production";
 /** De valuta van een prijs moet exact overeenkomen met die van de Square-account. */
 const VALUTA = process.env.SQUARE_CURRENCY ?? (isProductie ? "SRD" : "USD");
 const WIS_EERST = process.argv.includes("--wis");
+const MET_FOTOS = process.argv.includes("--met-fotos");
 
 const client = new SquareClient({
   token,
@@ -190,7 +196,14 @@ interface ItemPlan {
 const itemPlannen: ItemPlan[] = [];
 const uitverkochtMeldingen: string[] = [];
 
-function variatie(itemId: string, naam: string, sku: string, prijs: number, optie?: { naam: string; swatch: string }) {
+function variatie(
+  itemId: string,
+  naam: string,
+  sku: string,
+  prijs: number,
+  optie?: { naam: string; swatch: string },
+  uitverkocht = false,
+) {
   return {
     id: tempId("variant"),
     type: "ITEM_VARIATION",
@@ -200,7 +213,9 @@ function variatie(itemId: string, naam: string, sku: string, prijs: number, opti
       sku,
       pricingType: "FIXED_PRICING",
       priceMoney: { amount: BigInt(Math.round(prijs * 100)), currency: VALUTA },
-      trackInventory: false,
+      // Uitverkocht in de prijslijst: voorraadtelling aan zonder aantal = 0 op voorraad.
+      // De rest blijft zonder telling (altijd bestelbaar) tot UKM een aantal invult.
+      trackInventory: uitverkocht,
       sellable: true,
       stockable: true,
       itemOptionValues: optie
@@ -248,9 +263,16 @@ for (const product of producten) {
   const heeftVarianten = product.varianten.length > 0;
   const variations = heeftVarianten
     ? product.varianten.map((v) =>
-        variatie(itemId, v.naam, `${product.slug}-${v.id}`, v.prijs ?? product.prijs, { naam: v.naam, swatch: v.swatch }),
+        variatie(
+          itemId,
+          v.naam,
+          `${product.slug}-${v.id}`,
+          v.prijs ?? product.prijs,
+          { naam: v.naam, swatch: v.swatch },
+          v.voorraad === 0,
+        ),
       )
-    : [variatie(itemId, "Standaard", product.slug, product.prijs)];
+    : [variatie(itemId, "Standaard", product.slug, product.prijs, undefined, product.voorraad === 0)];
 
   if (heeftVarianten) {
     for (const v of product.varianten) if (v.voorraad === 0) uitverkochtMeldingen.push(`${product.naam} - ${v.naam}`);
@@ -300,7 +322,9 @@ async function uploadAfbeeldingen(realItemIdBySlug: Map<string, string>) {
           request: {
             idempotencyKey: `img-${plan.slug}-${i}-${Date.now()}`,
             objectId: realItemId,
-            image: { type: "IMAGE", id: "#tempimage", imageData: { caption: plan.slug } } as never,
+            // Het lokale pad als bijschrift: zo toont de website haar eigen (bijgesneden)
+            // foto in plaats van de Square-kopie; zie fotoUitSquare() in catalog.server.ts.
+            image: { type: "IMAGE", id: "#tempimage", imageData: { caption: plan.afbeeldingen[i] } } as never,
             isPrimary: i === 0,
           },
           imageFile: blob as never,
@@ -318,6 +342,11 @@ async function uploadAfbeeldingen(realItemIdBySlug: Map<string, string>) {
 
 async function main() {
   console.log(`Omgeving: ${isProductie ? "production" : "sandbox"}, valuta ${VALUTA}, ${producten.length} artikelen.`);
+  const accountValuta = (await client.merchants.get({ merchantId: "me" })).merchant?.currency;
+  if (accountValuta !== VALUTA) {
+    console.error(`De account rekent in ${accountValuta}, dit script in ${VALUTA}. Zet SQUARE_CURRENCY=${accountValuta} in .env.local.`);
+    process.exit(1);
+  }
   if (WIS_EERST) await wisCatalogus();
 
   console.log(`Verstuur ${objecten.length} catalogusobjecten (categorieen, kleuropties, producten)...`);
@@ -338,11 +367,15 @@ async function main() {
     }
   }
 
-  console.log("Upload productfoto's (dit duurt enkele minuten)...");
-  await uploadAfbeeldingen(realItemIdBySlug);
+  if (MET_FOTOS) {
+    console.log("Upload productfoto's (dit duurt enkele minuten)...");
+    await uploadAfbeeldingen(realItemIdBySlug);
+  } else {
+    console.log("Foto's overgeslagen (gebruik --met-fotos om ze ook te uploaden).");
+  }
 
   if (uitverkochtMeldingen.length > 0) {
-    console.log("\nIn de prijslijst als 'Sold out' afgestempeld - zet deze in het Square-dashboard op voorraad 0:");
+    console.log("\nIn de prijslijst als 'Sold out' afgestempeld; staan in Square met voorraadtelling aan en 0 op voorraad:");
     for (const naam of uitverkochtMeldingen) console.log(`  - ${naam}`);
   }
   console.log("Sync voltooid.");

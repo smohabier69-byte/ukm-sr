@@ -29,7 +29,7 @@ interface RuwCatalogusObject {
   type: string;
   createdAt?: string;
   categoryData?: { name?: string };
-  imageData?: { url?: string };
+  imageData?: { url?: string; caption?: string };
   itemOptionValueData?: { name?: string; color?: string };
   itemData?: {
     name?: string;
@@ -166,8 +166,16 @@ function bouwCatalogus(alle: RuwCatalogusObject[], voorraadPerId: Map<string, nu
   const imageObjecten = alle.filter((o) => o.type === "IMAGE");
   const optieWaardeObjecten = alle.filter((o) => o.type === "ITEM_OPTION_VAL");
 
+  // Foto's die scripts/square-catalog-sync.ts uploadde, hebben het lokale pad
+  // als bijschrift. Dan toont de site haar eigen bestand (met brandpunt uit
+  // fotofocus.json) in plaats van de Square-kopie; foto's die UKM zelf in
+  // Square toevoegt, komen gewoon van Square's CDN.
   const imageUrlById = new Map<string, string>();
-  for (const img of imageObjecten) if (img.imageData?.url) imageUrlById.set(img.id, img.imageData.url);
+  for (const img of imageObjecten) {
+    const bijschrift = img.imageData?.caption;
+    const bron = bijschrift?.startsWith("/producten/") ? bijschrift : img.imageData?.url;
+    if (bron) imageUrlById.set(img.id, bron);
+  }
 
   const optieWaardeById = new Map<string, { naam: string; hex?: string }>();
   for (const ov of optieWaardeObjecten) {
@@ -250,13 +258,22 @@ function bouwCatalogus(alle: RuwCatalogusObject[], voorraadPerId: Map<string, nu
     const variatieVoorraad = (v: RuwCatalogusObject): number =>
       v.itemVariationData?.trackInventory ? (voorraadPerId.get(v.id) ?? 0) : 999;
 
+    // De sync-script zet de SKU op "<slug>-<variant-id>". Dat id gebruiken we,
+    // zodat een kleur in een bestaande winkelwagen blijft kloppen; anders
+    // (handmatig in Square aangemaakt) volgt het id uit de kleurnaam.
+    const statisch = statischeProducten.find((p) => p.slug === slug);
+    const variantId = (v: RuwCatalogusObject, naam: string): string => {
+      const sku = v.itemVariationData?.sku ?? "";
+      return sku.startsWith(`${slug}-`) ? sku.slice(slug.length + 1) : slugifyKleur(naam);
+    };
+
     const varianten: Variant[] = heeftKleuropties
       ? variaties.map((v) => {
           const ov = v.itemVariationData?.itemOptionValues?.[0];
           const waarde = ov?.itemOptionValueId ? optieWaardeById.get(ov.itemOptionValueId) : undefined;
           const naam = waarde?.naam ?? v.itemVariationData?.name ?? "Standaard";
           return {
-            id: slugifyKleur(naam),
+            id: variantId(v, naam),
             naam,
             swatch: waarde?.hex ? `#${waarde.hex}` : "#cccccc",
             prijs: v.itemVariationData?.priceMoney?.amount
@@ -267,23 +284,42 @@ function bouwCatalogus(alle: RuwCatalogusObject[], voorraadPerId: Map<string, nu
           };
         })
       : [];
+    // Square sorteert kleuren op zijn eigen manier; houd de volgorde van de prijslijst aan.
+    if (statisch) {
+      const plek = (id: string) => {
+        const i = statisch.varianten.findIndex((x) => x.id === id);
+        return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+      };
+      varianten.sort((a, b) => plek(a.id) - plek(b.id));
+    }
 
     const eerstePrijs = variaties[0]?.itemVariationData?.priceMoney?.amount;
     const prijs = eerstePrijs ? Number(eerstePrijs) / 100 : 0;
 
     const { korteBeschrijving, beschrijving, kenmerken, specificaties } = parseDescriptionHtml(data.descriptionHtml);
 
-    const afbeeldingen = (data.imageIds ?? []).map((id) => imageUrlById.get(id)).filter((u): u is string => !!u);
+    // UKM zet geen foto's in Square. Heeft een artikel er geen, dan komen ze
+    // uit het assortiment van de prijslijsten, gekoppeld via de slug.
+    const squareFotos = (data.imageIds ?? []).map((id) => imageUrlById.get(id)).filter((u): u is string => !!u);
+    const afbeeldingen = squareFotos.length
+      ? squareFotos
+      : (statisch?.afbeeldingen ?? ["/merk/ukm-logo.jpg"]);
 
     const toegevoegdOp = item.createdAt ? item.createdAt.slice(0, 10) : new Date(nu).toISOString().slice(0, 10);
-    const isNieuwBinnen = item.createdAt
-      ? (nu - new Date(item.createdAt).getTime()) / 86_400_000 <= NIEUW_BINNEN_DAGEN
-      : false;
+    // Artikelen uit de sync-script (herkenbaar aan hun "Slug: ..."-facet) zijn
+    // allemaal op dezelfde dag aangemaakt; voor hen bepaalt het "Label:
+    // Nieuw"-facet wat nieuw is. Een artikel dat UKM zelf in Square toevoegt,
+    // telt de eerste NIEUW_BINNEN_DAGEN dagen als nieuw.
+    const uitSync = facetWaarde("Slug", categorieIds) !== undefined;
+    const isNieuwBinnen =
+      !uitSync && item.createdAt
+        ? (nu - new Date(item.createdAt).getTime()) / 86_400_000 <= NIEUW_BINNEN_DAGEN
+        : false;
 
     const labels = [...labelWaarden];
     if (isNieuwBinnen && !labels.includes("nieuw")) labels.push("nieuw");
 
-    const populariteit = labels.includes("bestseller") ? 100 : 50;
+    const populariteit = labels.includes("bestseller") ? 100 : labels.includes("nieuw") ? 70 : 50;
     // Productniveau-voorraad = som van alle Square-variaties, ook zonder
     // kleuropties (dan is er precies één variatie). Zo blijft "op
     // voorraad"-filtering (opVoorraad in producten.ts) correct ongeacht of
