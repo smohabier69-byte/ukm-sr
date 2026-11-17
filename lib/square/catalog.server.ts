@@ -272,15 +272,17 @@ function bouwCatalogus(alle: RuwCatalogusObject[], voorraadPerId: Map<string, nu
           const ov = v.itemVariationData?.itemOptionValues?.[0];
           const waarde = ov?.itemOptionValueId ? optieWaardeById.get(ov.itemOptionValueId) : undefined;
           const naam = waarde?.naam ?? v.itemVariationData?.name ?? "Standaard";
+          const id = variantId(v, naam);
           return {
-            id: variantId(v, naam),
+            id,
             naam,
             swatch: waarde?.hex ? `#${waarde.hex}` : "#cccccc",
             prijs: v.itemVariationData?.priceMoney?.amount
               ? Number(v.itemVariationData.priceMoney.amount) / 100
               : undefined,
             voorraad: variatieVoorraad(v),
-            afbeelding: imageUrlById.get(data.imageIds?.[0] ?? ""),
+            afbeelding:
+              statisch?.varianten.find((x) => x.id === id)?.afbeelding ?? imageUrlById.get(data.imageIds?.[0] ?? ""),
           };
         })
       : [];
@@ -298,12 +300,16 @@ function bouwCatalogus(alle: RuwCatalogusObject[], voorraadPerId: Map<string, nu
 
     const { korteBeschrijving, beschrijving, kenmerken, specificaties } = parseDescriptionHtml(data.descriptionHtml);
 
-    // UKM zet geen foto's in Square. Heeft een artikel er geen, dan komen ze
-    // uit het assortiment van de prijslijsten, gekoppeld via de slug.
+    // Foto's die UKM zelf in Square zet (Square-CDN) gaan voor. Staan er
+    // alleen kopieen van onze eigen bestanden (bijschrift = lokaal pad, door
+    // scripts/square-studiofotos-upload.mjs), of geen foto's, dan geldt de
+    // volledige fotoreeks uit het assortiment: studiofoto plus de foto van
+    // iemand die het product draagt, voor de hover op de productkaart.
     const squareFotos = (data.imageIds ?? []).map((id) => imageUrlById.get(id)).filter((u): u is string => !!u);
-    const afbeeldingen = squareFotos.length
+    const eigenSquareFotos = squareFotos.some((u) => !u.startsWith("/producten/"));
+    const afbeeldingen = eigenSquareFotos
       ? squareFotos
-      : (statisch?.afbeeldingen ?? ["/merk/ukm-logo.jpg"]);
+      : (statisch?.afbeeldingen ?? (squareFotos.length ? squareFotos : ["/merk/ukm-logo.jpg"]));
 
     const toegevoegdOp = item.createdAt ? item.createdAt.slice(0, 10) : new Date(nu).toISOString().slice(0, 10);
     // Artikelen uit de sync-script (herkenbaar aan hun "Slug: ..."-facet) zijn

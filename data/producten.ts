@@ -11,6 +11,7 @@ import {
   techniekprofielen,
   vormprofielen,
 } from "./catalogus/gemeenschappelijk";
+import { metStudiofotos, studiofotoVariant } from "./catalogus/studiofotos";
 
 /**
  * Het assortiment uit de prijslijsten van november 2026, als kant-en-klare
@@ -63,7 +64,7 @@ function maakBril(invoer: BrilInvoer): Product {
     naam: v.naam,
     swatch: v.swatch,
     voorraad: v.uitverkocht ? 0 : BESTELBAAR,
-    afbeelding: v.afbeelding,
+    afbeelding: studiofotoVariant(invoer.slug, v.id) ?? v.afbeelding,
   }));
   const voorraad = varianten.length
     ? varianten.reduce((totaal, v) => totaal + v.voorraad, 0)
@@ -94,7 +95,7 @@ function maakBril(invoer: BrilInvoer): Product {
     merk: brilMerk(invoer),
     prijs: invoer.prijs,
     vanPrijs: invoer.vanPrijs,
-    afbeeldingen: invoer.afbeeldingen,
+    afbeeldingen: metStudiofotos(invoer.slug, invoer.afbeeldingen),
     korteBeschrijving: invoer.intro,
     beschrijving,
     kenmerken: [
@@ -148,7 +149,7 @@ function maakLens(invoer: LensInvoer): Product {
     merk: opSterkte ? "ukm-vision" : "ukm-soft-lenses",
     prijs: invoer.prijs,
     vanPrijs: invoer.vanPrijs,
-    afbeeldingen: invoer.afbeeldingen,
+    afbeeldingen: metStudiofotos(invoer.slug, invoer.afbeeldingen),
     korteBeschrijving: invoer.intro,
     beschrijving,
     kenmerken: [
