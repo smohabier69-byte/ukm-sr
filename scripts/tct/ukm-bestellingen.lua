@@ -3,7 +3,8 @@
 -- @global: true
 
 --[[
-  Stuurt bestellingen van ukm-sr.com automatisch door naar een WhatsApp-nummer.
+  Stuurt bestellingen van ukm-sr.com automatisch door naar een WhatsApp-nummer
+  of een WhatsApp-groep.
 
   Elke minuut haalt deze plugin de nieuwe bestellingen op bij de website,
   stuurt elke bestelling als bericht naar het ingestelde nummer en meldt
@@ -11,12 +12,14 @@
   blijven de bestellingen op de website staan en komen ze door zodra de bot
   weer draait.
 
-  Instellen (alleen de eigenaar van de bot, in een privechat met de bot):
+  Instellen (alleen de eigenaar van de bot):
     .ukmbestel sleutel <sleutel>   de geheime sleutel; staat ook op Vercel als
                                    BESTELLING_BOT_SLEUTEL. Het bericht met de
                                    sleutel wordt meteen verwijderd.
     .ukmbestel nummer 597xxxxxxx   naar dit nummer gaan de bestellingen
-    .ukmbestel test                stuurt een testbericht naar dat nummer
+    .ukmbestel hier                typ dit in een groep (waar het botnummer lid
+                                   van is): de bestellingen gaan dan naar die groep
+    .ukmbestel test                stuurt een testbericht naar nummer of groep
     .ukmbestel status              toont de instellingen en de laatste controle
     .ukmbestel uit / .ukmbestel aan  pauzeren en hervatten
 ]]
@@ -30,6 +33,8 @@ local function instelling(sleutel)
 end
 
 local function naar_jid(nummer)
+  -- Een groep (of ander volledig adres) staat al als JID opgeslagen.
+  if nummer and string.find(nummer, "@", 1, true) then return nummer end
   local cijfers = string.gsub(nummer or "", "%D", "")
   if cijfers == "" then return nil end
   -- Lokale Surinaamse nummers (7 cijfers) krijgen de landcode 597.
@@ -99,10 +104,13 @@ function on_message(msg)
     end
     bot.plugin_store("nummer", waarde)
     bot.send_message(msg.chat, "Bestellingen gaan nu naar " .. jid)
+  elseif actie == "hier" then
+    bot.plugin_store("nummer", msg.chat)
+    bot.send_message(msg.chat, "Nieuwe bestellingen van ukm-sr.com komen voortaan in deze chat binnen.")
   elseif actie == "test" then
     local jid = naar_jid(instelling("nummer"))
     if not jid then
-      bot.send_message(msg.chat, "Stel eerst een nummer in: .ukmbestel nummer 597xxxxxxx")
+      bot.send_message(msg.chat, "Stel eerst een bestemming in: .ukmbestel nummer 597xxxxxxx, of typ .ukmbestel hier in de groep")
       return
     end
     bot.send_message(jid, "Test van de UKM-bestellingenbot. Nieuwe bestellingen van ukm-sr.com komen in deze chat binnen.")
@@ -118,7 +126,7 @@ function on_message(msg)
     local regels = {
       "*UKM bestellingen*",
       "Sleutel: " .. (sleutel and "ingesteld" or "ontbreekt (.ukmbestel sleutel <sleutel>)"),
-      "Nummer: " .. (instelling("nummer") or "ontbreekt (.ukmbestel nummer 597xxxxxxx)"),
+      "Bestemming: " .. (instelling("nummer") or "ontbreekt (.ukmbestel nummer 597xxxxxxx of .ukmbestel hier in een groep)"),
       "Status: " .. (instelling("uit") == "1" and "gepauzeerd" or "aan"),
       "Laatste controle: " .. (instelling("laatste") or "nog niet"),
     }
