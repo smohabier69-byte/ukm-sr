@@ -326,6 +326,13 @@ function bouwCatalogus(alle: RuwCatalogusObject[], voorraadPerId: Map<string, nu
     // het product varianten toont.
     const voorraad = variaties.reduce((totaal, v) => totaal + variatieVoorraad(v), 0);
 
+    // Bijna op: alleen als UKM voor elke kleur een aantal bijhoudt in Square
+    // (anders telt een kleur zonder telling als onbeperkt). Toont "Nog X op
+    // voorraad" op de productkaart.
+    const allesGeteld = variaties.length > 0 && variaties.every((v) => v.itemVariationData?.trackInventory);
+    if (allesGeteld && voorraad > 0 && voorraad <= 4) labels.push("bijna-uitverkocht");
+    if (voorraad === 0 && !labels.includes("uitverkocht")) labels.push("uitverkocht");
+
     producten.push({
       id: item.id,
       slug,
