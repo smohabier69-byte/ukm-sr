@@ -134,7 +134,8 @@ export const lenzenInvoer: LensInvoer[] = [
     sterktebereik: ZONDER,
     kleur: "grijs",
     code: "L-005",
-    afbeeldingen: [l("p037-1"), l("p034-6"), l("p034-5")],
+    // Beide foto's zijn gekanteld gemaakt; rechtop gezet en staand bijgesneden.
+    afbeeldingen: [l("p037-1"), l("p034-5")],
     pagina: "34, 37",
     intro: "Lichtgrijs met een bruine kern, de meest uitgesproken lens uit de lijst.",
   },
