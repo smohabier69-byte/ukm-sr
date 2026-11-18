@@ -29,7 +29,8 @@ export function Galerij({
   const [zoomt, setZoomt] = React.useState(false);
   const [oorsprong, setOorsprong] = React.useState("50% 50%");
 
-  const volg = (e: React.MouseEvent<HTMLDivElement>) => {
+  const volg = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== "mouse") return;
     const vlak = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - vlak.left) / vlak.width) * 100;
     const y = ((e.clientY - vlak.top) / vlak.height) * 100;
@@ -70,10 +71,10 @@ export function Galerij({
 
       <div className="relative min-w-0 flex-1">
         <div
-          onMouseEnter={() => setZoomt(true)}
-          onMouseLeave={() => setZoomt(false)}
-          onMouseMove={volg}
-          className="group relative aspect-[3/4] cursor-zoom-in overflow-hidden rounded-3xl bg-creme-diep"
+          onPointerEnter={(e) => setZoomt(e.pointerType === "mouse")}
+          onPointerLeave={() => setZoomt(false)}
+          onPointerMove={volg}
+          className="group relative aspect-[3/4] overflow-hidden lg:cursor-zoom-in rounded-3xl bg-creme-diep"
         >
           <AnimatePresence initial={false} mode="wait">
             <motion.div
