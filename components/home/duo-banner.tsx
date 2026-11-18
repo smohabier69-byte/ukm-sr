@@ -14,6 +14,8 @@ const banners = [
     titel: "Lezen zonder turen",
     tekst: "Leesbrillen met blauwlichtfilter in +1.5, +2.0, +2.5 en +3.0. Van randloos tot cat eye.",
     foto: "/producten/nov26/lees/lees-p004-1.webp",
+    // Brede uitsnede op de telefoon: de bril (halverwege de foto) in beeld houden, niet het voorhoofd.
+    positie: "50% 46%",
     vlak: "bg-boter-100",
   },
   {
@@ -22,6 +24,7 @@ const banners = [
     titel: "Ook voor hem",
     tekst: "PTC-monturen die buiten vanzelf donker kleuren, en de Night Vision-rijbril voor in het donker.",
     foto: "/producten/nov26/heren/heren-p007-1.webp",
+    positie: undefined,
     vlak: "bg-salie-100",
   },
 ] as const;
@@ -65,7 +68,7 @@ export async function DuoBanner() {
                   alt=""
                   fill
                   sizes="(min-width: 1024px) 25vw, (min-width: 640px) 45vw, 100vw"
-                  style={fotoStijl(banner.foto)}
+                  style={banner.positie ? { objectPosition: banner.positie } : fotoStijl(banner.foto)}
                   className="object-cover transition-transform duration-[1200ms] ease-[var(--ease-uit)] group-hover:scale-105"
                 />
                 <Zegel className="absolute top-5 left-5 size-[4.75rem] sm:-left-9">
