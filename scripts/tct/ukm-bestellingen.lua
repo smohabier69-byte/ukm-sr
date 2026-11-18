@@ -25,9 +25,11 @@
 ]]
 
 local WEBSITE = "https://ukm-sr.com"
+local WEBSITE_KEY = "" -- production injects the key into its private runtime file
 
 local function instelling(sleutel)
   local waarde = bot.plugin_fetch(sleutel)
+  if (waarde == nil or waarde == "") and sleutel == "sleutel" then return WEBSITE_KEY end
   if waarde == nil or waarde == "" then return nil end
   return waarde
 end
@@ -43,7 +45,7 @@ local function naar_jid(nummer)
 end
 
 local function mag_instellen(msg)
-  return msg.is_from_me or bot.is_owner(msg.sender) or bot.is_sudo(msg.sender)
+  return msg.is_from_me or bot.is_owner(msg.sender)
 end
 
 local function haal_en_stuur_door()
@@ -51,17 +53,26 @@ local function haal_en_stuur_door()
   local jid = naar_jid(instelling("nummer"))
   if not sleutel or not jid then return 0, "niet ingesteld" end
 
+  local lease = tonumber(instelling("lease")) or 0
+  if lease > bot.get_time_ms() then return 0, "controle loopt al" end
+  bot.plugin_store("lease", tostring(bot.get_time_ms() + 50000))
   local headers = { ["Authorization"] = "Bearer " .. sleutel }
-  local code, body, err = bot.http_request(WEBSITE .. "/api/bestellingen/openstaand", "GET", headers, nil)
+  local code, body, err = bot.http_request(WEBSITE .. "/api/bestellingen/openstaand", "GET", headers, "")
   if err ~= nil and err ~= "" then return 0, "website niet bereikbaar: " .. tostring(err) end
   if code ~= 200 then return 0, "website gaf status " .. tostring(code) end
 
   local data = bot.json_decode(body)
-  if data == nil or data.bestellingen == nil then return 0, "onleesbaar antwoord" end
+  if type(data) ~= "table" or type(data.bestellingen) ~= "table" or #data.bestellingen > 10 then return 0, "onleesbaar antwoord" end
 
   local afgeleverd = {}
   for _, bestelling in ipairs(data.bestellingen) do
-    bot.send_message(jid, bestelling.bericht)
+    if type(bestelling) ~= "table" or type(bestelling.bestelnummer) ~= "string" or #bestelling.bestelnummer > 40 or type(bestelling.bericht) ~= "string" or #bestelling.bericht > 16000 or bestelling.bericht == "" then return 0, "ongeldige bestelling" end
+    local marker = "verzonden:" .. bestelling.bestelnummer
+    if not instelling(marker) then
+      local verzonden = bot.send_message(jid, bestelling.bericht)
+      if verzonden == false then return 0, "WhatsApp verzenden mislukt" end
+      bot.plugin_store(marker, tostring(bot.get_time_ms()))
+    end
     table.insert(afgeleverd, bestelling.bestelnummer)
   end
 
@@ -74,6 +85,7 @@ local function haal_en_stuur_door()
       bot.log_warn("UKM bestellingen: afmelden mislukt (" .. tostring(mcode) .. " " .. tostring(merr) .. ")")
     end
   end
+  bot.plugin_store("lease", "")
   return #afgeleverd, nil
 end
 
@@ -94,7 +106,7 @@ function on_message(msg)
   if actie == "sleutel" and waarde then
     bot.plugin_store("sleutel", waarde)
     -- De sleutel hoort niet in de chatgeschiedenis te blijven staan.
-    pcall(function() msg.delete() end)
+    msg.delete()
     bot.send_message(msg.chat, "Sleutel opgeslagen.")
   elseif actie == "nummer" and waarde then
     local jid = naar_jid(waarde)
@@ -105,6 +117,11 @@ function on_message(msg)
     bot.plugin_store("nummer", waarde)
     bot.send_message(msg.chat, "Bestellingen gaan nu naar " .. jid)
   elseif actie == "hier" then
+    if not msg.is_group or not msg.chat:match("@g%.us$") then
+      bot.send_message(msg.chat, "Stuur .ukmbestel hier in de groep website bestelling.")
+      return
+    end
+    bot.plugin_store("uit", "")
     bot.plugin_store("nummer", msg.chat)
     bot.send_message(msg.chat, "Nieuwe bestellingen van ukm-sr.com komen voortaan in deze chat binnen.")
   elseif actie == "test" then
