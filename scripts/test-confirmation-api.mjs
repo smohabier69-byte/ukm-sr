@@ -26,4 +26,3 @@ assert.ok(JSON.stringify(test.__where).includes('status'));
 assert.equal((await api.GET(new Request('https://test/api?na=malicious'))).status,400);count++;
 test.__dbRows=[];const page=await (await api.GET(new Request('https://test/api'))).json();assert.deepEqual(page,{bestellingen:[],volgende:''});count++;
 console.log(JSON.stringify({apiChecks:count,database:'isolated',realOrders:0}));
-

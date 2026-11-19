@@ -26,7 +26,7 @@ export async function GET(request: Request) {
   if (cursor && !/^UKM-\d{6}-\d{4}$/.test(cursor)) return NextResponse.json({ fout: "Ongeldige cursor" }, { status: 400 });
   const rows = await db.select({ bestelnummer: bestellingen.bestelnummer, bericht: bestellingen.bericht, gegevens: bestellingen.gegevens })
     .from(bestellingen)
-    .where(and(isNull(bestellingen.afgeleverdOp), sql`${bestellingen.gegevens}->'bevestiging'->>'versie' = '1'`, cursor ? gt(bestellingen.bestelnummer, cursor) : undefined))
+    .where(and(isNull(bestellingen.afgeleverdOp), sql`${bestellingen.gegevens}->'bevestiging'->>'versie' = '1'`, sql`${bestellingen.gegevens}->'bevestiging'->>'status' IN ('wacht_op_bot', 'wacht_op_klant', 'bevestigd')`, cursor ? gt(bestellingen.bestelnummer, cursor) : undefined))
     .orderBy(asc(bestellingen.bestelnummer)).limit(1);
   return NextResponse.json({ bestellingen: rows, volgende: rows.at(-1)?.bestelnummer ?? "" });
 }
