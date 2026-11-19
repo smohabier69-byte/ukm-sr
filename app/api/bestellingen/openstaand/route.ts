@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { asc, isNull } from "drizzle-orm";
+import { and, asc, isNull, sql } from "drizzle-orm";
 
 import { db } from "@/lib/db/client";
 import { bestellingen } from "@/lib/db/schema";
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   const open = await db
     .select({ bestelnummer: bestellingen.bestelnummer, bericht: bestellingen.bericht })
     .from(bestellingen)
-    .where(isNull(bestellingen.afgeleverdOp))
+    .where(and(isNull(bestellingen.afgeleverdOp), sql`${bestellingen.gegevens}->'bevestiging' IS NULL`))
     .orderBy(asc(bestellingen.aangemaaktOp))
     .limit(10);
 

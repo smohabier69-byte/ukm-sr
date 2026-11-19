@@ -7,25 +7,25 @@ const bodySchema = z.object({
   regels: z
     .array(
       z.object({
-        slug: z.string().min(1),
-        variantId: z.string().optional(),
+        slug: z.string().min(1).max(150),
+        variantId: z.string().max(150).optional(),
         aantal: z.number().int().min(1).max(10),
       }),
     )
-    .min(1),
+    .min(1).max(20),
   contact: z.object({
-    voornaam: z.string().min(1),
-    achternaam: z.string().min(1),
-    telefoon: z.string().min(1),
-    email: z.string().email(),
+    voornaam: z.string().min(1).max(160),
+    achternaam: z.string().min(1).max(160),
+    telefoon: z.string().min(7).max(25).refine((v) => /^(?:597\d{7}|\d{7}|[1-9]\d{7,14})$/.test(v.replace(/[^0-9]/g, "").replace(/^00/, "")), "Vul een geldig WhatsApp-nummer in"),
+    email: z.string().max(254).email(),
   }),
   bezorgwijze: z.enum(["bezorgen", "afhalen"]),
   adres: z
     .object({
-      straat: z.string().min(1),
-      wijk: z.string().optional(),
-      plaats: z.string().min(1),
-      opmerking: z.string().optional(),
+      straat: z.string().min(1).max(160),
+      wijk: z.string().max(160).optional(),
+      plaats: z.string().min(1).max(160),
+      opmerking: z.string().max(500).optional(),
     })
     .optional(),
   // Online betalen via Square staat uit tot de nieuwe Square-account gekoppeld is.

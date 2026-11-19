@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { and, inArray, isNull } from "drizzle-orm";
+import { and, inArray, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "@/lib/db/client";
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
   const bijgewerkt = await db
     .update(bestellingen)
     .set({ afgeleverdOp: new Date() })
-    .where(and(inArray(bestellingen.bestelnummer, ingevoerd.data.bestelnummers), isNull(bestellingen.afgeleverdOp)))
+    .where(and(inArray(bestellingen.bestelnummer, ingevoerd.data.bestelnummers), isNull(bestellingen.afgeleverdOp), sql`(${bestellingen.gegevens}->'bevestiging' IS NULL OR ${bestellingen.gegevens}->'bevestiging'->>'status' = 'bevestigd')`))
     .returning({ bestelnummer: bestellingen.bestelnummer });
 
   return NextResponse.json({ afgeleverd: bijgewerkt.map((b) => b.bestelnummer) });

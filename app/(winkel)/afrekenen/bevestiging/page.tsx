@@ -68,10 +68,12 @@ function Bevestiging({ bestelling }: { bestelling: GeplaatsteBestelling }) {
             <CheckCircle2 className="size-8" />
           </span>
           <p className="mt-6 text-salie-600 bovenschrift">Bestelnummer {bestelling.bestelnummer}</p>
-          <h1 className="mt-2 font-display text-2xl font-bold sm:text-3xl">Bedankt, we hebben je bestelling</h1>
+          <h1 className="mt-2 font-display text-2xl font-bold sm:text-3xl">Nog één stap: bevestig via WhatsApp</h1>
           <p className="mt-4 leading-relaxed text-inkt-zacht">
-            {bedrijf.naam} neemt zo snel mogelijk contact met je op via WhatsApp om{" "}
-            {bezorgen ? "de bezorgkosten en de levering" : "het afhalen"} af te spreken.
+            Je ontvangt via WhatsApp de catalogusfoto’s en het overzicht van je gekozen artikelen.
+            Controleer deze en antwoord ja als alles klopt. Daarna ontvangt UKM je bevestigde aanvraag en
+            bespreken we {bezorgen ? "de bezorgkosten en de levering" : "het afhalen"}.
+            Geen WhatsApp ontvangen? App ons met je bestelnummer.
           </p>
           <Button asChild size="lg" variant="outline" className="mt-7">
             <a href={bestelling.whatsappUrl} target="_blank" rel="noreferrer noopener">

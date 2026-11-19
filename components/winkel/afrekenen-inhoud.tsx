@@ -255,8 +255,8 @@ export function AfrekenenInhoud() {
 
           <p className="mt-4 flex items-start gap-2 text-xs leading-relaxed text-inkt-zacht">
             <MessageCircle className="mt-0.5 size-3.5 shrink-0 text-salie-600" />
-            Je bestelling gaat via WhatsApp naar {bedrijf.naam}. Daar bevestigen we de bezorgkosten en spreken we de
-            levering af.
+            Je ontvangt de productfoto’s op het ingevulde WhatsApp-nummer. Bevestig daar je gekozen artikelen;
+            daarna gaat je aanvraag naar {bedrijf.naam}. UKM bevestigt de beschikbaarheid en levering.
           </p>
         </div>
       </aside>

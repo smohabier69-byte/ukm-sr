@@ -1,4 +1,5 @@
 import "server-only";
+import { catalogusfoto } from "@/lib/winkel/catalogusfoto";
 
 import { catalogus } from "@/lib/square/catalog.server";
 import { db } from "@/lib/db/client";
@@ -33,6 +34,9 @@ export interface BestellingInvoer {
 }
 
 export interface BestellingRegel {
+  slug: string;
+  variantId?: string;
+  foto?: string;
   naam: string;
   uitvoering?: string;
   aantal: number;
@@ -108,6 +112,12 @@ export function botGekoppeld(): boolean {
 
 export async function plaatsBestelling(invoer: BestellingInvoer): Promise<GeplaatsteBestelling> {
   const { producten } = await catalogus();
+  for (const r of invoer.regels) {
+    const product = producten.find((p) => p.slug === r.slug);
+    if (!product || (r.variantId && !product.varianten.some((v) => v.id === r.variantId)) || (product.varianten.length > 0 && !r.variantId)) {
+      throw new BestellingFout("Kies voor elk artikel een geldige uitvoering.");
+    }
+  }
   const posten = bouwPosten(
     invoer.regels.map((r) => ({ ...r, aantal: Math.max(1, Math.min(10, Math.round(r.aantal))) })),
     producten,
@@ -123,6 +133,9 @@ export async function plaatsBestelling(invoer: BestellingInvoer): Promise<Geplaa
 
   const kosten = berekenKosten(posten, invoer.kortingscode ?? null, invoer.bezorgwijze);
   const regels: BestellingRegel[] = posten.map((p) => ({
+    slug: p.product.slug,
+    variantId: p.variant?.id,
+    foto: catalogusfoto(p.product.slug, p.variant?.id),
     naam: p.product.naam,
     uitvoering: p.variant?.naam,
     aantal: p.regel.aantal,
@@ -140,6 +153,7 @@ export async function plaatsBestelling(invoer: BestellingInvoer): Promise<Geplaa
       bestelnummer,
       bericht,
       gegevens: {
+        bevestiging: { versie: 1, status: "wacht_op_bot" },
         regels,
         kosten,
         contact: invoer.contact,
