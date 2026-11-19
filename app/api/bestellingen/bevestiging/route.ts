@@ -22,11 +22,17 @@ function digits(value: string) {
 export async function GET(request: Request) {
   const denied = controleerBotToegang(request);
   if (denied) return denied;
-  const cursor = new URL(request.url).searchParams.get("na") ?? "";
+  const params = new URL(request.url).searchParams;
+  const cursor = params.get("na") ?? "";
+  const telefoon = params.get("telefoon");
+  if (telefoon && !/^[1-9]\d{7,14}$/.test(telefoon)) return NextResponse.json({ fout: "Ongeldig telefoonnummer" }, { status: 400 });
+  // Authenticated lookup only. Never expose other customers' orders to a chat.
+  const storedDigits = sql`regexp_replace(regexp_replace(${bestellingen.gegevens}->'contact'->>'telefoon', '[^0-9]', '', 'g'), '^00', '')`;
+  const phoneFilter = telefoon ? sql`(CASE WHEN length(${storedDigits}) = 7 THEN '597' || ${storedDigits} ELSE ${storedDigits} END) = ${telefoon}` : undefined;
   if (cursor && !/^UKM-\d{6}-\d{4}$/.test(cursor)) return NextResponse.json({ fout: "Ongeldige cursor" }, { status: 400 });
   const rows = await db.select({ bestelnummer: bestellingen.bestelnummer, bericht: bestellingen.bericht, gegevens: bestellingen.gegevens })
     .from(bestellingen)
-    .where(and(isNull(bestellingen.afgeleverdOp), sql`${bestellingen.gegevens}->'bevestiging'->>'versie' = '1'`, sql`${bestellingen.gegevens}->'bevestiging'->>'status' IN ('wacht_op_bot', 'wacht_op_klant', 'bevestigd')`, cursor ? gt(bestellingen.bestelnummer, cursor) : undefined))
+    .where(and(isNull(bestellingen.afgeleverdOp), sql`${bestellingen.gegevens}->'bevestiging'->>'versie' = '1'`, sql`${bestellingen.gegevens}->'bevestiging'->>'status' IN ('wacht_op_bot', 'wacht_op_klant', 'bevestigd')`, cursor ? gt(bestellingen.bestelnummer, cursor) : undefined, phoneFilter))
     .orderBy(asc(bestellingen.bestelnummer)).limit(1);
   return NextResponse.json({ bestellingen: rows, volgende: rows.at(-1)?.bestelnummer ?? "" });
 }

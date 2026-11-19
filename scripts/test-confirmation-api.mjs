@@ -25,4 +25,6 @@ row('wacht_op_klant');test.__race=true;await post('bevestigd',409);test.__race=f
 assert.ok(JSON.stringify(test.__where).includes('status'));
 assert.equal((await api.GET(new Request('https://test/api?na=malicious'))).status,400);count++;
 test.__dbRows=[];const page=await (await api.GET(new Request('https://test/api'))).json();assert.deepEqual(page,{bestellingen:[],volgende:''});count++;
+assert.equal((await api.GET(new Request('https://test/api?telefoon=bad'))).status,400);count++;
+await api.GET(new Request('https://test/api?telefoon=5978765432'));assert.ok(JSON.stringify(test.__where).includes('5978765432'));count++;
 console.log(JSON.stringify({apiChecks:count,database:'isolated',realOrders:0}));
