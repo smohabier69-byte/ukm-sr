@@ -86,9 +86,7 @@ const handmatig = {
   "/producten/nov26/herennov/herennov-nv-goud.webp": "50% 50%",
   "/producten/nov26/herennov/herennov-nv-zwart.webp": "50% 50%",
   "/producten/nov26/herennov/herennov-nv-polarized.webp": "50% 50%",
-  "/producten/nov26/herennov/herennov-nv-model.webp": "50% 30%",
   "/producten/nov26/herennov/herennov-p015-1.webp": "50% 50%",
-  "/producten/nov26/herennov/herennov-p016-1.webp": "50% 50%",
   "/producten/nov26/herennov/herennov-p017-1.webp": "50% 50%",
   // Liggende close-ups van een montuur: midden houden, anders valt een glas weg.
   "/producten/nov26/dames/dames-p015-1.webp": "50% 50%",

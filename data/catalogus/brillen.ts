@@ -537,7 +537,7 @@ export const brillenInvoer: BrilInvoer[] = [
     techniek: "nachtzicht",
     vorm: "aviator",
     kleur: "Pilotenmontuur met geel Night Vision-glas",
-    afbeeldingen: [hn("nv-model"), hn("nv-goud"), hn("nv-zwart"), hn("nv-polarized"), hn("p015-1"), hn("p016-1"), hn("p017-1")],
+    afbeeldingen: [hn("nv-goud"), hn("nv-zwart"), hn("nv-polarized"), hn("p015-1"), hn("p017-1")],
     varianten: [
       { id: "goud", naam: "Goud", swatch: "#c79a3a", afbeelding: hn("nv-goud") },
       { id: "zwart", naam: "Zwart", swatch: "#1b1b1b", afbeelding: hn("nv-zwart") },

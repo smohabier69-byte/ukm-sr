@@ -214,6 +214,7 @@ export const studiofotos: Record<string, Studiofotos> = {
   "night-vision-driving-glasses": {
     fotos: [s("men/night-vision-driving-glasses-gold"), s("men/night-vision-driving-glasses-black")],
     varianten: { goud: s("men/night-vision-driving-glasses-gold"), zwart: s("men/night-vision-driving-glasses-black") },
+    hover: false,
   },
 
   // Leesbrillen
